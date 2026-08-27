@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PT Accounting System</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">PT</div>
+            <div>
+                <strong>PT Accounting</strong>
+                <small>Business System</small>
+            </div>
+        </div>
+
+        <nav>
+
+            <button class="nav-item active" data-page="dashboard">
+                🏠 <span>Dashboard</span>
+            </button>
+
+            <div class="nav-title">MASTERS</div>
+
+            <button class="nav-item" data-page="accounts">
+                📚 <span>Chart of Accounts</span>
+            </button>
+
+            <button class="nav-item" data-page="customers">
+                👥 <span>Customers</span>
+            </button>
+
+            <button class="nav-item" data-page="suppliers">
+                🏢 <span>Suppliers</span>
+            </button>
+
+            <button class="nav-item" data-page="products">
+                📦 <span>Products & Inventory</span>
+            </button>
+
+            <div class="nav-title">TRANSACTIONS</div>
+
+            <button class="nav-item" data-page="sales">
+                🧾 <span>Sales Invoices</span>
+            </button>
+
+            <button class="nav-item" data-page="purchases">
+                🛒 <span>Purchase Invoices</span>
+            </button>
+
+            <button class="nav-item" data-page="receipts">
+                💵 <span>Receipts</span>
+            </button>
+
+            <button class="nav-item" data-page="payments">
+                💸 <span>Payments</span>
+            </button>
+
+            <button class="nav-item" data-page="journal">
+                📒 <span>Journal Entries</span>
+            </button>
+
+            <div class="nav-title">REPORTS</div>
+
+            <button class="nav-item" data-page="ledger">
+                📖 <span>General Ledger</span>
+            </button>
+
+            <button class="nav-item" data-page="trial">
+                ⚖️ <span>Trial Balance</span>
+            </button>
+
+            <button class="nav-item" data-page="profit-loss">
+                📈 <span>Profit & Loss</span>
+            </button>
+
+            <button class="nav-item" data-page="balance-sheet">
+                🏦 <span>Balance Sheet</span>
+            </button>
+
+            <div class="nav-title">SYSTEM</div>
+
+            <button class="nav-item" data-page="settings">
+                ⚙️ <span>Settings</span>
+            </button>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN AREA -->
+    <main class="main">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+
+            <button id="menuButton" class="menu-button">
+                ☰
+            </button>
+
+            <div>
+                <h1 id="pageTitle">Dashboard</h1>
+                <p id="pageSubtitle">
+                    Overview of your accounting system
+                </p>
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+        <div class="content" id="content">
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
