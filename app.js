@@ -1515,7 +1515,34 @@ function saveAccount() {
 
 }
 
+
+function addDemoAccount() {
+
     const name = prompt("Account name:");
+
+    if (!name) return;
+
+    const code = prompt("Account code:");
+
+    if (!code) return;
+
+    appData.accounts.push({
+
+        code: code,
+
+        name: name,
+
+        type: "Asset",
+
+        balance: 0
+
+    });
+
+    saveData();
+
+    showPage("accounts");
+
+}
 
     if (!name) return;
 
