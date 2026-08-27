@@ -380,13 +380,74 @@ function accountsPage() {
 
         </div>
 
-
         <div class="panel">
 
-            <button class="btn btn-primary"
-                onclick="addDemoAccount()">
+            <h3>Add New Account</h3>
 
-                + Add Account
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Code</label>
+
+                    <input
+                        type="text"
+                        id="accountCode"
+                        placeholder="e.g. 1000"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Account Name</label>
+
+                    <input
+                        type="text"
+                        id="accountName"
+                        placeholder="e.g. Cash"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Account Type</label>
+
+                    <select id="accountType">
+
+                        <option value="Asset">Asset</option>
+                        <option value="Liability">Liability</option>
+                        <option value="Equity">Equity</option>
+                        <option value="Revenue">Revenue</option>
+                        <option value="Expense">Expense</option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Balance</label>
+
+                    <input
+                        type="number"
+                        id="accountBalance"
+                        value="0"
+                        step="0.01"
+                    >
+
+                </div>
+
+            </div>
+
+            <br>
+
+            <button
+                class="btn btn-primary"
+                onclick="saveAccount()">
+
+                Save Account
 
             </button>
 
@@ -404,11 +465,8 @@ function accountsPage() {
                         <tr>
 
                             <th>Code</th>
-
                             <th>Account Name</th>
-
                             <th>Account Type</th>
-
                             <th>Balance</th>
 
                         </tr>
