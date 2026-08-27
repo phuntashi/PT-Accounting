@@ -1516,7 +1516,46 @@ function settingsPage() {
    DEMO / DATA FUNCTIONS
    -------------------------------------------- */
 
-function addDemoAccount() {
+function saveAccount() {
+
+    const code =
+        document.getElementById("accountCode").value.trim();
+
+    const name =
+        document.getElementById("accountName").value.trim();
+
+    const type =
+        document.getElementById("accountType").value;
+
+    const balance =
+        Number(document.getElementById("accountBalance").value || 0);
+
+    if (!code) {
+        alert("Please enter an account code.");
+        return;
+    }
+
+    if (!name) {
+        alert("Please enter an account name.");
+        return;
+    }
+
+    appData.accounts.push({
+
+        code: code,
+        name: name,
+        type: type,
+        balance: balance
+
+    });
+
+    saveData();
+
+    alert("Account saved successfully.");
+
+    showPage("accounts");
+
+}
 
     const name = prompt("Account name:");
 
