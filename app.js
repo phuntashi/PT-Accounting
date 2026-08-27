@@ -368,7 +368,7 @@ function dashboardPage() {
 
 function accountsPage() {
 
-    return `
+    return 
 
         <div class="page-header">
 
