@@ -3115,95 +3115,109 @@ function addPurchase() {
 
 function addReceipt() {
 
-    const from =
-        prompt("Received from:");
+```
+const from =
+    prompt("Received from:");
 
+if (
+    !from ||
+    !from.trim()
+) {
+    return;
+}
 
-    if (
-        !from ||
-        !from.trim()
-    ) {
+const account =
+    prompt(
+        "Receipt account:",
+        "Cash"
+    ) || "Cash";
 
-        return;
-
-    }
-
-
-    const account =
-        prompt(
-            "Receipt account:",
-            "Cash"
-        ) || "Cash";
-
-
-    const amount =
-        Number(
-            prompt("Amount received:") || 0
-        );
-
-
-    if (amount <= 0) {
-
-        alert(
-            "Amount must be greater than zero."
-        );
-
-        return;
-
-    }
-
-
-    const reference =
-        generateNumber("REC");
-
-
-    appData.receipts.push({
-
-        id: generateNumber("RECEIPT"),
-
-        date: today(),
-
-        reference: reference,
-
-        from: from.trim(),
-
-        account: account.trim(),
-
-        amount: amount
-
-    });
-
-
-    createJournalEntry({
-
-        date: today(),
-
-        reference: reference,
-
-        description:
-            "Receipt from " +
-            from.trim(),
-
-        account: account.trim(),
-
-        debit: amount,
-
-        credit: 0
-
-    });
-
-
-    saveData();
-
-
-    alert(
-        "Receipt " +
-        reference +
-        " recorded successfully."
+const amount =
+    Number(
+        prompt("Amount received:") || 0
     );
 
+if (amount <= 0) {
 
-    showPage("receipts");
+    alert(
+        "Amount must be greater than zero."
+    );
+
+    return;
+}
+
+const reference =
+    generateNumber("REC");
+
+appData.receipts.push({
+
+    id: generateNumber("RECEIPT"),
+
+    date: today(),
+
+    reference: reference,
+
+    from: from.trim(),
+
+    account: account.trim(),
+
+    amount: amount
+
+});
+
+/*
+ * DOUBLE-ENTRY ACCOUNTING
+ *
+ * Debit  = Cash / Bank
+ * Credit = Accounts Receivable
+ */
+
+createJournalEntry({
+
+    date: today(),
+
+    reference: reference,
+
+    description:
+        "Receipt from " +
+        from.trim(),
+
+    account: account.trim(),
+
+    debit: amount,
+
+    credit: 0
+
+});
+
+createJournalEntry({
+
+    date: today(),
+
+    reference: reference,
+
+    description:
+        "Receipt from " +
+        from.trim(),
+
+    account: "Accounts Receivable",
+
+    debit: 0,
+
+    credit: amount
+
+});
+
+saveData();
+
+alert(
+    "Receipt " +
+    reference +
+    " recorded successfully."
+);
+
+showPage("receipts");
+```
 
 }
 
