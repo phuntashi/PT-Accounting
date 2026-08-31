@@ -3199,14 +3199,33 @@ function addPurchase() {
 
 }
 
+function createJournalEntry(entry) {
 
+    appData.journalEntries.push({
+
+        id: generateNumber("JOURNAL"),
+
+        date: entry.date || today(),
+
+        reference: entry.reference || generateNumber("JE"),
+
+        description: entry.description || "",
+
+        account: entry.account || "",
+
+        debit: Number(entry.debit || 0),
+
+        credit: Number(entry.credit || 0)
+
+    });
+
+}
 /* =========================================================
    ADD RECEIPT
    ========================================================= */
 
 function addReceipt() {
 
-```
 const from =
     prompt("Received from:");
 
@@ -3308,8 +3327,6 @@ alert(
 );
 
 showPage("receipts");
-```
-
 }
 
 
@@ -3319,7 +3336,6 @@ showPage("receipts");
 
 function addPayment() {
 
-```
 const to =
     prompt("Paid to:");
 
@@ -3421,8 +3437,6 @@ alert(
 );
 
 showPage("payments");
-```
-
 }
 
 
