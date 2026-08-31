@@ -1,7 +1,8 @@
+```javascript
 /* ============================================
    PT ACCOUNTING SYSTEM
    Standalone Web Application
-   Complete app.js  (corrected)
+   Complete app.js
    ============================================ */
 
 
@@ -1900,10 +1901,7 @@ function profitLossPage() {
 
     const sales = calculateSales();
 
-    // FIX: use the same COGS-with-purchases-fallback logic as
-    // calculateProfit(), so the P&L page and the Dashboard card
-    // always agree on Gross Profit / Net Profit.
-    const cogs = calculateActualCOGS();
+    const cogs = calculateCOGS();
 
     const expenses = calculateExpenses();
 
@@ -2290,16 +2288,6 @@ function saveAccount() {
     }
 
 
-    // FIX: guard against non-numeric opening balance input.
-    if (isNaN(balance)) {
-
-        alert("Opening balance must be a valid number.");
-
-        return;
-
-    }
-
-
     const duplicate =
         appData.accounts.some(
             account => account.code === code
@@ -2445,24 +2433,16 @@ function addProduct() {
     }
 
 
-    const costInput = prompt("Purchase price:");
-    const priceInput = prompt("Selling price:");
-    const stockInput = prompt("Opening stock:");
-
-    const cost = Number(costInput || 0);
-    const price = Number(priceInput || 0);
-    const openingStock = Number(stockInput || 0);
+    const cost =
+        Number(prompt("Purchase price:") || 0);
 
 
-    // FIX: catch non-numeric entries (NaN) instead of letting them
-    // silently poison inventory/profit calculations later.
-    if (isNaN(cost) || isNaN(price) || isNaN(openingStock)) {
+    const price =
+        Number(prompt("Selling price:") || 0);
 
-        alert("Purchase price, selling price and opening stock must be numbers.");
 
-        return;
-
-    }
+    const openingStock =
+        Number(prompt("Opening stock:") || 0);
 
 
     if (cost < 0 || price < 0 || openingStock < 0) {
@@ -2519,18 +2499,8 @@ function addSale() {
     }
 
 
-    const totalInput = prompt("Invoice total:");
-    const total = Number(totalInput || 0);
-
-
-    // FIX: reject non-numeric totals explicitly.
-    if (isNaN(total)) {
-
-        alert("Invoice total must be a valid number.");
-
-        return;
-
-    }
+    const total =
+        Number(prompt("Invoice total:") || 0);
 
 
     if (total <= 0) {
@@ -2562,42 +2532,6 @@ function addSale() {
         total: total,
 
         status: status.trim()
-
-    });
-
-
-    // FIX: post the sale to the journal so it actually shows up in
-    // the Ledger and Trial Balance (previously sales never touched
-    // appData.journalEntries at all).
-    createJournalEntry({
-
-        date: today(),
-
-        reference: invoice,
-
-        description: "Sales invoice to " + customer.trim(),
-
-        account: "Accounts Receivable",
-
-        debit: total,
-
-        credit: 0
-
-    });
-
-    createJournalEntry({
-
-        date: today(),
-
-        reference: invoice,
-
-        description: "Sales invoice to " + customer.trim(),
-
-        account: "Sales Revenue",
-
-        debit: 0,
-
-        credit: total
 
     });
 
@@ -2635,18 +2569,8 @@ function addPurchase() {
     }
 
 
-    const totalInput = prompt("Purchase total:");
-    const total = Number(totalInput || 0);
-
-
-    // FIX: reject non-numeric totals explicitly.
-    if (isNaN(total)) {
-
-        alert("Purchase total must be a valid number.");
-
-        return;
-
-    }
+    const total =
+        Number(prompt("Purchase total:") || 0);
 
 
     if (total <= 0) {
@@ -2678,42 +2602,6 @@ function addPurchase() {
         total: total,
 
         status: status.trim()
-
-    });
-
-
-    // FIX: post the purchase to the journal (mirrors the sale fix
-    // above), and this is also what calculateActualCOGS() now
-    // reads from for the P&L page.
-    createJournalEntry({
-
-        date: today(),
-
-        reference: invoice,
-
-        description: "Purchase invoice from " + supplier.trim(),
-
-        account: "Purchases",
-
-        debit: total,
-
-        credit: 0
-
-    });
-
-    createJournalEntry({
-
-        date: today(),
-
-        reference: invoice,
-
-        description: "Purchase invoice from " + supplier.trim(),
-
-        account: "Accounts Payable",
-
-        debit: 0,
-
-        credit: total
 
     });
 
@@ -2753,18 +2641,8 @@ function addReceipt() {
         ) || "Cash";
 
 
-    const amountInput = prompt("Amount received:");
-    const amount = Number(amountInput || 0);
-
-
-    // FIX: reject non-numeric amounts explicitly.
-    if (isNaN(amount)) {
-
-        alert("Amount must be a valid number.");
-
-        return;
-
-    }
+    const amount =
+        Number(prompt("Amount received:") || 0);
 
 
     if (amount <= 0) {
@@ -2849,18 +2727,8 @@ function addPayment() {
         ) || "Cash";
 
 
-    const amountInput = prompt("Amount paid:");
-    const amount = Number(amountInput || 0);
-
-
-    // FIX: reject non-numeric amounts explicitly.
-    if (isNaN(amount)) {
-
-        alert("Amount must be a valid number.");
-
-        return;
-
-    }
+    const amount =
+        Number(prompt("Amount paid:") || 0);
 
 
     if (amount <= 0) {
@@ -2942,21 +2810,12 @@ function addJournalEntry() {
         prompt("Description:") || "";
 
 
-    const debitInput = prompt("Debit amount:", "0");
-    const creditInput = prompt("Credit amount:", "0");
-
-    const debit = Number(debitInput || 0);
-    const credit = Number(creditInput || 0);
+    const debit =
+        Number(prompt("Debit amount:", "0") || 0);
 
 
-    // FIX: reject non-numeric debit/credit entries explicitly.
-    if (isNaN(debit) || isNaN(credit)) {
-
-        alert("Debit and credit amounts must be valid numbers.");
-
-        return;
-
-    }
+    const credit =
+        Number(prompt("Credit amount:", "0") || 0);
 
 
     if (debit < 0 || credit < 0) {
@@ -3037,24 +2896,6 @@ function createJournalEntry(entry) {
         credit: Number(entry.credit || 0)
 
     });
-
-}
-
-
-/* --------------------------------------------
-   REMOVE JOURNAL ENTRIES BY REFERENCE
-   -------------------------------------------- */
-
-// FIX: new helper. Sales/purchases now post journal lines tagged
-// with their invoice number as the "reference" — this removes
-// those lines again when the source sale/purchase is deleted, so
-// the Ledger and Trial Balance don't end up with orphaned entries.
-function removeJournalEntriesByReference(reference) {
-
-    appData.journalEntries =
-        appData.journalEntries.filter(
-            entry => entry.reference !== reference
-        );
 
 }
 
@@ -3145,15 +2986,6 @@ function deleteSale(index) {
         return;
     }
 
-    // FIX: also remove the journal lines this sale created,
-    // otherwise the Ledger/Trial Balance keep phantom entries
-    // for an invoice that no longer exists.
-    const sale = appData.sales[index];
-
-    if (sale) {
-        removeJournalEntriesByReference(sale.invoice);
-    }
-
     appData.sales.splice(index, 1);
 
     saveData();
@@ -3171,13 +3003,6 @@ function deletePurchase(index) {
 
     if (!confirm("Delete this purchase invoice?")) {
         return;
-    }
-
-    // FIX: also remove the journal lines this purchase created.
-    const purchase = appData.purchases[index];
-
-    if (purchase) {
-        removeJournalEntriesByReference(purchase.invoice);
     }
 
     appData.purchases.splice(index, 1);
@@ -3237,21 +3062,6 @@ function calculateCOGS() {
         0
 
     );
-
-}
-
-
-// FIX: single source of truth for "actual" COGS, used by BOTH
-// the Dashboard card and the Profit & Loss page. Previously
-// calculateProfit() had this purchases-fallback but
-// profitLossPage() didn't, so the two pages disagreed.
-function calculateActualCOGS() {
-
-    const cogs = calculateCOGS();
-
-    return cogs > 0
-        ? cogs
-        : calculatePurchases();
 
 }
 
@@ -3435,13 +3245,23 @@ function calculateProfit() {
     const sales =
         calculateSales();
 
+    const cogs =
+        calculateCOGS();
+
+
     const expenses =
         calculateExpenses();
 
-    // FIX: now delegates to the same helper the P&L page uses,
-    // instead of duplicating the fallback logic in two places.
+
+    /*
+       If COGS has not yet been entered separately,
+       use purchases as the temporary COGS value.
+    */
+
     const actualCOGS =
-        calculateActualCOGS();
+        cogs > 0
+            ? cogs
+            : calculatePurchases();
 
 
     return sales -
@@ -3733,3 +3553,4 @@ function escapeAttribute(value) {
     return escapeHTML(value);
 
 }
+```
