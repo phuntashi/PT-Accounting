@@ -1950,6 +1950,7 @@ function journalPage() {
    ========================================================= */
 
 function ledgerPage() {
+
 const entries =
     appData.journalEntries;
 
@@ -2159,6 +2160,7 @@ return `
     </div>
 
 `;
+
 }
 
 /* =========================================================
