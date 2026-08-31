@@ -3228,95 +3228,109 @@ showPage("receipts");
 
 function addPayment() {
 
-    const to =
-        prompt("Paid to:");
+```
+const to =
+    prompt("Paid to:");
 
+if (
+    !to ||
+    !to.trim()
+) {
+    return;
+}
 
-    if (
-        !to ||
-        !to.trim()
-    ) {
+const account =
+    prompt(
+        "Payment account:",
+        "Cash"
+    ) || "Cash";
 
-        return;
-
-    }
-
-
-    const account =
-        prompt(
-            "Payment account:",
-            "Cash"
-        ) || "Cash";
-
-
-    const amount =
-        Number(
-            prompt("Amount paid:") || 0
-        );
-
-
-    if (amount <= 0) {
-
-        alert(
-            "Amount must be greater than zero."
-        );
-
-        return;
-
-    }
-
-
-    const reference =
-        generateNumber("PAY");
-
-
-    appData.payments.push({
-
-        id: generateNumber("PAYMENT"),
-
-        date: today(),
-
-        reference: reference,
-
-        to: to.trim(),
-
-        account: account.trim(),
-
-        amount: amount
-
-    });
-
-
-    createJournalEntry({
-
-        date: today(),
-
-        reference: reference,
-
-        description:
-            "Payment to " +
-            to.trim(),
-
-        account: account.trim(),
-
-        debit: 0,
-
-        credit: amount
-
-    });
-
-
-    saveData();
-
-
-    alert(
-        "Payment " +
-        reference +
-        " recorded successfully."
+const amount =
+    Number(
+        prompt("Amount paid:") || 0
     );
 
+if (amount <= 0) {
 
-    showPage("payments");
+    alert(
+        "Amount must be greater than zero."
+    );
+
+    return;
+}
+
+const reference =
+    generateNumber("PAY");
+
+appData.payments.push({
+
+    id: generateNumber("PAYMENT"),
+
+    date: today(),
+
+    reference: reference,
+
+    to: to.trim(),
+
+    account: account.trim(),
+
+    amount: amount
+
+});
+
+/*
+ * DOUBLE-ENTRY ACCOUNTING
+ *
+ * Debit  = Accounts Payable
+ * Credit = Cash / Bank
+ */
+
+createJournalEntry({
+
+    date: today(),
+
+    reference: reference,
+
+    description:
+        "Payment to " +
+        to.trim(),
+
+    account: "Accounts Payable",
+
+    debit: amount,
+
+    credit: 0
+
+});
+
+createJournalEntry({
+
+    date: today(),
+
+    reference: reference,
+
+    description:
+        "Payment to " +
+        to.trim(),
+
+    account: account.trim(),
+
+    debit: 0,
+
+    credit: amount
+
+});
+
+saveData();
+
+alert(
+    "Payment " +
+    reference +
+    " recorded successfully."
+);
+
+showPage("payments");
+```
 
 }
 
