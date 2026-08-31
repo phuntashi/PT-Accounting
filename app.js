@@ -1,14 +1,13 @@
 ```javascript
-/* ============================================
+/* =========================================================
    PT ACCOUNTING SYSTEM
-   Standalone Web Application
-   Complete app.js
-   ============================================ */
+   COMPLETE app.js
+   ========================================================= */
 
 
-/* --------------------------------------------
+/* =========================================================
    APPLICATION DATA
-   -------------------------------------------- */
+   ========================================================= */
 
 const appData = {
 
@@ -25,9 +24,9 @@ const appData = {
 };
 
 
-/* --------------------------------------------
+/* =========================================================
    PAGE INFORMATION
-   -------------------------------------------- */
+   ========================================================= */
 
 const pages = {
 
@@ -109,9 +108,9 @@ const pages = {
 };
 
 
-/* --------------------------------------------
-   INITIALIZATION
-   -------------------------------------------- */
+/* =========================================================
+   START APPLICATION
+   ========================================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -126,67 +125,160 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-/* --------------------------------------------
+/* =========================================================
    NAVIGATION
-   -------------------------------------------- */
+   ========================================================= */
 
 function setupNavigation() {
 
-    const buttons = document.querySelectorAll(".nav-item");
+    const navigation =
+        document.getElementById("mainNavigation");
 
-    buttons.forEach(button => {
+    if (!navigation) {
 
-        button.addEventListener("click", function () {
+        console.error(
+            "PT Accounting: Navigation element not found."
+        );
 
-            const page = this.dataset.page;
+        return;
+    }
 
-            showPage(page);
 
-        });
+    /*
+       EVENT DELEGATION
+
+       This listens to the navigation itself.
+       Therefore clicks on the icon or text inside
+       a navigation button are also handled correctly.
+    */
+
+    navigation.addEventListener("click", function (event) {
+
+        const button =
+            event.target.closest(".nav-item");
+
+
+        if (!button) {
+            return;
+        }
+
+
+        const page =
+            button.getAttribute("data-page");
+
+
+        if (!page) {
+
+            console.error(
+                "PT Accounting: Navigation button has no data-page."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "PT Accounting navigation:",
+            page
+        );
+
+
+        showPage(page);
 
     });
 
 }
 
+
+/* =========================================================
+   SHOW PAGE
+   ========================================================= */
 
 function showPage(page) {
 
-    const title = document.getElementById("pageTitle");
-    const subtitle = document.getElementById("pageSubtitle");
-    const content = document.getElementById("content");
-
     if (!pages[page]) {
+
+        console.error(
+            "PT Accounting: Page does not exist:",
+            page
+        );
+
         return;
     }
 
+
+    const title =
+        document.getElementById("pageTitle");
+
+    const subtitle =
+        document.getElementById("pageSubtitle");
+
+    const content =
+        document.getElementById("content");
+
+
     if (title) {
-        title.textContent = pages[page].title;
+
+        title.textContent =
+            pages[page].title;
+
     }
+
 
     if (subtitle) {
-        subtitle.textContent = pages[page].subtitle;
+
+        subtitle.textContent =
+            pages[page].subtitle;
+
     }
 
-    document.querySelectorAll(".nav-item").forEach(button => {
 
-        button.classList.remove("active");
+    /*
+       Update active navigation button.
+    */
 
-        if (button.dataset.page === page) {
-            button.classList.add("active");
-        }
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(button => {
 
-    });
+            button.classList.remove("active");
+
+            if (
+                button.getAttribute("data-page") === page
+            ) {
+
+                button.classList.add("active");
+
+            }
+
+        });
+
+
+    /*
+       Render selected page.
+    */
 
     if (content) {
-        content.innerHTML = renderPage(page);
+
+        content.innerHTML =
+            renderPage(page);
+
     }
+
+
+    /*
+       Close mobile sidebar.
+    */
 
     if (window.innerWidth <= 700) {
 
-        const sidebar = document.getElementById("sidebar");
+        const sidebar =
+            document.getElementById("sidebar");
 
         if (sidebar) {
+
             sidebar.classList.remove("open");
+
         }
 
     }
@@ -194,34 +286,9 @@ function showPage(page) {
 }
 
 
-/* --------------------------------------------
-   MOBILE MENU
-   -------------------------------------------- */
-
-function setupMobileMenu() {
-
-    const button = document.getElementById("menuButton");
-
-    if (!button) {
-        return;
-    }
-
-    button.addEventListener("click", function () {
-
-        const sidebar = document.getElementById("sidebar");
-
-        if (sidebar) {
-            sidebar.classList.toggle("open");
-        }
-
-    });
-
-}
-
-
-/* --------------------------------------------
-   PAGE RENDERING
-   -------------------------------------------- */
+/* =========================================================
+   PAGE RENDERER
+   ========================================================= */
 
 function renderPage(page) {
 
@@ -273,9 +340,13 @@ function renderPage(page) {
             return settingsPage();
 
         default:
+
             return `
                 <div class="panel">
                     <h3>Page not found</h3>
+                    <p>
+                        The requested page does not exist.
+                    </p>
                 </div>
             `;
 
@@ -284,35 +355,75 @@ function renderPage(page) {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
+   MOBILE MENU
+   ========================================================= */
+
+function setupMobileMenu() {
+
+    const button =
+        document.getElementById("menuButton");
+
+
+    if (!button) {
+        return;
+    }
+
+
+    button.addEventListener("click", function () {
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+
+        if (sidebar) {
+
+            sidebar.classList.toggle("open");
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
    DASHBOARD
-   -------------------------------------------- */
+   ========================================================= */
 
 function dashboardPage() {
 
-    const salesTotal = calculateSales();
+    const sales =
+        calculateSales();
 
-    const purchaseTotal = calculatePurchases();
+    const purchases =
+        calculatePurchases();
 
-    const inventoryValue = calculateInventory();
+    const inventory =
+        calculateInventory();
 
-    const profit = calculateProfit();
+    const profit =
+        calculateProfit();
 
-    const receivable = calculateReceivables();
+    const receivables =
+        calculateReceivables();
 
-    const payable = calculatePayables();
+    const payables =
+        calculatePayables();
 
 
     return `
 
         <div class="welcome">
 
-            <h2>Welcome to PT Accounting</h2>
+            <h2>
+                Welcome to PT Accounting
+            </h2>
 
             <p>
                 Your standalone accounting system is ready.
-                Manage accounts, customers, suppliers, products,
-                sales, purchases and accounting reports.
+                Manage accounts, customers, suppliers,
+                products, sales, purchases and reports.
             </p>
 
         </div>
@@ -322,12 +433,16 @@ function dashboardPage() {
 
             <div class="card">
 
-                <div class="card-icon">💰</div>
+                <div class="card-icon">
+                    💰
+                </div>
 
-                <small>Total Sales</small>
+                <small>
+                    Total Sales
+                </small>
 
                 <strong>
-                    Nu. ${formatMoney(salesTotal)}
+                    Nu. ${formatMoney(sales)}
                 </strong>
 
             </div>
@@ -335,12 +450,16 @@ function dashboardPage() {
 
             <div class="card">
 
-                <div class="card-icon">🛒</div>
+                <div class="card-icon">
+                    🛒
+                </div>
 
-                <small>Total Purchases</small>
+                <small>
+                    Total Purchases
+                </small>
 
                 <strong>
-                    Nu. ${formatMoney(purchaseTotal)}
+                    Nu. ${formatMoney(purchases)}
                 </strong>
 
             </div>
@@ -348,12 +467,16 @@ function dashboardPage() {
 
             <div class="card">
 
-                <div class="card-icon">📦</div>
+                <div class="card-icon">
+                    📦
+                </div>
 
-                <small>Inventory Value</small>
+                <small>
+                    Inventory Value
+                </small>
 
                 <strong>
-                    Nu. ${formatMoney(inventoryValue)}
+                    Nu. ${formatMoney(inventory)}
                 </strong>
 
             </div>
@@ -361,9 +484,13 @@ function dashboardPage() {
 
             <div class="card">
 
-                <div class="card-icon">📈</div>
+                <div class="card-icon">
+                    📈
+                </div>
 
-                <small>Net Profit</small>
+                <small>
+                    Net Profit
+                </small>
 
                 <strong>
                     Nu. ${formatMoney(profit)}
@@ -378,12 +505,16 @@ function dashboardPage() {
 
             <div class="card">
 
-                <div class="card-icon">👥</div>
+                <div class="card-icon">
+                    👥
+                </div>
 
-                <small>Receivables</small>
+                <small>
+                    Receivables
+                </small>
 
                 <strong>
-                    Nu. ${formatMoney(receivable)}
+                    Nu. ${formatMoney(receivables)}
                 </strong>
 
             </div>
@@ -391,12 +522,16 @@ function dashboardPage() {
 
             <div class="card">
 
-                <div class="card-icon">🏢</div>
+                <div class="card-icon">
+                    🏢
+                </div>
 
-                <small>Payables</small>
+                <small>
+                    Payables
+                </small>
 
                 <strong>
-                    Nu. ${formatMoney(payable)}
+                    Nu. ${formatMoney(payables)}
                 </strong>
 
             </div>
@@ -406,7 +541,9 @@ function dashboardPage() {
 
         <div class="panel">
 
-            <h3>Accounting System Status</h3>
+            <h3>
+                Accounting System Status
+            </h3>
 
             <p>
                 PT Accounting is running successfully.
@@ -420,9 +557,9 @@ function dashboardPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    CHART OF ACCOUNTS
-   -------------------------------------------- */
+   ========================================================= */
 
 function accountsPage() {
 
@@ -430,22 +567,31 @@ function accountsPage() {
 
         <div class="page-header">
 
-            <h2>Chart of Accounts</h2>
+            <h2>
+                Chart of Accounts
+            </h2>
 
-            <p>Your accounting account master.</p>
+            <p>
+                Your accounting account master.
+            </p>
 
         </div>
 
 
         <div class="panel">
 
-            <h3>Add New Account</h3>
+            <h3>
+                Add New Account
+            </h3>
+
 
             <div class="form-grid">
 
                 <div class="form-group">
 
-                    <label>Code</label>
+                    <label>
+                        Code
+                    </label>
 
                     <input
                         type="text"
@@ -458,7 +604,9 @@ function accountsPage() {
 
                 <div class="form-group">
 
-                    <label>Account Name</label>
+                    <label>
+                        Account Name
+                    </label>
 
                     <input
                         type="text"
@@ -471,19 +619,31 @@ function accountsPage() {
 
                 <div class="form-group">
 
-                    <label>Account Type</label>
+                    <label>
+                        Account Type
+                    </label>
 
                     <select id="accountType">
 
-                        <option value="Asset">Asset</option>
+                        <option value="Asset">
+                            Asset
+                        </option>
 
-                        <option value="Liability">Liability</option>
+                        <option value="Liability">
+                            Liability
+                        </option>
 
-                        <option value="Equity">Equity</option>
+                        <option value="Equity">
+                            Equity
+                        </option>
 
-                        <option value="Revenue">Revenue</option>
+                        <option value="Revenue">
+                            Revenue
+                        </option>
 
-                        <option value="Expense">Expense</option>
+                        <option value="Expense">
+                            Expense
+                        </option>
 
                     </select>
 
@@ -492,7 +652,9 @@ function accountsPage() {
 
                 <div class="form-group">
 
-                    <label>Opening Balance</label>
+                    <label>
+                        Opening Balance
+                    </label>
 
                     <input
                         type="number"
@@ -510,6 +672,7 @@ function accountsPage() {
 
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="saveAccount()">
 
@@ -531,13 +694,9 @@ function accountsPage() {
                         <tr>
 
                             <th>Code</th>
-
                             <th>Account Name</th>
-
                             <th>Account Type</th>
-
                             <th>Balance</th>
-
                             <th>Action</th>
 
                         </tr>
@@ -568,24 +727,34 @@ function accountsPage() {
 
                             :
 
-                            appData.accounts.map((account, index) => `
+                            appData.accounts
+                                .map((account, index) => `
 
                                 <tr>
 
-                                    <td>${escapeHTML(account.code)}</td>
+                                    <td>
+                                        ${escapeHTML(account.code)}
+                                    </td>
 
-                                    <td>${escapeHTML(account.name)}</td>
+                                    <td>
+                                        ${escapeHTML(account.name)}
+                                    </td>
 
-                                    <td>${escapeHTML(account.type)}</td>
+                                    <td>
+                                        ${escapeHTML(account.type)}
+                                    </td>
 
                                     <td>
                                         Nu.
-                                        ${formatMoney(account.balance || 0)}
+                                        ${formatMoney(
+                                            account.balance || 0
+                                        )}
                                     </td>
 
                                     <td>
 
                                         <button
+                                            type="button"
                                             class="btn btn-danger"
                                             onclick="deleteAccount(${index})">
 
@@ -597,7 +766,8 @@ function accountsPage() {
 
                                 </tr>
 
-                            `).join("")
+                            `)
+                            .join("")
 
                         }
 
@@ -614,9 +784,9 @@ function accountsPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    CUSTOMERS
-   -------------------------------------------- */
+   ========================================================= */
 
 function customersPage() {
 
@@ -624,7 +794,9 @@ function customersPage() {
 
         <div class="page-header">
 
-            <h2>Customers</h2>
+            <h2>
+                Customers
+            </h2>
 
             <p>
                 Customer master and accounts receivable.
@@ -636,6 +808,7 @@ function customersPage() {
         <div class="panel">
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="addCustomer()">
 
@@ -657,13 +830,9 @@ function customersPage() {
                         <tr>
 
                             <th>Customer</th>
-
                             <th>Phone</th>
-
                             <th>Email</th>
-
                             <th>Balance</th>
-
                             <th>Action</th>
 
                         </tr>
@@ -694,7 +863,8 @@ function customersPage() {
 
                             :
 
-                            appData.customers.map((customer, index) => `
+                            appData.customers
+                                .map((customer, index) => `
 
                                 <tr>
 
@@ -703,21 +873,28 @@ function customersPage() {
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(customer.phone || "")}
+                                        ${escapeHTML(
+                                            customer.phone || ""
+                                        )}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(customer.email || "")}
+                                        ${escapeHTML(
+                                            customer.email || ""
+                                        )}
                                     </td>
 
                                     <td>
                                         Nu.
-                                        ${formatMoney(customer.balance || 0)}
+                                        ${formatMoney(
+                                            customer.balance || 0
+                                        )}
                                     </td>
 
                                     <td>
 
                                         <button
+                                            type="button"
                                             class="btn btn-danger"
                                             onclick="deleteCustomer(${index})">
 
@@ -729,7 +906,8 @@ function customersPage() {
 
                                 </tr>
 
-                            `).join("")
+                            `)
+                            .join("")
 
                         }
 
@@ -746,9 +924,9 @@ function customersPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    SUPPLIERS
-   -------------------------------------------- */
+   ========================================================= */
 
 function suppliersPage() {
 
@@ -756,7 +934,9 @@ function suppliersPage() {
 
         <div class="page-header">
 
-            <h2>Suppliers</h2>
+            <h2>
+                Suppliers
+            </h2>
 
             <p>
                 Supplier master and accounts payable.
@@ -768,6 +948,7 @@ function suppliersPage() {
         <div class="panel">
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="addSupplier()">
 
@@ -789,13 +970,9 @@ function suppliersPage() {
                         <tr>
 
                             <th>Supplier</th>
-
                             <th>Phone</th>
-
                             <th>Email</th>
-
                             <th>Balance</th>
-
                             <th>Action</th>
 
                         </tr>
@@ -826,7 +1003,8 @@ function suppliersPage() {
 
                             :
 
-                            appData.suppliers.map((supplier, index) => `
+                            appData.suppliers
+                                .map((supplier, index) => `
 
                                 <tr>
 
@@ -835,21 +1013,28 @@ function suppliersPage() {
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(supplier.phone || "")}
+                                        ${escapeHTML(
+                                            supplier.phone || ""
+                                        )}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(supplier.email || "")}
+                                        ${escapeHTML(
+                                            supplier.email || ""
+                                        )}
                                     </td>
 
                                     <td>
                                         Nu.
-                                        ${formatMoney(supplier.balance || 0)}
+                                        ${formatMoney(
+                                            supplier.balance || 0
+                                        )}
                                     </td>
 
                                     <td>
 
                                         <button
+                                            type="button"
                                             class="btn btn-danger"
                                             onclick="deleteSupplier(${index})">
 
@@ -861,7 +1046,8 @@ function suppliersPage() {
 
                                 </tr>
 
-                            `).join("")
+                            `)
+                            .join("")
 
                         }
 
@@ -878,9 +1064,9 @@ function suppliersPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    PRODUCTS
-   -------------------------------------------- */
+   ========================================================= */
 
 function productsPage() {
 
@@ -888,7 +1074,9 @@ function productsPage() {
 
         <div class="page-header">
 
-            <h2>Products & Inventory</h2>
+            <h2>
+                Products & Inventory
+            </h2>
 
             <p>
                 Products, stock quantities and inventory value.
@@ -900,6 +1088,7 @@ function productsPage() {
         <div class="panel">
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="addProduct()">
 
@@ -921,17 +1110,11 @@ function productsPage() {
                         <tr>
 
                             <th>Product</th>
-
                             <th>Purchase Price</th>
-
                             <th>Selling Price</th>
-
                             <th>Opening Stock</th>
-
                             <th>Stock</th>
-
                             <th>Stock Value</th>
-
                             <th>Action</th>
 
                         </tr>
@@ -962,7 +1145,8 @@ function productsPage() {
 
                             :
 
-                            appData.products.map((product, index) => `
+                            appData.products
+                                .map((product, index) => `
 
                                 <tr>
 
@@ -981,11 +1165,15 @@ function productsPage() {
                                     </td>
 
                                     <td>
-                                        ${Number(product.openingStock || 0)}
+                                        ${Number(
+                                            product.openingStock || 0
+                                        )}
                                     </td>
 
                                     <td>
-                                        ${Number(product.stock || 0)}
+                                        ${Number(
+                                            product.stock || 0
+                                        )}
                                     </td>
 
                                     <td>
@@ -999,6 +1187,7 @@ function productsPage() {
                                     <td>
 
                                         <button
+                                            type="button"
                                             class="btn btn-danger"
                                             onclick="deleteProduct(${index})">
 
@@ -1010,7 +1199,8 @@ function productsPage() {
 
                                 </tr>
 
-                            `).join("")
+                            `)
+                            .join("")
 
                         }
 
@@ -1027,9 +1217,9 @@ function productsPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    SALES
-   -------------------------------------------- */
+   ========================================================= */
 
 function salesPage() {
 
@@ -1037,7 +1227,9 @@ function salesPage() {
 
         <div class="page-header">
 
-            <h2>Sales Invoices</h2>
+            <h2>
+                Sales Invoices
+            </h2>
 
             <p>
                 Sales invoices and accounts receivable.
@@ -1049,6 +1241,7 @@ function salesPage() {
         <div class="panel">
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="addSale()">
 
@@ -1070,15 +1263,10 @@ function salesPage() {
                         <tr>
 
                             <th>Invoice</th>
-
                             <th>Date</th>
-
                             <th>Customer</th>
-
                             <th>Total</th>
-
                             <th>Status</th>
-
                             <th>Action</th>
 
                         </tr>
@@ -1109,7 +1297,8 @@ function salesPage() {
 
                             :
 
-                            appData.sales.map((sale, index) => `
+                            appData.sales
+                                .map((sale, index) => `
 
                                 <tr>
 
@@ -1137,6 +1326,7 @@ function salesPage() {
                                     <td>
 
                                         <button
+                                            type="button"
                                             class="btn btn-danger"
                                             onclick="deleteSale(${index})">
 
@@ -1148,7 +1338,8 @@ function salesPage() {
 
                                 </tr>
 
-                            `).join("")
+                            `)
+                            .join("")
 
                         }
 
@@ -1165,9 +1356,9 @@ function salesPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    PURCHASES
-   -------------------------------------------- */
+   ========================================================= */
 
 function purchasesPage() {
 
@@ -1175,7 +1366,9 @@ function purchasesPage() {
 
         <div class="page-header">
 
-            <h2>Purchase Invoices</h2>
+            <h2>
+                Purchase Invoices
+            </h2>
 
             <p>
                 Purchases and accounts payable.
@@ -1187,6 +1380,7 @@ function purchasesPage() {
         <div class="panel">
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="addPurchase()">
 
@@ -1208,15 +1402,10 @@ function purchasesPage() {
                         <tr>
 
                             <th>Invoice</th>
-
                             <th>Date</th>
-
                             <th>Supplier</th>
-
                             <th>Total</th>
-
                             <th>Status</th>
-
                             <th>Action</th>
 
                         </tr>
@@ -1247,34 +1436,46 @@ function purchasesPage() {
 
                             :
 
-                            appData.purchases.map((purchase, index) => `
+                            appData.purchases
+                                .map((purchase, index) => `
 
                                 <tr>
 
                                     <td>
-                                        ${escapeHTML(purchase.invoice)}
+                                        ${escapeHTML(
+                                            purchase.invoice
+                                        )}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(purchase.date)}
+                                        ${escapeHTML(
+                                            purchase.date
+                                        )}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(purchase.supplier)}
+                                        ${escapeHTML(
+                                            purchase.supplier
+                                        )}
                                     </td>
 
                                     <td>
                                         Nu.
-                                        ${formatMoney(purchase.total)}
+                                        ${formatMoney(
+                                            purchase.total
+                                        )}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(purchase.status)}
+                                        ${escapeHTML(
+                                            purchase.status
+                                        )}
                                     </td>
 
                                     <td>
 
                                         <button
+                                            type="button"
                                             class="btn btn-danger"
                                             onclick="deletePurchase(${index})">
 
@@ -1286,7 +1487,8 @@ function purchasesPage() {
 
                                 </tr>
 
-                            `).join("")
+                            `)
+                            .join("")
 
                         }
 
@@ -1303,9 +1505,9 @@ function purchasesPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    RECEIPTS
-   -------------------------------------------- */
+   ========================================================= */
 
 function receiptsPage() {
 
@@ -1313,7 +1515,9 @@ function receiptsPage() {
 
         <div class="page-header">
 
-            <h2>Receipts</h2>
+            <h2>
+                Receipts
+            </h2>
 
             <p>
                 Money received from customers and other sources.
@@ -1325,6 +1529,7 @@ function receiptsPage() {
         <div class="panel">
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="addReceipt()">
 
@@ -1337,75 +1542,92 @@ function receiptsPage() {
 
         <div class="panel">
 
-            <table>
+            <div class="table-container">
 
-                <thead>
+                <table>
 
-                    <tr>
+                    <thead>
 
-                        <th>Date</th>
-
-                        <th>Reference</th>
-
-                        <th>From</th>
-
-                        <th>Account</th>
-
-                        <th>Amount</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    ${
-                        appData.receipts.length === 0
-
-                        ?
-
-                        `
                         <tr>
 
-                            <td
-                                colspan="5"
-                                class="empty">
-
-                                No receipts yet.
-
-                            </td>
+                            <th>Date</th>
+                            <th>Reference</th>
+                            <th>From</th>
+                            <th>Account</th>
+                            <th>Amount</th>
 
                         </tr>
-                        `
 
-                        :
+                    </thead>
 
-                        appData.receipts.map((receipt, index) => `
 
+                    <tbody>
+
+                        ${
+                            appData.receipts.length === 0
+
+                            ?
+
+                            `
                             <tr>
 
-                                <td>${escapeHTML(receipt.date)}</td>
+                                <td
+                                    colspan="5"
+                                    class="empty">
 
-                                <td>${escapeHTML(receipt.reference)}</td>
+                                    No receipts yet.
 
-                                <td>${escapeHTML(receipt.from)}</td>
-
-                                <td>${escapeHTML(receipt.account)}</td>
-
-                                <td>
-                                    Nu. ${formatMoney(receipt.amount)}
                                 </td>
 
                             </tr>
+                            `
 
-                        `).join("")
+                            :
 
-                    }
+                            appData.receipts
+                                .map(receipt => `
 
-                </tbody>
+                                <tr>
 
-            </table>
+                                    <td>
+                                        ${escapeHTML(receipt.date)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            receipt.reference
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(receipt.from)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            receipt.account
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        Nu.
+                                        ${formatMoney(
+                                            receipt.amount
+                                        )}
+                                    </td>
+
+                                </tr>
+
+                            `)
+                            .join("")
+
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
@@ -1414,9 +1636,9 @@ function receiptsPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    PAYMENTS
-   -------------------------------------------- */
+   ========================================================= */
 
 function paymentsPage() {
 
@@ -1424,7 +1646,9 @@ function paymentsPage() {
 
         <div class="page-header">
 
-            <h2>Payments</h2>
+            <h2>
+                Payments
+            </h2>
 
             <p>
                 Money paid to suppliers and for expenses.
@@ -1436,6 +1660,7 @@ function paymentsPage() {
         <div class="panel">
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="addPayment()">
 
@@ -1448,75 +1673,92 @@ function paymentsPage() {
 
         <div class="panel">
 
-            <table>
+            <div class="table-container">
 
-                <thead>
+                <table>
 
-                    <tr>
+                    <thead>
 
-                        <th>Date</th>
-
-                        <th>Reference</th>
-
-                        <th>Paid To</th>
-
-                        <th>Account</th>
-
-                        <th>Amount</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    ${
-                        appData.payments.length === 0
-
-                        ?
-
-                        `
                         <tr>
 
-                            <td
-                                colspan="5"
-                                class="empty">
-
-                                No payments yet.
-
-                            </td>
+                            <th>Date</th>
+                            <th>Reference</th>
+                            <th>Paid To</th>
+                            <th>Account</th>
+                            <th>Amount</th>
 
                         </tr>
-                        `
 
-                        :
+                    </thead>
 
-                        appData.payments.map(payment => `
 
+                    <tbody>
+
+                        ${
+                            appData.payments.length === 0
+
+                            ?
+
+                            `
                             <tr>
 
-                                <td>${escapeHTML(payment.date)}</td>
+                                <td
+                                    colspan="5"
+                                    class="empty">
 
-                                <td>${escapeHTML(payment.reference)}</td>
+                                    No payments yet.
 
-                                <td>${escapeHTML(payment.to)}</td>
-
-                                <td>${escapeHTML(payment.account)}</td>
-
-                                <td>
-                                    Nu. ${formatMoney(payment.amount)}
                                 </td>
 
                             </tr>
+                            `
 
-                        `).join("")
+                            :
 
-                    }
+                            appData.payments
+                                .map(payment => `
 
-                </tbody>
+                                <tr>
 
-            </table>
+                                    <td>
+                                        ${escapeHTML(payment.date)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            payment.reference
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(payment.to)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            payment.account
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        Nu.
+                                        ${formatMoney(
+                                            payment.amount
+                                        )}
+                                    </td>
+
+                                </tr>
+
+                            `)
+                            .join("")
+
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
@@ -1525,28 +1767,35 @@ function paymentsPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    JOURNAL
-   -------------------------------------------- */
+   ========================================================= */
 
 function journalPage() {
 
-    const totalDebit = appData.journalEntries.reduce(
-        (sum, entry) => sum + Number(entry.debit || 0),
-        0
-    );
+    const totalDebit =
+        appData.journalEntries.reduce(
+            (sum, entry) =>
+                sum + Number(entry.debit || 0),
+            0
+        );
 
-    const totalCredit = appData.journalEntries.reduce(
-        (sum, entry) => sum + Number(entry.credit || 0),
-        0
-    );
+
+    const totalCredit =
+        appData.journalEntries.reduce(
+            (sum, entry) =>
+                sum + Number(entry.credit || 0),
+            0
+        );
 
 
     return `
 
         <div class="page-header">
 
-            <h2>Journal Entries</h2>
+            <h2>
+                Journal Entries
+            </h2>
 
             <p>
                 All accounting transactions flow through
@@ -1559,6 +1808,7 @@ function journalPage() {
         <div class="panel">
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="addJournalEntry()">
 
@@ -1571,98 +1821,114 @@ function journalPage() {
 
         <div class="panel">
 
-            <table>
+            <div class="table-container">
 
-                <thead>
+                <table>
 
-                    <tr>
+                    <thead>
 
-                        <th>Date</th>
-
-                        <th>Reference</th>
-
-                        <th>Description</th>
-
-                        <th>Debit</th>
-
-                        <th>Credit</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    ${
-                        appData.journalEntries.length === 0
-
-                        ?
-
-                        `
                         <tr>
 
-                            <td
-                                colspan="5"
-                                class="empty">
-
-                                No journal entries yet.
-
-                            </td>
+                            <th>Date</th>
+                            <th>Reference</th>
+                            <th>Description</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
 
                         </tr>
-                        `
 
-                        :
+                    </thead>
 
-                        appData.journalEntries.map(entry => `
 
+                    <tbody>
+
+                        ${
+                            appData.journalEntries.length === 0
+
+                            ?
+
+                            `
                             <tr>
 
-                                <td>${escapeHTML(entry.date)}</td>
+                                <td
+                                    colspan="5"
+                                    class="empty">
 
-                                <td>${escapeHTML(entry.reference)}</td>
+                                    No journal entries yet.
 
-                                <td>${escapeHTML(entry.description)}</td>
-
-                                <td>
-                                    Nu. ${formatMoney(entry.debit)}
-                                </td>
-
-                                <td>
-                                    Nu. ${formatMoney(entry.credit)}
                                 </td>
 
                             </tr>
+                            `
 
-                        `).join("")
+                            :
 
-                    }
+                            appData.journalEntries
+                                .map(entry => `
 
-                </tbody>
+                                <tr>
+
+                                    <td>
+                                        ${escapeHTML(entry.date)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            entry.reference
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            entry.description
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        Nu.
+                                        ${formatMoney(entry.debit)}
+                                    </td>
+
+                                    <td>
+                                        Nu.
+                                        ${formatMoney(entry.credit)}
+                                    </td>
+
+                                </tr>
+
+                            `)
+                            .join("")
+
+                        }
+
+                    </tbody>
 
 
-                <tfoot>
+                    <tfoot>
 
-                    <tr>
+                        <tr>
 
-                        <th colspan="3">
-                            Total
-                        </th>
+                            <th colspan="3">
+                                Total
+                            </th>
 
-                        <th>
-                            Nu. ${formatMoney(totalDebit)}
-                        </th>
+                            <th>
+                                Nu.
+                                ${formatMoney(totalDebit)}
+                            </th>
 
-                        <th>
-                            Nu. ${formatMoney(totalCredit)}
-                        </th>
+                            <th>
+                                Nu.
+                                ${formatMoney(totalCredit)}
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </tfoot>
+                    </tfoot>
 
-            </table>
+                </table>
+
+            </div>
 
         </div>
 
@@ -1671,20 +1937,23 @@ function journalPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    GENERAL LEDGER
-   -------------------------------------------- */
+   ========================================================= */
 
 function ledgerPage() {
 
-    const entries = appData.journalEntries;
+    const entries =
+        appData.journalEntries;
 
 
     return `
 
         <div class="page-header">
 
-            <h2>General Ledger</h2>
+            <h2>
+                General Ledger
+            </h2>
 
             <p>
                 Account-by-account transaction history.
@@ -1695,81 +1964,98 @@ function ledgerPage() {
 
         <div class="panel">
 
-            <table>
+            <div class="table-container">
 
-                <thead>
+                <table>
 
-                    <tr>
+                    <thead>
 
-                        <th>Date</th>
-
-                        <th>Account</th>
-
-                        <th>Reference</th>
-
-                        <th>Description</th>
-
-                        <th>Debit</th>
-
-                        <th>Credit</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    ${
-                        entries.length === 0
-
-                        ?
-
-                        `
                         <tr>
 
-                            <td
-                                colspan="6"
-                                class="empty">
-
-                                No ledger transactions yet.
-
-                            </td>
+                            <th>Date</th>
+                            <th>Account</th>
+                            <th>Reference</th>
+                            <th>Description</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
 
                         </tr>
-                        `
 
-                        :
+                    </thead>
 
-                        entries.map(entry => `
 
+                    <tbody>
+
+                        ${
+                            entries.length === 0
+
+                            ?
+
+                            `
                             <tr>
 
-                                <td>${escapeHTML(entry.date)}</td>
+                                <td
+                                    colspan="6"
+                                    class="empty">
 
-                                <td>${escapeHTML(entry.account || "")}</td>
+                                    No ledger transactions yet.
 
-                                <td>${escapeHTML(entry.reference)}</td>
-
-                                <td>${escapeHTML(entry.description)}</td>
-
-                                <td>
-                                    Nu. ${formatMoney(entry.debit)}
-                                </td>
-
-                                <td>
-                                    Nu. ${formatMoney(entry.credit)}
                                 </td>
 
                             </tr>
+                            `
 
-                        `).join("")
+                            :
 
-                    }
+                            entries
+                                .map(entry => `
 
-                </tbody>
+                                <tr>
 
-            </table>
+                                    <td>
+                                        ${escapeHTML(entry.date)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            entry.account || ""
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            entry.reference
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            entry.description
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        Nu.
+                                        ${formatMoney(entry.debit)}
+                                    </td>
+
+                                    <td>
+                                        Nu.
+                                        ${formatMoney(entry.credit)}
+                                    </td>
+
+                                </tr>
+
+                            `)
+                            .join("")
+
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
@@ -1778,9 +2064,9 @@ function ledgerPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    TRIAL BALANCE
-   -------------------------------------------- */
+   ========================================================= */
 
 function trialBalancePage() {
 
@@ -1789,7 +2075,9 @@ function trialBalancePage() {
 
     appData.journalEntries.forEach(entry => {
 
-        const account = entry.account || "Unassigned";
+        const account =
+            entry.account || "Unassigned";
+
 
         if (!balances[account]) {
 
@@ -1800,41 +2088,57 @@ function trialBalancePage() {
 
         }
 
-        balances[account].debit += Number(entry.debit || 0);
 
-        balances[account].credit += Number(entry.credit || 0);
+        balances[account].debit +=
+            Number(entry.debit || 0);
+
+
+        balances[account].credit +=
+            Number(entry.credit || 0);
 
     });
 
 
-    const rows = Object.keys(balances).map(account => {
+    const accounts =
+        Object.keys(balances);
 
-        return `
+
+    const rows =
+        accounts.map(account => `
 
             <tr>
 
-                <td>${escapeHTML(account)}</td>
-
                 <td>
-                    Nu. ${formatMoney(balances[account].debit)}
+                    ${escapeHTML(account)}
                 </td>
 
                 <td>
-                    Nu. ${formatMoney(balances[account].credit)}
+                    Nu.
+                    ${formatMoney(
+                        balances[account].debit
+                    )}
+                </td>
+
+                <td>
+                    Nu.
+                    ${formatMoney(
+                        balances[account].credit
+                    )}
                 </td>
 
             </tr>
 
-        `;
-
-    }).join("");
+        `)
+        .join("");
 
 
     return `
 
         <div class="page-header">
 
-            <h2>Trial Balance</h2>
+            <h2>
+                Trial Balance
+            </h2>
 
             <p>
                 Debit and credit balances of all accounts.
@@ -1845,46 +2149,48 @@ function trialBalancePage() {
 
         <div class="panel">
 
-            <table>
+            <div class="table-container">
 
-                <thead>
+                <table>
 
-                    <tr>
+                    <thead>
 
-                        <th>Account</th>
-
-                        <th>Debit</th>
-
-                        <th>Credit</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    ${
-                        rows ||
-
-                        `
                         <tr>
 
-                            <td
-                                colspan="3"
-                                class="empty">
-
-                                No journal entries yet.
-
-                            </td>
+                            <th>Account</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
 
                         </tr>
-                        `
-                    }
 
-                </tbody>
+                    </thead>
 
-            </table>
+
+                    <tbody>
+
+                        ${
+                            rows ||
+
+                            `
+                            <tr>
+
+                                <td
+                                    colspan="3"
+                                    class="empty">
+
+                                    No journal entries yet.
+
+                                </td>
+
+                            </tr>
+                            `
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
@@ -1893,28 +2199,43 @@ function trialBalancePage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    PROFIT & LOSS
-   -------------------------------------------- */
+   ========================================================= */
 
 function profitLossPage() {
 
-    const sales = calculateSales();
+    const sales =
+        calculateSales();
 
-    const cogs = calculateCOGS();
+    const cogs =
+        calculateCOGS();
 
-    const expenses = calculateExpenses();
+    const expenses =
+        calculateExpenses();
 
-    const grossProfit = sales - cogs;
 
-    const netProfit = grossProfit - expenses;
+    const actualCOGS =
+        cogs > 0
+            ? cogs
+            : calculatePurchases();
+
+
+    const grossProfit =
+        sales - actualCOGS;
+
+
+    const netProfit =
+        grossProfit - expenses;
 
 
     return `
 
         <div class="page-header">
 
-            <h2>Profit & Loss</h2>
+            <h2>
+                Profit & Loss
+            </h2>
 
             <p>
                 Financial performance of the business.
@@ -1925,67 +2246,86 @@ function profitLossPage() {
 
         <div class="panel">
 
-            <table>
+            <div class="table-container">
 
-                <tbody>
+                <table>
 
-                    <tr>
+                    <tbody>
 
-                        <td>Sales Revenue</td>
+                        <tr>
 
-                        <td>
-                            Nu. ${formatMoney(sales)}
-                        </td>
+                            <td>
+                                Sales Revenue
+                            </td>
 
-                    </tr>
+                            <td>
+                                Nu.
+                                ${formatMoney(sales)}
+                            </td>
 
-
-                    <tr>
-
-                        <td>Cost of Goods Sold</td>
-
-                        <td>
-                            Nu. ${formatMoney(cogs)}
-                        </td>
-
-                    </tr>
+                        </tr>
 
 
-                    <tr>
+                        <tr>
 
-                        <th>Gross Profit</th>
+                            <td>
+                                Cost of Goods Sold
+                            </td>
 
-                        <th>
-                            Nu. ${formatMoney(grossProfit)}
-                        </th>
+                            <td>
+                                Nu.
+                                ${formatMoney(actualCOGS)}
+                            </td>
 
-                    </tr>
-
-
-                    <tr>
-
-                        <td>Expenses</td>
-
-                        <td>
-                            Nu. ${formatMoney(expenses)}
-                        </td>
-
-                    </tr>
+                        </tr>
 
 
-                    <tr>
+                        <tr>
 
-                        <th>Net Profit</th>
+                            <th>
+                                Gross Profit
+                            </th>
 
-                        <th>
-                            Nu. ${formatMoney(netProfit)}
-                        </th>
+                            <th>
+                                Nu.
+                                ${formatMoney(grossProfit)}
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
 
-            </table>
+                        <tr>
+
+                            <td>
+                                Expenses
+                            </td>
+
+                            <td>
+                                Nu.
+                                ${formatMoney(expenses)}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <th>
+                                Net Profit
+                            </th>
+
+                            <th>
+                                Nu.
+                                ${formatMoney(netProfit)}
+                            </th>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
@@ -1994,28 +2334,40 @@ function profitLossPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    BALANCE SHEET
-   -------------------------------------------- */
+   ========================================================= */
 
 function balanceSheetPage() {
 
-    const inventory = calculateInventory();
+    const inventory =
+        calculateInventory();
 
-    const receivables = calculateReceivables();
+    const receivables =
+        calculateReceivables();
 
-    const cash = calculateCash();
+    const cash =
+        calculateCash();
+
 
     const assets =
         inventory +
         receivables +
         cash;
 
-    const payables = calculatePayables();
 
-    const profit = calculateProfit();
+    const payables =
+        calculatePayables();
 
-    const equity = calculateEquity() + profit;
+
+    const profit =
+        calculateProfit();
+
+
+    const equity =
+        calculateEquity() +
+        profit;
+
 
     const liabilitiesEquity =
         payables +
@@ -2026,7 +2378,9 @@ function balanceSheetPage() {
 
         <div class="page-header">
 
-            <h2>Balance Sheet</h2>
+            <h2>
+                Balance Sheet
+            </h2>
 
             <p>
                 Assets, liabilities and equity.
@@ -2037,97 +2391,140 @@ function balanceSheetPage() {
 
         <div class="panel">
 
-            <h3>Assets</h3>
-
-            <table>
-
-                <tr>
-
-                    <td>Cash / Bank</td>
-
-                    <td>
-                        Nu. ${formatMoney(cash)}
-                    </td>
-
-                </tr>
+            <h3>
+                Assets
+            </h3>
 
 
-                <tr>
+            <div class="table-container">
 
-                    <td>Accounts Receivable</td>
+                <table>
 
-                    <td>
-                        Nu. ${formatMoney(receivables)}
-                    </td>
+                    <tbody>
 
-                </tr>
+                        <tr>
 
+                            <td>
+                                Cash / Bank
+                            </td>
 
-                <tr>
+                            <td>
+                                Nu.
+                                ${formatMoney(cash)}
+                            </td>
 
-                    <td>Inventory</td>
-
-                    <td>
-                        Nu. ${formatMoney(inventory)}
-                    </td>
-
-                </tr>
+                        </tr>
 
 
-                <tr>
+                        <tr>
 
-                    <th>Total Assets</th>
+                            <td>
+                                Accounts Receivable
+                            </td>
 
-                    <th>
-                        Nu. ${formatMoney(assets)}
-                    </th>
+                            <td>
+                                Nu.
+                                ${formatMoney(receivables)}
+                            </td>
 
-                </tr>
+                        </tr>
 
-            </table>
+
+                        <tr>
+
+                            <td>
+                                Inventory
+                            </td>
+
+                            <td>
+                                Nu.
+                                ${formatMoney(inventory)}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <th>
+                                Total Assets
+                            </th>
+
+                            <th>
+                                Nu.
+                                ${formatMoney(assets)}
+                            </th>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
 
         <div class="panel">
 
-            <h3>Liabilities & Equity</h3>
-
-            <table>
-
-                <tr>
-
-                    <td>Accounts Payable</td>
-
-                    <td>
-                        Nu. ${formatMoney(payables)}
-                    </td>
-
-                </tr>
+            <h3>
+                Liabilities & Equity
+            </h3>
 
 
-                <tr>
+            <div class="table-container">
 
-                    <td>Owner's Equity</td>
+                <table>
 
-                    <td>
-                        Nu. ${formatMoney(equity)}
-                    </td>
+                    <tbody>
 
-                </tr>
+                        <tr>
+
+                            <td>
+                                Accounts Payable
+                            </td>
+
+                            <td>
+                                Nu.
+                                ${formatMoney(payables)}
+                            </td>
+
+                        </tr>
 
 
-                <tr>
+                        <tr>
 
-                    <th>Total Liabilities & Equity</th>
+                            <td>
+                                Owner's Equity
+                            </td>
 
-                    <th>
-                        Nu. ${formatMoney(liabilitiesEquity)}
-                    </th>
+                            <td>
+                                Nu.
+                                ${formatMoney(equity)}
+                            </td>
 
-                </tr>
+                        </tr>
 
-            </table>
+
+                        <tr>
+
+                            <th>
+                                Total Liabilities & Equity
+                            </th>
+
+                            <th>
+                                Nu.
+                                ${formatMoney(liabilitiesEquity)}
+                            </th>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
@@ -2136,13 +2533,13 @@ function balanceSheetPage() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    SETTINGS
-   -------------------------------------------- */
+   ========================================================= */
 
 function settingsPage() {
 
-    const savedBusinessName =
+    const businessName =
         localStorage.getItem("businessName") || "";
 
 
@@ -2150,7 +2547,9 @@ function settingsPage() {
 
         <div class="page-header">
 
-            <h2>Settings</h2>
+            <h2>
+                Settings
+            </h2>
 
             <p>
                 Configure your accounting system.
@@ -2161,18 +2560,25 @@ function settingsPage() {
 
         <div class="panel">
 
-            <h3>Business Information</h3>
+            <h3>
+                Business Information
+            </h3>
+
 
             <div class="form-grid">
 
                 <div class="form-group">
 
-                    <label>Business Name</label>
+                    <label>
+                        Business Name
+                    </label>
 
                     <input
                         type="text"
                         id="businessName"
-                        value="${escapeAttribute(savedBusinessName)}"
+                        value="${escapeAttribute(
+                            businessName
+                        )}"
                         placeholder="Enter business name"
                     >
 
@@ -2181,7 +2587,9 @@ function settingsPage() {
 
                 <div class="form-group">
 
-                    <label>Currency</label>
+                    <label>
+                        Currency
+                    </label>
 
                     <input
                         type="text"
@@ -2198,6 +2606,7 @@ function settingsPage() {
 
 
             <button
+                type="button"
                 class="btn btn-primary"
                 onclick="saveSettings()">
 
@@ -2210,15 +2619,18 @@ function settingsPage() {
 
         <div class="panel">
 
-            <h3>Data Management</h3>
+            <h3>
+                Data Management
+            </h3>
 
             <p>
-                Your accounting data is currently stored in
-                your browser's local storage.
+                Your accounting data is stored locally
+                in your browser.
             </p>
 
 
             <button
+                type="button"
                 class="btn btn-danger"
                 onclick="clearAllData()">
 
@@ -2233,9 +2645,9 @@ function settingsPage() {
 }
 
 
-/* ============================================
+/* =========================================================
    SAVE ACCOUNT
-   ============================================ */
+   ========================================================= */
 
 function saveAccount() {
 
@@ -2252,8 +2664,14 @@ function saveAccount() {
         document.getElementById("accountBalance");
 
 
-    if (!codeElement || !nameElement || !typeElement) {
+    if (
+        !codeElement ||
+        !nameElement ||
+        !typeElement
+    ) {
+
         return;
+
     }
 
 
@@ -2267,12 +2685,18 @@ function saveAccount() {
         typeElement.value;
 
     const balance =
-        Number(balanceElement.value || 0);
+        Number(
+            balanceElement
+                ? balanceElement.value || 0
+                : 0
+        );
 
 
     if (!code) {
 
-        alert("Please enter an account code.");
+        alert(
+            "Please enter an account code."
+        );
 
         return;
 
@@ -2281,7 +2705,9 @@ function saveAccount() {
 
     if (!name) {
 
-        alert("Please enter an account name.");
+        alert(
+            "Please enter an account name."
+        );
 
         return;
 
@@ -2290,13 +2716,16 @@ function saveAccount() {
 
     const duplicate =
         appData.accounts.some(
-            account => account.code === code
+            account =>
+                account.code === code
         );
 
 
     if (duplicate) {
 
-        alert("This account code already exists.");
+        alert(
+            "This account code already exists."
+        );
 
         return;
 
@@ -2320,21 +2749,25 @@ function saveAccount() {
 
     saveData();
 
-    alert("Account saved successfully.");
+    alert(
+        "Account saved successfully."
+    );
+
 
     showPage("accounts");
 
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    ADD CUSTOMER
-   -------------------------------------------- */
+   ========================================================= */
 
 function addCustomer() {
 
     const name =
         prompt("Customer name:");
+
 
     if (!name || !name.trim()) {
         return;
@@ -2366,21 +2799,26 @@ function addCustomer() {
 
     saveData();
 
-    alert("Customer added successfully.");
+
+    alert(
+        "Customer added successfully."
+    );
+
 
     showPage("customers");
 
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    ADD SUPPLIER
-   -------------------------------------------- */
+   ========================================================= */
 
 function addSupplier() {
 
     const name =
         prompt("Supplier name:");
+
 
     if (!name || !name.trim()) {
         return;
@@ -2412,21 +2850,26 @@ function addSupplier() {
 
     saveData();
 
-    alert("Supplier added successfully.");
+
+    alert(
+        "Supplier added successfully."
+    );
+
 
     showPage("suppliers");
 
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    ADD PRODUCT
-   -------------------------------------------- */
+   ========================================================= */
 
 function addProduct() {
 
     const name =
         prompt("Product name:");
+
 
     if (!name || !name.trim()) {
         return;
@@ -2434,20 +2877,32 @@ function addProduct() {
 
 
     const cost =
-        Number(prompt("Purchase price:") || 0);
+        Number(
+            prompt("Purchase price:") || 0
+        );
 
 
     const price =
-        Number(prompt("Selling price:") || 0);
+        Number(
+            prompt("Selling price:") || 0
+        );
 
 
     const openingStock =
-        Number(prompt("Opening stock:") || 0);
+        Number(
+            prompt("Opening stock:") || 0
+        );
 
 
-    if (cost < 0 || price < 0 || openingStock < 0) {
+    if (
+        cost < 0 ||
+        price < 0 ||
+        openingStock < 0
+    ) {
 
-        alert("Values cannot be negative.");
+        alert(
+            "Values cannot be negative."
+        );
 
         return;
 
@@ -2473,16 +2928,20 @@ function addProduct() {
 
     saveData();
 
-    alert("Product added successfully.");
+
+    alert(
+        "Product added successfully."
+    );
+
 
     showPage("products");
 
 }
 
 
-/* --------------------------------------------
-   ADD SALES INVOICE
-   -------------------------------------------- */
+/* =========================================================
+   ADD SALE
+   ========================================================= */
 
 function addSale() {
 
@@ -2494,18 +2953,27 @@ function addSale() {
         prompt("Customer name:");
 
 
-    if (!customer || !customer.trim()) {
+    if (
+        !customer ||
+        !customer.trim()
+    ) {
+
         return;
+
     }
 
 
     const total =
-        Number(prompt("Invoice total:") || 0);
+        Number(
+            prompt("Invoice total:") || 0
+        );
 
 
     if (total <= 0) {
 
-        alert("Invoice total must be greater than zero.");
+        alert(
+            "Invoice total must be greater than zero."
+        );
 
         return;
 
@@ -2531,12 +2999,15 @@ function addSale() {
 
         total: total,
 
-        status: status.trim()
+        status: status.trim(),
+
+        cogs: 0
 
     });
 
 
     saveData();
+
 
     alert(
         "Sales invoice " +
@@ -2550,9 +3021,9 @@ function addSale() {
 }
 
 
-/* --------------------------------------------
-   ADD PURCHASE INVOICE
-   -------------------------------------------- */
+/* =========================================================
+   ADD PURCHASE
+   ========================================================= */
 
 function addPurchase() {
 
@@ -2564,18 +3035,27 @@ function addPurchase() {
         prompt("Supplier name:");
 
 
-    if (!supplier || !supplier.trim()) {
+    if (
+        !supplier ||
+        !supplier.trim()
+    ) {
+
         return;
+
     }
 
 
     const total =
-        Number(prompt("Purchase total:") || 0);
+        Number(
+            prompt("Purchase total:") || 0
+        );
 
 
     if (total <= 0) {
 
-        alert("Purchase total must be greater than zero.");
+        alert(
+            "Purchase total must be greater than zero."
+        );
 
         return;
 
@@ -2608,6 +3088,7 @@ function addPurchase() {
 
     saveData();
 
+
     alert(
         "Purchase invoice " +
         invoice +
@@ -2620,17 +3101,23 @@ function addPurchase() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    ADD RECEIPT
-   -------------------------------------------- */
+   ========================================================= */
 
 function addReceipt() {
 
     const from =
         prompt("Received from:");
 
-    if (!from || !from.trim()) {
+
+    if (
+        !from ||
+        !from.trim()
+    ) {
+
         return;
+
     }
 
 
@@ -2642,12 +3129,16 @@ function addReceipt() {
 
 
     const amount =
-        Number(prompt("Amount received:") || 0);
+        Number(
+            prompt("Amount received:") || 0
+        );
 
 
     if (amount <= 0) {
 
-        alert("Amount must be greater than zero.");
+        alert(
+            "Amount must be greater than zero."
+        );
 
         return;
 
@@ -2681,7 +3172,9 @@ function addReceipt() {
 
         reference: reference,
 
-        description: "Receipt from " + from.trim(),
+        description:
+            "Receipt from " +
+            from.trim(),
 
         account: account.trim(),
 
@@ -2693,6 +3186,7 @@ function addReceipt() {
 
 
     saveData();
+
 
     alert(
         "Receipt " +
@@ -2706,17 +3200,23 @@ function addReceipt() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    ADD PAYMENT
-   -------------------------------------------- */
+   ========================================================= */
 
 function addPayment() {
 
     const to =
         prompt("Paid to:");
 
-    if (!to || !to.trim()) {
+
+    if (
+        !to ||
+        !to.trim()
+    ) {
+
         return;
+
     }
 
 
@@ -2728,12 +3228,16 @@ function addPayment() {
 
 
     const amount =
-        Number(prompt("Amount paid:") || 0);
+        Number(
+            prompt("Amount paid:") || 0
+        );
 
 
     if (amount <= 0) {
 
-        alert("Amount must be greater than zero.");
+        alert(
+            "Amount must be greater than zero."
+        );
 
         return;
 
@@ -2767,7 +3271,9 @@ function addPayment() {
 
         reference: reference,
 
-        description: "Payment to " + to.trim(),
+        description:
+            "Payment to " +
+            to.trim(),
 
         account: account.trim(),
 
@@ -2779,6 +3285,7 @@ function addPayment() {
 
 
     saveData();
+
 
     alert(
         "Payment " +
@@ -2792,17 +3299,23 @@ function addPayment() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    ADD JOURNAL ENTRY
-   -------------------------------------------- */
+   ========================================================= */
 
 function addJournalEntry() {
 
     const account =
         prompt("Account name:");
 
-    if (!account || !account.trim()) {
+
+    if (
+        !account ||
+        !account.trim()
+    ) {
+
         return;
+
     }
 
 
@@ -2811,32 +3324,55 @@ function addJournalEntry() {
 
 
     const debit =
-        Number(prompt("Debit amount:", "0") || 0);
+        Number(
+            prompt(
+                "Debit amount:",
+                "0"
+            ) || 0
+        );
 
 
     const credit =
-        Number(prompt("Credit amount:", "0") || 0);
+        Number(
+            prompt(
+                "Credit amount:",
+                "0"
+            ) || 0
+        );
 
 
-    if (debit < 0 || credit < 0) {
+    if (
+        debit < 0 ||
+        credit < 0
+    ) {
 
-        alert("Debit and credit cannot be negative.");
+        alert(
+            "Debit and credit cannot be negative."
+        );
 
         return;
 
     }
 
 
-    if (debit === 0 && credit === 0) {
+    if (
+        debit === 0 &&
+        credit === 0
+    ) {
 
-        alert("Please enter a debit or credit amount.");
+        alert(
+            "Please enter a debit or credit amount."
+        );
 
         return;
 
     }
 
 
-    if (debit > 0 && credit > 0) {
+    if (
+        debit > 0 &&
+        credit > 0
+    ) {
 
         alert(
             "For a single journal line, enter either debit or credit."
@@ -2851,11 +3387,14 @@ function addJournalEntry() {
 
         date: today(),
 
-        reference: generateNumber("JE"),
+        reference:
+            generateNumber("JE"),
 
-        description: description.trim(),
+        description:
+            description.trim(),
 
-        account: account.trim(),
+        account:
+            account.trim(),
 
         debit: debit,
 
@@ -2866,49 +3405,66 @@ function addJournalEntry() {
 
     saveData();
 
-    alert("Journal entry added successfully.");
+
+    alert(
+        "Journal entry added successfully."
+    );
+
 
     showPage("journal");
 
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    CREATE JOURNAL ENTRY
-   -------------------------------------------- */
+   ========================================================= */
 
 function createJournalEntry(entry) {
 
     appData.journalEntries.push({
 
-        id: generateNumber("JEL"),
+        id:
+            generateNumber("JEL"),
 
-        date: entry.date || today(),
+        date:
+            entry.date || today(),
 
-        reference: entry.reference || generateNumber("JE"),
+        reference:
+            entry.reference ||
+            generateNumber("JE"),
 
-        description: entry.description || "",
+        description:
+            entry.description || "",
 
-        account: entry.account || "",
+        account:
+            entry.account || "",
 
-        debit: Number(entry.debit || 0),
+        debit:
+            Number(entry.debit || 0),
 
-        credit: Number(entry.credit || 0)
+        credit:
+            Number(entry.credit || 0)
 
     });
 
 }
 
 
-/* --------------------------------------------
-   DELETE ACCOUNT
-   -------------------------------------------- */
+/* =========================================================
+   DELETE FUNCTIONS
+   ========================================================= */
 
 function deleteAccount(index) {
 
-    if (!confirm("Delete this account?")) {
+    if (
+        !confirm("Delete this account?")
+    ) {
+
         return;
+
     }
+
 
     appData.accounts.splice(index, 1);
 
@@ -2919,15 +3475,16 @@ function deleteAccount(index) {
 }
 
 
-/* --------------------------------------------
-   DELETE CUSTOMER
-   -------------------------------------------- */
-
 function deleteCustomer(index) {
 
-    if (!confirm("Delete this customer?")) {
+    if (
+        !confirm("Delete this customer?")
+    ) {
+
         return;
+
     }
+
 
     appData.customers.splice(index, 1);
 
@@ -2938,15 +3495,16 @@ function deleteCustomer(index) {
 }
 
 
-/* --------------------------------------------
-   DELETE SUPPLIER
-   -------------------------------------------- */
-
 function deleteSupplier(index) {
 
-    if (!confirm("Delete this supplier?")) {
+    if (
+        !confirm("Delete this supplier?")
+    ) {
+
         return;
+
     }
+
 
     appData.suppliers.splice(index, 1);
 
@@ -2957,15 +3515,16 @@ function deleteSupplier(index) {
 }
 
 
-/* --------------------------------------------
-   DELETE PRODUCT
-   -------------------------------------------- */
-
 function deleteProduct(index) {
 
-    if (!confirm("Delete this product?")) {
+    if (
+        !confirm("Delete this product?")
+    ) {
+
         return;
+
     }
+
 
     appData.products.splice(index, 1);
 
@@ -2976,15 +3535,16 @@ function deleteProduct(index) {
 }
 
 
-/* --------------------------------------------
-   DELETE SALE
-   -------------------------------------------- */
-
 function deleteSale(index) {
 
-    if (!confirm("Delete this sales invoice?")) {
+    if (
+        !confirm("Delete this sales invoice?")
+    ) {
+
         return;
+
     }
+
 
     appData.sales.splice(index, 1);
 
@@ -2995,15 +3555,16 @@ function deleteSale(index) {
 }
 
 
-/* --------------------------------------------
-   DELETE PURCHASE
-   -------------------------------------------- */
-
 function deletePurchase(index) {
 
-    if (!confirm("Delete this purchase invoice?")) {
+    if (
+        !confirm("Delete this purchase invoice?")
+    ) {
+
         return;
+
     }
+
 
     appData.purchases.splice(index, 1);
 
@@ -3014,21 +3575,17 @@ function deletePurchase(index) {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    CALCULATIONS
-   -------------------------------------------- */
+   ========================================================= */
 
 function calculateSales() {
 
     return appData.sales.reduce(
-
         (total, sale) =>
-
             total +
             Number(sale.total || 0),
-
         0
-
     );
 
 }
@@ -3037,14 +3594,10 @@ function calculateSales() {
 function calculatePurchases() {
 
     return appData.purchases.reduce(
-
         (total, purchase) =>
-
             total +
             Number(purchase.total || 0),
-
         0
-
     );
 
 }
@@ -3053,14 +3606,10 @@ function calculatePurchases() {
 function calculateCOGS() {
 
     return appData.sales.reduce(
-
         (total, sale) =>
-
             total +
             Number(sale.cogs || 0),
-
         0
-
     );
 
 }
@@ -3069,13 +3618,16 @@ function calculateCOGS() {
 function calculateExpenses() {
 
     return appData.journalEntries.reduce(
-
         (total, entry) => {
 
+            const account =
+                String(
+                    entry.account || ""
+                ).toLowerCase();
+
+
             if (
-                String(entry.account || "")
-                    .toLowerCase()
-                    .includes("expense")
+                account.includes("expense")
             ) {
 
                 return total +
@@ -3083,12 +3635,11 @@ function calculateExpenses() {
 
             }
 
+
             return total;
 
         },
-
         0
-
     );
 
 }
@@ -3097,18 +3648,15 @@ function calculateExpenses() {
 function calculateInventory() {
 
     return appData.products.reduce(
-
         (total, product) =>
 
             total +
-
             (
                 Number(product.stock || 0) *
                 Number(product.cost || 0)
             ),
 
         0
-
     );
 
 }
@@ -3122,13 +3670,19 @@ function calculateReceivables() {
     appData.sales.forEach(sale => {
 
         const status =
-            String(sale.status || "")
-                .toLowerCase();
+            String(
+                sale.status || ""
+            ).toLowerCase();
 
 
-        if (status !== "paid") {
+        if (
+            status !== "paid"
+        ) {
 
-            total += Number(sale.total || 0);
+            total +=
+                Number(
+                    sale.total || 0
+                );
 
         }
 
@@ -3137,7 +3691,10 @@ function calculateReceivables() {
 
     appData.receipts.forEach(receipt => {
 
-        total -= Number(receipt.amount || 0);
+        total -=
+            Number(
+                receipt.amount || 0
+            );
 
     });
 
@@ -3155,13 +3712,19 @@ function calculatePayables() {
     appData.purchases.forEach(purchase => {
 
         const status =
-            String(purchase.status || "")
-                .toLowerCase();
+            String(
+                purchase.status || ""
+            ).toLowerCase();
 
 
-        if (status !== "paid") {
+        if (
+            status !== "paid"
+        ) {
 
-            total += Number(purchase.total || 0);
+            total +=
+                Number(
+                    purchase.total || 0
+                );
 
         }
 
@@ -3170,7 +3733,10 @@ function calculatePayables() {
 
     appData.payments.forEach(payment => {
 
-        total -= Number(payment.amount || 0);
+        total -=
+            Number(
+                payment.amount || 0
+            );
 
     });
 
@@ -3184,27 +3750,23 @@ function calculateCash() {
 
     const receipts =
         appData.receipts.reduce(
-
             (total, receipt) =>
-
                 total +
-                Number(receipt.amount || 0),
-
+                Number(
+                    receipt.amount || 0
+                ),
             0
-
         );
 
 
     const payments =
         appData.payments.reduce(
-
             (total, payment) =>
-
                 total +
-                Number(payment.amount || 0),
-
+                Number(
+                    payment.amount || 0
+                ),
             0
-
         );
 
 
@@ -3216,25 +3778,26 @@ function calculateCash() {
 function calculateEquity() {
 
     return appData.accounts.reduce(
-
         (total, account) => {
 
             if (
-                String(account.type || "")
-                    .toLowerCase() === "equity"
+                String(
+                    account.type || ""
+                ).toLowerCase() === "equity"
             ) {
 
                 return total +
-                    Number(account.balance || 0);
+                    Number(
+                        account.balance || 0
+                    );
 
             }
+
 
             return total;
 
         },
-
         0
-
     );
 
 }
@@ -3245,6 +3808,7 @@ function calculateProfit() {
     const sales =
         calculateSales();
 
+
     const cogs =
         calculateCOGS();
 
@@ -3253,36 +3817,30 @@ function calculateProfit() {
         calculateExpenses();
 
 
-    /*
-       If COGS has not yet been entered separately,
-       use purchases as the temporary COGS value.
-    */
-
     const actualCOGS =
         cogs > 0
             ? cogs
             : calculatePurchases();
 
 
-    return sales -
-           actualCOGS -
-           expenses;
+    return (
+        sales -
+        actualCOGS -
+        expenses
+    );
 
 }
 
 
-/* --------------------------------------------
-   STORAGE
-   -------------------------------------------- */
+/* =========================================================
+   LOCAL STORAGE
+   ========================================================= */
 
 function saveData() {
 
     localStorage.setItem(
-
         "ptAccountingData",
-
         JSON.stringify(appData)
-
     );
 
 }
@@ -3307,48 +3865,99 @@ function loadData() {
             JSON.parse(saved);
 
 
-        if (data.accounts) {
-            appData.accounts = data.accounts;
+        if (
+            Array.isArray(data.accounts)
+        ) {
+
+            appData.accounts =
+                data.accounts;
+
         }
 
-        if (data.customers) {
-            appData.customers = data.customers;
+
+        if (
+            Array.isArray(data.customers)
+        ) {
+
+            appData.customers =
+                data.customers;
+
         }
 
-        if (data.suppliers) {
-            appData.suppliers = data.suppliers;
+
+        if (
+            Array.isArray(data.suppliers)
+        ) {
+
+            appData.suppliers =
+                data.suppliers;
+
         }
 
-        if (data.products) {
-            appData.products = data.products;
+
+        if (
+            Array.isArray(data.products)
+        ) {
+
+            appData.products =
+                data.products;
+
         }
 
-        if (data.sales) {
-            appData.sales = data.sales;
+
+        if (
+            Array.isArray(data.sales)
+        ) {
+
+            appData.sales =
+                data.sales;
+
         }
 
-        if (data.purchases) {
-            appData.purchases = data.purchases;
+
+        if (
+            Array.isArray(data.purchases)
+        ) {
+
+            appData.purchases =
+                data.purchases;
+
         }
 
-        if (data.receipts) {
-            appData.receipts = data.receipts;
+
+        if (
+            Array.isArray(data.receipts)
+        ) {
+
+            appData.receipts =
+                data.receipts;
+
         }
 
-        if (data.payments) {
-            appData.payments = data.payments;
+
+        if (
+            Array.isArray(data.payments)
+        ) {
+
+            appData.payments =
+                data.payments;
+
         }
 
-        if (data.journalEntries) {
+
+        if (
+            Array.isArray(data.journalEntries)
+        ) {
+
             appData.journalEntries =
                 data.journalEntries;
-        }
 
+        }
 
     } catch (error) {
 
         console.error(
-            "Unable to load saved data.",
+            "Unable to load saved PT Accounting data.",
             error
         );
 
@@ -3357,9 +3966,9 @@ function loadData() {
 }
 
 
-/* --------------------------------------------
+/* =========================================================
    SETTINGS
-   -------------------------------------------- */
+   ========================================================= */
 
 function saveSettings() {
 
@@ -3384,10 +3993,16 @@ function saveSettings() {
     );
 
 
-    alert("Settings saved successfully.");
+    alert(
+        "Settings saved successfully."
+    );
 
 }
 
+
+/* =========================================================
+   CLEAR DATA
+   ========================================================= */
 
 function clearAllData() {
 
@@ -3426,76 +4041,29 @@ function clearAllData() {
     appData.journalEntries = [];
 
 
-    alert("All accounting data has been cleared.");
+    alert(
+        "All accounting data has been cleared."
+    );
+
 
     showPage("dashboard");
 
 }
 
 
-/* --------------------------------------------
-   DEMO ACCOUNT
-   -------------------------------------------- */
-
-function addDemoAccount() {
-
-    const name =
-        prompt("Account name:");
-
-    if (!name || !name.trim()) {
-        return;
-    }
-
-
-    const code =
-        prompt("Account code:");
-
-    if (!code || !code.trim()) {
-        return;
-    }
-
-
-    appData.accounts.push({
-
-        id: generateNumber("ACC"),
-
-        code: code.trim(),
-
-        name: name.trim(),
-
-        type: "Asset",
-
-        balance: 0
-
-    });
-
-
-    saveData();
-
-    showPage("accounts");
-
-}
-
-
-/* --------------------------------------------
+/* =========================================================
    HELPERS
-   -------------------------------------------- */
+   ========================================================= */
 
 function formatMoney(number) {
 
     return Number(number || 0)
         .toLocaleString(
-
             "en-IN",
-
             {
-
                 minimumFractionDigits: 2,
-
                 maximumFractionDigits: 2
-
             }
-
         );
 
 }
@@ -3513,7 +4081,6 @@ function today() {
 function generateNumber(prefix) {
 
     return (
-
         prefix +
         "-" +
         Date.now() +
@@ -3521,29 +4088,43 @@ function generateNumber(prefix) {
         Math.floor(
             Math.random() * 1000
         )
-
     );
 
 }
 
 
-/* --------------------------------------------
-   SECURITY / HTML HELPERS
-   -------------------------------------------- */
+/* =========================================================
+   HTML SECURITY
+   ========================================================= */
 
 function escapeHTML(value) {
 
     return String(value ?? "")
 
-        .replace(/&/g, "&amp;")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
 
-        .replace(/</g, "&lt;")
+        .replace(
+            /</g,
+            "&lt;"
+        )
 
-        .replace(/>/g, "&gt;")
+        .replace(
+            />/g,
+            "&gt;"
+        )
 
-        .replace(/"/g, "&quot;")
+        .replace(
+            /"/g,
+            "&quot;"
+        )
 
-        .replace(/'/g, "&#039;");
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
@@ -3553,4 +4134,13 @@ function escapeAttribute(value) {
     return escapeHTML(value);
 
 }
+
+
+/* =========================================================
+   DEBUG MESSAGE
+   ========================================================= */
+
+console.log(
+    "PT Accounting System loaded successfully."
+);
 ```
