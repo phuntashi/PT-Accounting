@@ -1943,105 +1943,132 @@ function journalPage() {
 
 function ledgerPage() {
 
-const entries =
-    appData.journalEntries;
+    const entries =
+        appData.journalEntries;
 
-/*
- * Group journal entries by account
- */
-const grouped = {};
+    /*
+     * Group journal entries by account
+     */
+    const grouped = {};
 
-entries.forEach(entry => {
+    entries.forEach(entry => {
 
-    const account =
-        entry.account || "Unknown";
+        const account =
+            entry.account || "Unknown";
 
-    if (!grouped[account]) {
-        grouped[account] = [];
-    }
+        if (!grouped[account]) {
+            grouped[account] = [];
+        }
 
-    grouped[account].push(entry);
+        grouped[account].push(entry);
 
-});
+    });
 
-let rows = "";
+    let rows = "";
 
-/*
- * Build ledger account-by-account
- */
-Object.keys(grouped)
-    .sort()
-    .forEach(account => {
+    /*
+     * Build ledger account-by-account
+     */
+    Object.keys(grouped)
+        .sort()
+        .forEach(account => {
 
-        let balance = 0;
-
-        rows += `
-
-            <tr class="ledger-account-header">
-
-                <td colspan="7">
-
-                    <strong>
-                        ${escapeHTML(account)}
-                    </strong>
-
-                </td>
-
-            </tr>
-
-        `;
-
-        grouped[account].forEach(entry => {
-
-            const debit =
-                Number(entry.debit || 0);
-
-            const credit =
-                Number(entry.credit || 0);
-
-            balance += debit - credit;
+            let balance = 0;
 
             rows += `
 
-                <tr>
+                <tr class="ledger-account-header">
 
-                    <td>
-                        ${escapeHTML(
-                            entry.date || ""
-                        )}
+                    <td colspan="7">
+
+                        <strong>
+                            ${escapeHTML(account)}
+                        </strong>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            grouped[account].forEach(entry => {
+
+                const debit =
+                    Number(entry.debit || 0);
+
+                const credit =
+                    Number(entry.credit || 0);
+
+                balance += debit - credit;
+
+                rows += `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHTML(
+                                entry.date || ""
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                account
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                entry.reference || ""
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                entry.description || ""
+                            )}
+                        </td>
+
+                        <td>
+                            Nu.
+                            ${formatMoney(debit)}
+                        </td>
+
+                        <td>
+                            Nu.
+                            ${formatMoney(credit)}
+                        </td>
+
+                        <td>
+                            Nu.
+                            ${formatMoney(balance)}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            });
+
+            rows += `
+
+                <tr class="ledger-total">
+
+                    <td colspan="6">
+
+                        <strong>
+                            Closing Balance
+                        </strong>
+
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            account
-                        )}
-                    </td>
 
-                    <td>
-                        ${escapeHTML(
-                            entry.reference || ""
-                        )}
-                    </td>
+                        <strong>
+                            Nu.
+                            ${formatMoney(balance)}
+                        </strong>
 
-                    <td>
-                        ${escapeHTML(
-                            entry.description || ""
-                        )}
-                    </td>
-
-                    <td>
-                        Nu.
-                        ${formatMoney(debit)}
-                    </td>
-
-                    <td>
-                        Nu.
-                        ${formatMoney(credit)}
-                    </td>
-
-                    <td>
-                        Nu.
-                        ${formatMoney(balance)}
                     </td>
 
                 </tr>
@@ -2050,111 +2077,293 @@ Object.keys(grouped)
 
         });
 
-        rows += `
 
-            <tr class="ledger-total">
+    return `
 
-                <td colspan="6">
+        <div class="page-header">
 
-                    <strong>
-                        Closing Balance
-                    </strong>
+            <h2>
+                General Ledger
+            </h2>
 
-                </td>
+            <p>
+                Account-by-account transaction history
+                with running balances.
+            </p>
 
-                <td>
+        </div>
 
-                    <strong>
-                        Nu.
-                        ${formatMoney(balance)}
-                    </strong>
 
-                </td>
+        <!-- EXPORT REPORT PANEL -->
 
-            </tr>
+        <div class="panel">
 
-        `;
+            <h3>
+                Generate Report
+            </h3>
+
+            <p>
+                Export the General Ledger.
+            </p>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+
+                <button
+                    type="button"
+                    class="btn-primary"
+                    onclick="exportGeneralLedgerCSV()">
+
+                    📄 Export CSV
+
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-primary"
+                    onclick="window.print()">
+
+                    🖨️ Print / Save PDF
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- LEDGER TABLE -->
+
+        <div class="panel">
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Date</th>
+                            <th>Account</th>
+                            <th>Reference</th>
+                            <th>Description</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        ${
+                            entries.length === 0
+
+                            ?
+
+                            `
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    class="empty">
+
+                                    No ledger transactions yet.
+
+                                </td>
+
+                            </tr>
+                            `
+
+                            :
+
+                            rows
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/*
+ * EXPORT GENERAL LEDGER TO CSV
+ */
+function exportGeneralLedgerCSV() {
+
+    const entries =
+        appData.journalEntries;
+
+    if (!entries || entries.length === 0) {
+
+        alert(
+            "There are no General Ledger transactions to export."
+        );
+
+        return;
+
+    }
+
+
+    const headers = [
+        "Date",
+        "Account",
+        "Reference",
+        "Description",
+        "Debit",
+        "Credit",
+        "Balance"
+    ];
+
+
+    const rows = [];
+
+    /*
+     * Group entries by account
+     */
+    const grouped = {};
+
+    entries.forEach(entry => {
+
+        const account =
+            entry.account || "Unknown";
+
+        if (!grouped[account]) {
+            grouped[account] = [];
+        }
+
+        grouped[account].push(entry);
 
     });
 
 
-return `
+    /*
+     * Create CSV rows
+     */
+    Object.keys(grouped)
+        .sort()
+        .forEach(account => {
 
-    <div class="page-header">
+            let balance = 0;
 
-        <h2>
-            General Ledger
-        </h2>
+            grouped[account].forEach(entry => {
 
-        <p>
-            Account-by-account transaction history
-            with running balances.
-        </p>
+                const debit =
+                    Number(entry.debit || 0);
 
-    </div>
+                const credit =
+                    Number(entry.credit || 0);
 
-
-    <div class="panel">
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>Date</th>
-                        <th>Account</th>
-                        <th>Reference</th>
-                        <th>Description</th>
-                        <th>Debit</th>
-                        <th>Credit</th>
-                        <th>Balance</th>
-
-                    </tr>
-
-                </thead>
+                balance += debit - credit;
 
 
-                <tbody>
+                rows.push([
+                    entry.date || "",
+                    account,
+                    entry.reference || "",
+                    entry.description || "",
+                    debit.toFixed(2),
+                    credit.toFixed(2),
+                    balance.toFixed(2)
+                ]);
 
-                    ${
-                        entries.length === 0
+            });
 
-                        ?
+        });
 
-                        `
-                        <tr>
 
-                            <td
-                                colspan="7"
-                                class="empty">
+    /*
+     * Convert data to CSV
+     */
+    const csvRows = [];
 
-                                No ledger transactions yet.
+    csvRows.push(
+        headers.map(csvEscape).join(",")
+    );
 
-                            </td>
+    rows.forEach(row => {
 
-                        </tr>
-                        `
+        csvRows.push(
+            row.map(csvEscape).join(",")
+        );
 
-                        :
+    });
 
-                        rows
-                    }
 
-                </tbody>
+    const csv =
+        csvRows.join("\r\n");
 
-            </table>
 
-        </div>
+    /*
+     * Create downloadable file
+     */
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type: "text/csv;charset=utf-8;"
+            }
+        );
 
-    </div>
 
-`;
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        "General_Ledger.csv";
+
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
 
 }
 
+
+/*
+ * Protect commas, quotes and line breaks
+ * inside CSV fields.
+ */
+function csvEscape(value) {
+
+    const text =
+        String(value ?? "");
+
+    if (
+        text.includes(",") ||
+        text.includes('"') ||
+        text.includes("\n") ||
+        text.includes("\r")
+    ) {
+
+        return '"' +
+            text.replace(/"/g, '""') +
+            '"';
+
+    }
+
+    return text;
+
+}
 
 /* =========================================================
    TRIAL BALANCE
