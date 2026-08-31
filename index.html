@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,85 +14,210 @@
 
 <div class="app">
 
-    <!-- SIDEBAR -->
+    <!-- ==============================
+         SIDEBAR
+         ============================== -->
     <aside class="sidebar" id="sidebar">
 
         <div class="logo">
             <div class="logo-icon">PT</div>
+
             <div>
                 <strong>PT Accounting</strong>
                 <small>Business System</small>
             </div>
         </div>
 
-        <nav>
 
-            <button class="nav-item active" data-page="dashboard">
-                🏠 <span>Dashboard</span>
+        <nav id="mainNavigation">
+
+            <!-- DASHBOARD -->
+            <button
+                type="button"
+                class="nav-item active"
+                data-page="dashboard">
+
+                <span class="nav-icon">🏠</span>
+                <span>Dashboard</span>
+
             </button>
 
-            <div class="nav-title">MASTERS</div>
 
-            <button class="nav-item" data-page="accounts">
-                📚 <span>Chart of Accounts</span>
+            <!-- MASTERS -->
+            <div class="nav-title">
+                MASTERS
+            </div>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="accounts">
+
+                <span class="nav-icon">📚</span>
+                <span>Chart of Accounts</span>
+
             </button>
 
-            <button class="nav-item" data-page="customers">
-                👥 <span>Customers</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="customers">
+
+                <span class="nav-icon">👥</span>
+                <span>Customers</span>
+
             </button>
 
-            <button class="nav-item" data-page="suppliers">
-                🏢 <span>Suppliers</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="suppliers">
+
+                <span class="nav-icon">🏢</span>
+                <span>Suppliers</span>
+
             </button>
 
-            <button class="nav-item" data-page="products">
-                📦 <span>Products & Inventory</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="products">
+
+                <span class="nav-icon">📦</span>
+                <span>Products & Inventory</span>
+
             </button>
 
-            <div class="nav-title">TRANSACTIONS</div>
 
-            <button class="nav-item" data-page="sales">
-                🧾 <span>Sales Invoices</span>
+            <!-- TRANSACTIONS -->
+            <div class="nav-title">
+                TRANSACTIONS
+            </div>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="sales">
+
+                <span class="nav-icon">🧾</span>
+                <span>Sales Invoices</span>
+
             </button>
 
-            <button class="nav-item" data-page="purchases">
-                🛒 <span>Purchase Invoices</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="purchases">
+
+                <span class="nav-icon">🛒</span>
+                <span>Purchase Invoices</span>
+
             </button>
 
-            <button class="nav-item" data-page="receipts">
-                💵 <span>Receipts</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="receipts">
+
+                <span class="nav-icon">💵</span>
+                <span>Receipts</span>
+
             </button>
 
-            <button class="nav-item" data-page="payments">
-                💸 <span>Payments</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="payments">
+
+                <span class="nav-icon">💸</span>
+                <span>Payments</span>
+
             </button>
 
-            <button class="nav-item" data-page="journal">
-                📒 <span>Journal Entries</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="journal">
+
+                <span class="nav-icon">📒</span>
+                <span>Journal Entries</span>
+
             </button>
 
-            <div class="nav-title">REPORTS</div>
 
-            <button class="nav-item" data-page="ledger">
-                📖 <span>General Ledger</span>
+            <!-- REPORTS -->
+            <div class="nav-title">
+                REPORTS
+            </div>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="ledger">
+
+                <span class="nav-icon">📖</span>
+                <span>General Ledger</span>
+
             </button>
 
-            <button class="nav-item" data-page="trial">
-                ⚖️ <span>Trial Balance</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="trial">
+
+                <span class="nav-icon">⚖️</span>
+                <span>Trial Balance</span>
+
             </button>
 
-            <button class="nav-item" data-page="profit-loss">
-                📈 <span>Profit & Loss</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="profit-loss">
+
+                <span class="nav-icon">📈</span>
+                <span>Profit & Loss</span>
+
             </button>
 
-            <button class="nav-item" data-page="balance-sheet">
-                🏦 <span>Balance Sheet</span>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="balance-sheet">
+
+                <span class="nav-icon">🏦</span>
+                <span>Balance Sheet</span>
+
             </button>
 
-            <div class="nav-title">SYSTEM</div>
 
-            <button class="nav-item" data-page="settings">
-                ⚙️ <span>Settings</span>
+            <!-- SYSTEM -->
+            <div class="nav-title">
+                SYSTEM
+            </div>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="settings">
+
+                <span class="nav-icon">⚙️</span>
+                <span>Settings</span>
+
             </button>
 
         </nav>
@@ -99,37 +225,54 @@
     </aside>
 
 
-    <!-- MAIN AREA -->
+    <!-- ==============================
+         MAIN AREA
+         ============================== -->
     <main class="main">
 
         <!-- TOP BAR -->
         <header class="topbar">
 
-            <button id="menuButton" class="menu-button">
+            <button
+                type="button"
+                id="menuButton"
+                class="menu-button">
+
                 ☰
+
             </button>
 
+
             <div>
-                <h1 id="pageTitle">Dashboard</h1>
+
+                <h1 id="pageTitle">
+                    Dashboard
+                </h1>
+
                 <p id="pageSubtitle">
                     Overview of your accounting system
                 </p>
+
             </div>
 
         </header>
 
 
-        <!-- CONTENT -->
-        <div class="content" id="content">
+        <!-- PAGE CONTENT -->
+        <section
+            class="content"
+            id="content">
 
-        </div>
+        </section>
 
     </main>
 
 </div>
 
 
-<script src="app.js"></script>
+<!-- JAVASCRIPT -->
+<script src="./app.js"></script>
 
 </body>
 </html>
+```
