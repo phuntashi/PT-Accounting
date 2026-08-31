@@ -1951,126 +1951,219 @@ function journalPage() {
 
 function ledgerPage() {
 
-    const entries =
-        appData.journalEntries;
+```
+const entries =
+    appData.journalEntries;
+
+/*
+ * Group journal entries by account
+ */
+const grouped = {};
+
+entries.forEach(entry => {
+
+    const account =
+        entry.account || "Unknown";
+
+    if (!grouped[account]) {
+        grouped[account] = [];
+    }
+
+    grouped[account].push(entry);
+
+});
+
+let rows = "";
+
+/*
+ * Build ledger account-by-account
+ */
+Object.keys(grouped)
+    .sort()
+    .forEach(account => {
+
+        let balance = 0;
+
+        rows += `
+
+            <tr class="ledger-account-header">
+
+                <td colspan="7">
+
+                    <strong>
+                        ${escapeHTML(account)}
+                    </strong>
+
+                </td>
+
+            </tr>
+
+        `;
+
+        grouped[account].forEach(entry => {
+
+            const debit =
+                Number(entry.debit || 0);
+
+            const credit =
+                Number(entry.credit || 0);
+
+            balance += debit - credit;
+
+            rows += `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(
+                            entry.date || ""
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            account
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            entry.reference || ""
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            entry.description || ""
+                        )}
+                    </td>
+
+                    <td>
+                        Nu.
+                        ${formatMoney(debit)}
+                    </td>
+
+                    <td>
+                        Nu.
+                        ${formatMoney(credit)}
+                    </td>
+
+                    <td>
+                        Nu.
+                        ${formatMoney(balance)}
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+        rows += `
+
+            <tr class="ledger-total">
+
+                <td colspan="6">
+
+                    <strong>
+                        Closing Balance
+                    </strong>
+
+                </td>
+
+                <td>
+
+                    <strong>
+                        Nu.
+                        ${formatMoney(balance)}
+                    </strong>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
 
 
-    return `
+return `
 
-        <div class="page-header">
+    <div class="page-header">
 
-            <h2>
-                General Ledger
-            </h2>
+        <h2>
+            General Ledger
+        </h2>
 
-            <p>
-                Account-by-account transaction history.
-            </p>
+        <p>
+            Account-by-account transaction history
+            with running balances.
+        </p>
 
-        </div>
+    </div>
 
 
-        <div class="panel">
+    <div class="panel">
 
-            <div class="table-container">
+        <div class="table-container">
 
-                <table>
+            <table>
 
-                    <thead>
+                <thead>
 
+                    <tr>
+
+                        <th>Date</th>
+                        <th>Account</th>
+                        <th>Reference</th>
+                        <th>Description</th>
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Balance</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${
+                        entries.length === 0
+
+                        ?
+
+                        `
                         <tr>
 
-                            <th>Date</th>
-                            <th>Account</th>
-                            <th>Reference</th>
-                            <th>Description</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
+                            <td
+                                colspan="7"
+                                class="empty">
+
+                                No ledger transactions yet.
+
+                            </td>
 
                         </tr>
+                        `
 
-                    </thead>
+                        :
 
+                        rows
+                    }
 
-                    <tbody>
+                </tbody>
 
-                        ${
-                            entries.length === 0
-
-                            ?
-
-                            `
-                            <tr>
-
-                                <td
-                                    colspan="6"
-                                    class="empty">
-
-                                    No ledger transactions yet.
-
-                                </td>
-
-                            </tr>
-                            `
-
-                            :
-
-                            entries
-                                .map(entry => `
-
-                                <tr>
-
-                                    <td>
-                                        ${escapeHTML(entry.date)}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHTML(
-                                            entry.account || ""
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHTML(
-                                            entry.reference
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHTML(
-                                            entry.description
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        Nu.
-                                        ${formatMoney(entry.debit)}
-                                    </td>
-
-                                    <td>
-                                        Nu.
-                                        ${formatMoney(entry.credit)}
-                                    </td>
-
-                                </tr>
-
-                            `)
-                            .join("")
-
-                        }
-
-                    </tbody>
-
-                </table>
-
-            </div>
+            </table>
 
         </div>
 
-    `;
+    </div>
+
+`;
+```
 
 }
-
 
 /* =========================================================
    TRIAL BALANCE
