@@ -19,15 +19,7 @@ const appData = {
     receipts: [],
     payments: [],
 
-    journalEntries: [
-        {
-            date: "2026-08-31",
-            reference: "TEST-001",
-            description: "Journal Test Entry",
-            debit: 1000,
-            credit: 1000
-        }
-    ]
+    journalEntries: [],
 
 };
 
@@ -1946,6 +1938,55 @@ function journalPage() {
 
 }
 
+function generateReport() {
+
+    const reportType =
+        document.getElementById("reportType").value;
+
+    const result =
+        document.getElementById("reportResult");
+
+
+    if (reportType === "ledger") {
+
+        result.innerHTML = `
+            <h3>General Ledger</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "trial") {
+
+        result.innerHTML = `
+            <h3>Trial Balance</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "profit-loss") {
+
+        result.innerHTML = `
+            <h3>Profit & Loss</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "balance-sheet") {
+
+        result.innerHTML = `
+            <h3>Balance Sheet</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+}
 
 /* =========================================================
    GENERAL LEDGER
@@ -2278,6 +2319,57 @@ function reportsPage() {
 
     `;
 }
+
+function generateReport() {
+
+    const reportType =
+        document.getElementById("reportType").value;
+
+    const result =
+        document.getElementById("reportResult");
+
+
+    if (reportType === "ledger") {
+
+        result.innerHTML = `
+            <h3>General Ledger</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "trial") {
+
+        result.innerHTML = `
+            <h3>Trial Balance</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "profit-loss") {
+
+        result.innerHTML = `
+            <h3>Profit & Loss</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "balance-sheet") {
+
+        result.innerHTML = `
+            <h3>Balance Sheet</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+}
+
 /* =========================================================
    TRIAL BALANCE
    ========================================================= */
@@ -2527,6 +2619,56 @@ function reportsPage() {
     `;
 }
 
+function generateReport() {
+
+    const reportType =
+        document.getElementById("reportType").value;
+
+    const result =
+        document.getElementById("reportResult");
+
+
+    if (reportType === "ledger") {
+
+        result.innerHTML = `
+            <h3>General Ledger</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "trial") {
+
+        result.innerHTML = `
+            <h3>Trial Balance</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "profit-loss") {
+
+        result.innerHTML = `
+            <h3>Profit & Loss</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "balance-sheet") {
+
+        result.innerHTML = `
+            <h3>Balance Sheet</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+}
+
 /* =========================================================
    PROFIT & LOSS
    ========================================================= */
@@ -2774,6 +2916,56 @@ function reportsPage() {
         </div>
 
     `;
+}
+
+function generateReport() {
+
+    const reportType =
+        document.getElementById("reportType").value;
+
+    const result =
+        document.getElementById("reportResult");
+
+
+    if (reportType === "ledger") {
+
+        result.innerHTML = `
+            <h3>General Ledger</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "trial") {
+
+        result.innerHTML = `
+            <h3>Trial Balance</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "profit-loss") {
+
+        result.innerHTML = `
+            <h3>Profit & Loss</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "balance-sheet") {
+
+        result.innerHTML = `
+            <h3>Balance Sheet</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
 }
 
 /* =========================================================
@@ -3087,6 +3279,56 @@ function reportsPage() {
         </div>
 
     `;
+}
+
+function generateReport() {
+
+    const reportType =
+        document.getElementById("reportType").value;
+
+    const result =
+        document.getElementById("reportResult");
+
+
+    if (reportType === "ledger") {
+
+        result.innerHTML = `
+            <h3>General Ledger</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "trial") {
+
+        result.innerHTML = `
+            <h3>Trial Balance</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "profit-loss") {
+
+        result.innerHTML = `
+            <h3>Profit & Loss</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
+
+    else if (reportType === "balance-sheet") {
+
+        result.innerHTML = `
+            <h3>Balance Sheet</h3>
+            <p>Report generation will be connected next.</p>
+        `;
+
+    }
+
 }
 
 /* =========================================================
