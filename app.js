@@ -362,6 +362,8 @@ function renderPage(page) {
 
 }
 
+case "reports":
+    return reportsPage();
 
 /* =========================================================
    MOBILE MENU
@@ -2162,7 +2164,120 @@ return `
 `;
 
 }
+function reportsPage() {
 
+    return `
+
+        <div class="page-header">
+
+            <h2>
+                Reports
+            </h2>
+
+            <p>
+                Generate and export accounting reports.
+            </p>
+
+        </div>
+
+
+        <div class="panel">
+
+            <h3>
+                Generate Report
+            </h3>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Report Type
+                    </label>
+
+                    <select id="reportType">
+
+                        <option value="ledger">
+                            General Ledger
+                        </option>
+
+                        <option value="trial">
+                            Trial Balance
+                        </option>
+
+                        <option value="profit-loss">
+                            Profit & Loss
+                        </option>
+
+                        <option value="balance-sheet">
+                            Balance Sheet
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        From Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reportFromDate"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        To Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reportToDate"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div style="margin-top:20px;">
+
+                <button
+                    class="btn-primary"
+                    onclick="generateReport()"
+                >
+                    Generate Report
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="reportResult"
+            class="panel"
+            style="margin-top:20px;"
+        >
+
+            <p>
+                Select a report and click
+                <strong>Generate Report</strong>.
+            </p>
+
+        </div>
+
+    `;
+}
 /* =========================================================
    TRIAL BALANCE
    ========================================================= */
@@ -2297,6 +2412,120 @@ function trialBalancePage() {
 
 }
 
+function reportsPage() {
+
+    return `
+
+        <div class="page-header">
+
+            <h2>
+                Reports
+            </h2>
+
+            <p>
+                Generate and export accounting reports.
+            </p>
+
+        </div>
+
+
+        <div class="panel">
+
+            <h3>
+                Generate Report
+            </h3>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Report Type
+                    </label>
+
+                    <select id="reportType">
+
+                        <option value="ledger">
+                            General Ledger
+                        </option>
+
+                        <option value="trial">
+                            Trial Balance
+                        </option>
+
+                        <option value="profit-loss">
+                            Profit & Loss
+                        </option>
+
+                        <option value="balance-sheet">
+                            Balance Sheet
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        From Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reportFromDate"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        To Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reportToDate"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div style="margin-top:20px;">
+
+                <button
+                    class="btn-primary"
+                    onclick="generateReport()"
+                >
+                    Generate Report
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="reportResult"
+            class="panel"
+            style="margin-top:20px;"
+        >
+
+            <p>
+                Select a report and click
+                <strong>Generate Report</strong>.
+            </p>
+
+        </div>
+
+    `;
+}
 
 /* =========================================================
    PROFIT & LOSS
@@ -2432,6 +2661,120 @@ function profitLossPage() {
 
 }
 
+function reportsPage() {
+
+    return `
+
+        <div class="page-header">
+
+            <h2>
+                Reports
+            </h2>
+
+            <p>
+                Generate and export accounting reports.
+            </p>
+
+        </div>
+
+
+        <div class="panel">
+
+            <h3>
+                Generate Report
+            </h3>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Report Type
+                    </label>
+
+                    <select id="reportType">
+
+                        <option value="ledger">
+                            General Ledger
+                        </option>
+
+                        <option value="trial">
+                            Trial Balance
+                        </option>
+
+                        <option value="profit-loss">
+                            Profit & Loss
+                        </option>
+
+                        <option value="balance-sheet">
+                            Balance Sheet
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        From Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reportFromDate"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        To Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reportToDate"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div style="margin-top:20px;">
+
+                <button
+                    class="btn-primary"
+                    onclick="generateReport()"
+                >
+                    Generate Report
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="reportResult"
+            class="panel"
+            style="margin-top:20px;"
+        >
+
+            <p>
+                Select a report and click
+                <strong>Generate Report</strong>.
+            </p>
+
+        </div>
+
+    `;
+}
 
 /* =========================================================
    BALANCE SHEET
@@ -2631,6 +2974,120 @@ function balanceSheetPage() {
 
 }
 
+function reportsPage() {
+
+    return `
+
+        <div class="page-header">
+
+            <h2>
+                Reports
+            </h2>
+
+            <p>
+                Generate and export accounting reports.
+            </p>
+
+        </div>
+
+
+        <div class="panel">
+
+            <h3>
+                Generate Report
+            </h3>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Report Type
+                    </label>
+
+                    <select id="reportType">
+
+                        <option value="ledger">
+                            General Ledger
+                        </option>
+
+                        <option value="trial">
+                            Trial Balance
+                        </option>
+
+                        <option value="profit-loss">
+                            Profit & Loss
+                        </option>
+
+                        <option value="balance-sheet">
+                            Balance Sheet
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        From Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reportFromDate"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        To Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reportToDate"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div style="margin-top:20px;">
+
+                <button
+                    class="btn-primary"
+                    onclick="generateReport()"
+                >
+                    Generate Report
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="reportResult"
+            class="panel"
+            style="margin-top:20px;"
+        >
+
+            <p>
+                Select a report and click
+                <strong>Generate Report</strong>.
+            </p>
+
+        </div>
+
+    `;
+}
 
 /* =========================================================
    SETTINGS
