@@ -18,7 +18,16 @@ const appData = {
     purchases: [],
     receipts: [],
     payments: [],
-    journalEntries: []
+
+    journalEntries: [
+        {
+            date: "2026-08-31",
+            reference: "TEST-001",
+            description: "Journal Test Entry",
+            debit: 1000,
+            credit: 1000
+        }
+    ]
 
 };
 
