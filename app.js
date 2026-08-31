@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    PT ACCOUNTING SYSTEM
    COMPLETE app.js
@@ -4143,4 +4142,3 @@ function escapeAttribute(value) {
 console.log(
     "PT Accounting System loaded successfully."
 );
-```
