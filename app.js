@@ -80,25 +80,33 @@ function initializeUsers() {
     /*
      * Make sure users array exists
      */
+
     if (!Array.isArray(appData.users)) {
+
         appData.users = [];
+
     }
 
 
     /*
      * Find Administrator account
      */
-    let adminUser = appData.users.find(
-        user =>
-            user &&
-            user.username &&
-            user.username.toLowerCase() === "admin"
-    );
+
+    let adminUser =
+        appData.users.find(
+            user =>
+                user &&
+                user.username &&
+                user.username.toLowerCase() ===
+                "admin"
+        );
 
 
     /*
-     * Create Administrator if missing
+     * Create Administrator
+     * only if missing
      */
+
     if (!adminUser) {
 
         adminUser = {
@@ -123,30 +131,50 @@ function initializeUsers() {
 
         };
 
-        appData.users.push(adminUser);
+
+        appData.users.push(
+            adminUser
+        );
 
     }
 
 
     /*
-     * Repair Administrator account
-     * in case an older version saved
-     * incorrect information.
+     * Repair only missing/invalid
+     * Administrator information.
+     *
+     * DO NOT reset the password.
      */
-    adminUser.username = "admin";
-    adminUser.password = "admin123";
-    adminUser.fullName = "System Administrator";
-    adminUser.role = "Administrator";
-    adminUser.active = true;
+
+    adminUser.id =
+        adminUser.id ||
+        "USR-ADMIN";
+
+    adminUser.username =
+        "admin";
+
+    adminUser.password =
+        adminUser.password ||
+        "admin123";
+
+    adminUser.fullName =
+        adminUser.fullName ||
+        "System Administrator";
+
+    adminUser.role =
+        "Administrator";
+
+    adminUser.active =
+        true;
 
 
     /*
-     * Save repaired user data
+     * Save user data
      */
+
     saveData();
 
 }
-
 /* =========================================================
    CHECK PAGE PERMISSION
    ========================================================= */
