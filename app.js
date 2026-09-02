@@ -9789,6 +9789,78 @@ function settingsPage() {
 
         </div>
 
+                <div class="panel">
+
+            <h3>
+                Change Password
+            </h3>
+
+            <p>
+                Change your own login password.
+            </p>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Current Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="currentPassword"
+                        placeholder="Enter current password"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        New Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="newPassword"
+                        placeholder="Minimum 8 characters"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Confirm New Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        placeholder="Confirm new password"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <br>
+
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                onclick="changeOwnPassword()">
+
+                🔐 Change Password
+
+            </button>
+
+        </div>
 
         <!-- =================================================
              DATA SUMMARY
@@ -10062,6 +10134,186 @@ function settingsPage() {
 
 }
 
+/* =========================================================
+   CHANGE OWN PASSWORD
+   ========================================================= */
+
+function changeOwnPassword() {
+
+    if (!currentUser) {
+
+        alert(
+            "You must be logged in to change your password."
+        );
+
+        return;
+
+    }
+
+
+    const currentPasswordElement =
+        document.getElementById(
+            "currentPassword"
+        );
+
+    const newPasswordElement =
+        document.getElementById(
+            "newPassword"
+        );
+
+    const confirmPasswordElement =
+        document.getElementById(
+            "confirmPassword"
+        );
+
+
+    if (
+        !currentPasswordElement ||
+        !newPasswordElement ||
+        !confirmPasswordElement
+    ) {
+
+        return;
+
+    }
+
+
+    const currentPassword =
+        currentPasswordElement.value;
+
+    const newPassword =
+        newPasswordElement.value;
+
+    const confirmPassword =
+        confirmPasswordElement.value;
+
+
+    /*
+     * Check current password
+     */
+
+    if (
+        currentPassword !==
+        currentUser.password
+    ) {
+
+        alert(
+            "Current password is incorrect."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Check new password length
+     */
+
+    if (
+        newPassword.length < 8
+    ) {
+
+        alert(
+            "New password must be at least 8 characters long."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Confirm new password
+     */
+
+    if (
+        newPassword !==
+        confirmPassword
+    ) {
+
+        alert(
+            "New passwords do not match."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Prevent using the same password
+     */
+
+    if (
+        newPassword ===
+        currentPassword
+    ) {
+
+        alert(
+            "New password must be different from the current password."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Update password
+     */
+
+    currentUser.password =
+        newPassword;
+
+
+    /*
+     * Update the matching user
+     * inside appData.users
+     */
+
+    const user =
+        appData.users.find(
+            user =>
+                user.id ===
+                currentUser.id
+        );
+
+
+    if (user) {
+
+        user.password =
+            newPassword;
+
+    }
+
+
+    /*
+     * Save permanently
+     */
+
+    saveData();
+
+
+    /*
+     * Clear password fields
+     */
+
+    currentPasswordElement.value =
+        "";
+
+    newPasswordElement.value =
+        "";
+
+    confirmPasswordElement.value =
+        "";
+
+
+    alert(
+        "Password changed successfully."
+    );
+
+}
 
 /* =========================================================
    SAVE SETTINGS
