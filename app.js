@@ -6269,16 +6269,60 @@ function balanceSheetPage() {
     });
 
 
-    /*
-     * Calculate totals
-     */
+/*
+ * Calculate Inventory Asset Value
+ *
+ * Inventory value is based on:
+ * Current Stock × Purchase Price
+ */
 
-    const totalAssets =
-        Object.values(assets).reduce(
-            (sum, value) =>
-                sum + value,
-            0
-        );
+const inventoryValue =
+    appData.products.reduce(
+        (sum, product) => {
+
+            const stock =
+                Number(
+                    product.stock || 0
+                );
+
+            const cost =
+                Number(
+                    product.cost || 0
+                );
+
+            return sum +
+                (stock * cost);
+
+        },
+        0
+    );
+
+
+/*
+ * Replace journal-based Inventory
+ * with actual inventory value
+ */
+
+if (
+    appData.products.length > 0
+) {
+
+    assets["Inventory"] =
+        inventoryValue;
+
+}
+
+
+/*
+ * Calculate totals
+ */
+
+const totalAssets =
+    Object.values(assets).reduce(
+        (sum, value) =>
+            sum + value,
+        0
+    );
 
 
     const totalLiabilities =
