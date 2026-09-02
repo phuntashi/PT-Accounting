@@ -9971,3 +9971,102 @@ function escapeAttribute(value) {
 console.log(
     "PT Accounting System loaded successfully."
 );
+
+/* =========================================================
+   PT ACCOUNTING SYSTEM
+   LOGOUT BUTTON
+   ========================================================= */
+
+function addLogoutButton() {
+
+    if (!currentUser) {
+        return;
+    }
+
+    /* Remove an old button if one exists */
+    const oldButton =
+        document.getElementById("ptLogoutButton");
+
+    if (oldButton) {
+        oldButton.remove();
+    }
+
+    /* Find the page header */
+    const header =
+        document.querySelector(".page-header");
+
+    if (!header) {
+        return;
+    }
+
+    /* Create Logout button */
+    const button =
+        document.createElement("button");
+
+    button.id =
+        "ptLogoutButton";
+
+    button.type =
+        "button";
+
+    button.textContent =
+        "Logout";
+
+    button.style.cssText = `
+        float:right;
+        margin-top:-45px;
+        padding:8px 18px;
+        border:1px solid #ccc;
+        border-radius:6px;
+        background:#ffffff;
+        cursor:pointer;
+        font-size:14px;
+    `;
+
+    button.onclick = function () {
+
+        logout();
+
+    };
+
+    header.appendChild(button);
+}
+
+
+/* =========================================================
+   ADD LOGOUT AFTER EVERY PAGE CHANGE
+   ========================================================= */
+
+const ptOriginalShowPage =
+    showPage;
+
+showPage = function(page) {
+
+    ptOriginalShowPage(page);
+
+    addLogoutButton();
+
+};
+
+
+/* =========================================================
+   INITIAL LOGOUT BUTTON
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        setTimeout(
+            function() {
+
+                addLogoutButton();
+
+            },
+            100
+        );
+
+    }
+);
+
+
