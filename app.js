@@ -2368,6 +2368,9 @@ function csvEscape(value) {
 /* =========================================================
    TRIAL BALANCE
    ========================================================= */
+/* =========================================================
+   TRIAL BALANCE PAGE
+   ========================================================= */
 
 function trialBalancePage() {
 
@@ -2433,6 +2436,22 @@ function trialBalancePage() {
         .join("");
 
 
+    const totalDebit =
+        Object.values(balances).reduce(
+            (sum, balance) =>
+                sum + balance.debit,
+            0
+        );
+
+
+    const totalCredit =
+        Object.values(balances).reduce(
+            (sum, balance) =>
+                sum + balance.credit,
+            0
+        );
+
+
     return `
 
         <div class="page-header">
@@ -2458,9 +2477,17 @@ function trialBalancePage() {
 
                         <tr>
 
-                            <th>Account</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
+                            <th>
+                                Account
+                            </th>
+
+                            <th>
+                                Debit
+                            </th>
+
+                            <th>
+                                Credit
+                            </th>
 
                         </tr>
 
@@ -2489,9 +2516,55 @@ function trialBalancePage() {
 
                     </tbody>
 
+
+                    <tfoot>
+
+                        <tr>
+
+                            <th>
+                                TOTAL
+                            </th>
+
+                            <th>
+                                Nu.
+                                ${formatMoney(totalDebit)}
+                            </th>
+
+                            <th>
+                                Nu.
+                                ${formatMoney(totalCredit)}
+                            </th>
+
+                        </tr>
+
+                    </tfoot>
+
                 </table>
 
             </div>
+
+
+            <!-- REPORT ACTIONS -->
+
+            <div class="report-actions">
+
+                <button
+                    onclick="exportTrialBalanceCSV()">
+
+                    📄 Export CSV
+
+                </button>
+
+
+                <button
+                    onclick="printTrialBalance()">
+
+                    🖨️ Print / Save PDF
+
+                </button>
+
+            </div>
+
 
         </div>
 
@@ -2501,7 +2574,492 @@ function trialBalancePage() {
 
 
 /* =========================================================
+   TRIAL BALANCE CSV EXPORT
+   ========================================================= */
+
+function exportTrialBalanceCSV() {
+
+    const balances = {};
+
+
+    appData.journalEntries.forEach(entry => {
+
+        const account =
+            entry.account || "Unassigned";
+
+
+        if (!balances[account]) {
+
+            balances[account] = {
+                debit: 0,
+                credit: 0
+            };
+
+        }
+
+
+        balances[account].debit +=
+            Number(entry.debit || 0);
+
+
+        balances[account].credit +=
+            Number(entry.credit || 0);
+
+    });
+
+
+    const accounts =
+        Object.keys(balances);
+
+
+    let csv =
+        "PT Accounting System\n";
+
+    csv +=
+        "Trial Balance Report\n\n";
+
+    csv +=
+        "Account,Debit,Credit\n";
+
+
+    accounts.forEach(account => {
+
+        const balance =
+            balances[account];
+
+
+        const safeAccount =
+            account.replace(/"/g, '""');
+
+
+        csv +=
+            `"${safeAccount}",` +
+            `${balance.debit.toFixed(2)},` +
+            `${balance.credit.toFixed(2)}\n`;
+
+    });
+
+
+    const totalDebit =
+        Object.values(balances).reduce(
+            (sum, balance) =>
+                sum + balance.debit,
+            0
+        );
+
+
+    const totalCredit =
+        Object.values(balances).reduce(
+            (sum, balance) =>
+                sum + balance.credit,
+            0
+        );
+
+
+    csv +=
+        `"TOTAL",` +
+        `${totalDebit.toFixed(2)},` +
+        `${totalCredit.toFixed(2)}\n`;
+
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        "PT-Accounting-Trial-Balance.csv";
+
+
+    document.body.appendChild(link);
+
+
+    link.click();
+
+
+    document.body.removeChild(link);
+
+
+    URL.revokeObjectURL(url);
+
+}
+
+
+/* =========================================================
+   TRIAL BALANCE PRINT / SAVE PDF
+   ========================================================= */
+
+function printTrialBalance() {
+
+    const balances = {};
+
+
+    appData.journalEntries.forEach(entry => {
+
+        const account =
+            entry.account || "Unassigned";
+
+
+        if (!balances[account]) {
+
+            balances[account] = {
+                debit: 0,
+                credit: 0
+            };
+
+        }
+
+
+        balances[account].debit +=
+            Number(entry.debit || 0);
+
+
+        balances[account].credit +=
+            Number(entry.credit || 0);
+
+    });
+
+
+    const accounts =
+        Object.keys(balances);
+
+
+    const totalDebit =
+        Object.values(balances).reduce(
+            (sum, balance) =>
+                sum + balance.debit,
+            0
+        );
+
+
+    const totalCredit =
+        Object.values(balances).reduce(
+            (sum, balance) =>
+                sum + balance.credit,
+            0
+        );
+
+
+    const rows =
+        accounts.map(account => {
+
+            const balance =
+                balances[account];
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(account)}
+                    </td>
+
+                    <td class="number">
+                        Nu.
+                        ${formatMoney(
+                            balance.debit
+                        )}
+                    </td>
+
+                    <td class="number">
+                        Nu.
+                        ${formatMoney(
+                            balance.credit
+                        )}
+                    </td>
+
+                </tr>
+
+            `;
+
+        })
+        .join("");
+
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if (!printWindow) {
+
+        alert(
+            "Please allow pop-ups to print the report."
+        );
+
+        return;
+
+    }
+
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>
+                Trial Balance Report
+            </title>
+
+
+            <style>
+
+                body {
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    padding:
+                        40px;
+
+                }
+
+
+                h1 {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        5px;
+
+                }
+
+
+                h2 {
+
+                    text-align:
+                        center;
+
+                    margin-top:
+                        5px;
+
+                }
+
+
+                .date {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        30px;
+
+                }
+
+
+                table {
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                }
+
+
+                th,
+                td {
+
+                    border:
+                        1px solid #000;
+
+                    padding:
+                        10px;
+
+                }
+
+
+                th {
+
+                    background:
+                        #eeeeee;
+
+                }
+
+
+                .number {
+
+                    text-align:
+                        right;
+
+                }
+
+
+                tfoot {
+
+                    font-weight:
+                        bold;
+
+                }
+
+
+                @media print {
+
+                    body {
+
+                        padding:
+                            20px;
+
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+
+            <h1>
+                PT Accounting System
+            </h1>
+
+
+            <h2>
+                Trial Balance
+            </h2>
+
+
+            <div class="date">
+
+                Generated on:
+                ${new Date().toLocaleString()}
+
+            </div>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Account
+                        </th>
+
+                        <th>
+                            Debit
+                        </th>
+
+                        <th>
+                            Credit
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${
+                        rows ||
+
+                        `
+                        <tr>
+
+                            <td colspan="3">
+
+                                No journal entries yet.
+
+                            </td>
+
+                        </tr>
+                        `
+                    }
+
+                </tbody>
+
+
+                <tfoot>
+
+                    <tr>
+
+                        <th>
+                            TOTAL
+                        </th>
+
+                        <th class="number">
+
+                            Nu.
+                            ${formatMoney(totalDebit)}
+
+                        </th>
+
+                        <th class="number">
+
+                            Nu.
+                            ${formatMoney(totalCredit)}
+
+                        </th>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+
+    printWindow.focus();
+
+
+    setTimeout(
+        () => {
+
+            printWindow.print();
+
+        },
+        250
+    );
+
+}
+
+
+/* =========================================================
    PROFIT & LOSS
+   ========================================================= */
+
+/* =========================================================
+   PROFIT & LOSS PAGE
    ========================================================= */
 
 function profitLossPage() {
@@ -2550,6 +3108,23 @@ function profitLossPage() {
             <div class="table-container">
 
                 <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Particulars
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
 
                     <tbody>
 
@@ -2628,6 +3203,29 @@ function profitLossPage() {
 
             </div>
 
+
+            <!-- REPORT ACTIONS -->
+
+            <div class="report-actions">
+
+                <button
+                    onclick="exportProfitLossCSV()">
+
+                    📄 Export CSV
+
+                </button>
+
+
+                <button
+                    onclick="printProfitLoss()">
+
+                    🖨️ Print / Save PDF
+
+                </button>
+
+            </div>
+
+
         </div>
 
     `;
@@ -2636,43 +3234,693 @@ function profitLossPage() {
 
 
 /* =========================================================
+   PROFIT & LOSS CSV EXPORT
+   ========================================================= */
+
+function exportProfitLossCSV() {
+
+    const sales =
+        calculateSales();
+
+    const cogs =
+        calculateCOGS();
+
+    const expenses =
+        calculateExpenses();
+
+
+    const actualCOGS =
+        cogs > 0
+            ? cogs
+            : calculatePurchases();
+
+
+    const grossProfit =
+        sales - actualCOGS;
+
+
+    const netProfit =
+        grossProfit - expenses;
+
+
+    let csv =
+        "PT Accounting System\n";
+
+    csv +=
+        "Profit & Loss Report\n\n";
+
+    csv +=
+        "Particulars,Amount\n";
+
+
+    csv +=
+        `"Sales Revenue",${sales.toFixed(2)}\n`;
+
+    csv +=
+        `"Cost of Goods Sold",${actualCOGS.toFixed(2)}\n`;
+
+    csv +=
+        `"Gross Profit",${grossProfit.toFixed(2)}\n`;
+
+    csv +=
+        `"Expenses",${expenses.toFixed(2)}\n`;
+
+    csv +=
+        `"Net Profit",${netProfit.toFixed(2)}\n`;
+
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        "PT-Accounting-Profit-Loss.csv";
+
+
+    document.body.appendChild(link);
+
+
+    link.click();
+
+
+    document.body.removeChild(link);
+
+
+    URL.revokeObjectURL(url);
+
+}
+
+
+/* =========================================================
+   PROFIT & LOSS PRINT / SAVE PDF
+   ========================================================= */
+
+function printProfitLoss() {
+
+    const sales =
+        calculateSales();
+
+    const cogs =
+        calculateCOGS();
+
+    const expenses =
+        calculateExpenses();
+
+
+    const actualCOGS =
+        cogs > 0
+            ? cogs
+            : calculatePurchases();
+
+
+    const grossProfit =
+        sales - actualCOGS;
+
+
+    const netProfit =
+        grossProfit - expenses;
+
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if (!printWindow) {
+
+        alert(
+            "Please allow pop-ups to print the report."
+        );
+
+        return;
+
+    }
+
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>
+                Profit & Loss Report
+            </title>
+
+
+            <style>
+
+                body {
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    padding:
+                        40px;
+
+                }
+
+
+                h1 {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        5px;
+
+                }
+
+
+                h2 {
+
+                    text-align:
+                        center;
+
+                    margin-top:
+                        5px;
+
+                }
+
+
+                .date {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        30px;
+
+                    color:
+                        #555;
+
+                }
+
+
+                table {
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                }
+
+
+                th,
+                td {
+
+                    border:
+                        1px solid #000;
+
+                    padding:
+                        12px;
+
+                }
+
+
+                th {
+
+                    background:
+                        #eeeeee;
+
+                }
+
+
+                td:last-child,
+                th:last-child {
+
+                    text-align:
+                        right;
+
+                }
+
+
+                .total {
+
+                    font-weight:
+                        bold;
+
+                }
+
+
+                .profit {
+
+                    font-weight:
+                        bold;
+
+                }
+
+
+                @media print {
+
+                    body {
+
+                        padding:
+                            20px;
+
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+
+            <h1>
+                PT Accounting System
+            </h1>
+
+
+            <h2>
+                Profit & Loss Statement
+            </h2>
+
+
+            <div class="date">
+
+                Generated on:
+                ${new Date().toLocaleString()}
+
+            </div>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Particulars
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+                            Sales Revenue
+                        </td>
+
+                        <td>
+                            Nu. ${formatMoney(sales)}
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            Cost of Goods Sold
+                        </td>
+
+                        <td>
+                            Nu. ${formatMoney(actualCOGS)}
+                        </td>
+
+                    </tr>
+
+
+                    <tr class="total">
+
+                        <td>
+                            Gross Profit
+                        </td>
+
+                        <td>
+                            Nu. ${formatMoney(grossProfit)}
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            Expenses
+                        </td>
+
+                        <td>
+                            Nu. ${formatMoney(expenses)}
+                        </td>
+
+                    </tr>
+
+
+                    <tr class="profit">
+
+                        <td>
+                            Net Profit
+                        </td>
+
+                        <td>
+                            Nu. ${formatMoney(netProfit)}
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+
+    printWindow.focus();
+
+
+    setTimeout(
+        () => {
+
+            printWindow.print();
+
+        },
+        250
+    );
+
+}
+/* =========================================================
    BALANCE SHEET
+   ========================================================= */
+
+/* =========================================================
+   BALANCE SHEET PAGE
    ========================================================= */
 
 function balanceSheetPage() {
 
-    const inventory =
-        calculateInventory();
-
-    const receivables =
-        calculateReceivables();
-
-    const cash =
-        calculateCash();
+    const balances = {};
 
 
-    const assets =
-        inventory +
-        receivables +
-        cash;
+    appData.journalEntries.forEach(entry => {
+
+        const account =
+            entry.account || "Unassigned";
 
 
-    const payables =
-        calculatePayables();
+        if (!balances[account]) {
+
+            balances[account] = {
+                debit: 0,
+                credit: 0
+            };
+
+        }
 
 
-    const profit =
-        calculateProfit();
+        balances[account].debit +=
+            Number(entry.debit || 0);
 
 
-    const equity =
-        calculateEquity() +
-        profit;
+        balances[account].credit +=
+            Number(entry.credit || 0);
+
+    });
 
 
-    const liabilitiesEquity =
-        payables +
-        equity;
+    /*
+     * Calculate account balances
+     */
+
+    const accountBalances = {};
+
+
+    Object.keys(balances).forEach(account => {
+
+        accountBalances[account] =
+            balances[account].debit -
+            balances[account].credit;
+
+    });
+
+
+    /*
+     * Classify accounts
+     *
+     * This uses account names so it works
+     * with the current journal-entry structure.
+     */
+
+    const assets = {};
+    const liabilities = {};
+    const equity = {};
+
+
+    Object.keys(accountBalances).forEach(account => {
+
+        const name =
+            account.toLowerCase();
+
+        const balance =
+            accountBalances[account];
+
+
+        if (
+            name.includes("cash") ||
+            name.includes("bank") ||
+            name.includes("receivable") ||
+            name.includes("inventory") ||
+            name.includes("asset") ||
+            name.includes("equipment") ||
+            name.includes("property") ||
+            name.includes("vehicle")
+        ) {
+
+            assets[account] =
+                balance;
+
+        }
+
+
+        else if (
+            name.includes("payable") ||
+            name.includes("loan") ||
+            name.includes("liability") ||
+            name.includes("tax payable")
+        ) {
+
+            liabilities[account] =
+                -balance;
+
+        }
+
+
+        else if (
+            name.includes("capital") ||
+            name.includes("equity") ||
+            name.includes("owner")
+        ) {
+
+            equity[account] =
+                -balance;
+
+        }
+
+    });
+
+
+    /*
+     * Calculate totals
+     */
+
+    const totalAssets =
+        Object.values(assets).reduce(
+            (sum, value) =>
+                sum + value,
+            0
+        );
+
+
+    const totalLiabilities =
+        Object.values(liabilities).reduce(
+            (sum, value) =>
+                sum + value,
+            0
+        );
+
+
+    const totalEquity =
+        Object.values(equity).reduce(
+            (sum, value) =>
+                sum + value,
+            0
+        );
+
+
+    /*
+     * Get current net profit
+     */
+
+    const sales =
+        calculateSales();
+
+
+    const cogs =
+        calculateCOGS();
+
+
+    const expenses =
+        calculateExpenses();
+
+
+    const actualCOGS =
+        cogs > 0
+            ? cogs
+            : calculatePurchases();
+
+
+    const grossProfit =
+        sales - actualCOGS;
+
+
+    const netProfit =
+        grossProfit - expenses;
+
+
+    /*
+     * Add current profit to equity
+     */
+
+    const totalEquityWithProfit =
+        totalEquity + netProfit;
+
+
+    const totalLiabilitiesEquity =
+        totalLiabilities +
+        totalEquityWithProfit;
+
+
+    const balanceCheck =
+        totalAssets -
+        totalLiabilitiesEquity;
+
+
+    /*
+     * Asset rows
+     */
+
+    const assetRows =
+        Object.keys(assets)
+            .map(account => `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(account)}
+                    </td>
+
+                    <td>
+                        Nu.
+                        ${formatMoney(
+                            assets[account]
+                        )}
+                    </td>
+
+                </tr>
+
+            `)
+            .join("");
+
+
+    /*
+     * Liability rows
+     */
+
+    const liabilityRows =
+        Object.keys(liabilities)
+            .map(account => `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(account)}
+                    </td>
+
+                    <td>
+                        Nu.
+                        ${formatMoney(
+                            liabilities[account]
+                        )}
+                    </td>
+
+                </tr>
+
+            `)
+            .join("");
+
+
+    /*
+     * Equity rows
+     */
+
+    const equityRows =
+        Object.keys(equity)
+            .map(account => `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(account)}
+                    </td>
+
+                    <td>
+                        Nu.
+                        ${formatMoney(
+                            equity[account]
+                        )}
+                    </td>
+
+                </tr>
+
+            `)
+            .join("");
 
 
     return `
@@ -2684,7 +3932,7 @@ function balanceSheetPage() {
             </h2>
 
             <p>
-                Assets, liabilities and equity.
+                Financial position of the business.
             </p>
 
         </div>
@@ -2692,57 +3940,46 @@ function balanceSheetPage() {
 
         <div class="panel">
 
-            <h3>
-                Assets
-            </h3>
-
-
             <div class="table-container">
 
                 <table>
 
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Assets
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
                     <tbody>
 
-                        <tr>
+                        ${
+                            assetRows ||
 
-                            <td>
-                                Cash / Bank
-                            </td>
+                            `
+                            <tr>
 
-                            <td>
-                                Nu.
-                                ${formatMoney(cash)}
-                            </td>
+                                <td>
+                                    No assets.
+                                </td>
 
-                        </tr>
+                                <td>
+                                    Nu. 0.00
+                                </td>
 
-
-                        <tr>
-
-                            <td>
-                                Accounts Receivable
-                            </td>
-
-                            <td>
-                                Nu.
-                                ${formatMoney(receivables)}
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <td>
-                                Inventory
-                            </td>
-
-                            <td>
-                                Nu.
-                                ${formatMoney(inventory)}
-                            </td>
-
-                        </tr>
+                            </tr>
+                            `
+                        }
 
 
                         <tr>
@@ -2753,7 +3990,9 @@ function balanceSheetPage() {
 
                             <th>
                                 Nu.
-                                ${formatMoney(assets)}
+                                ${formatMoney(
+                                    totalAssets
+                                )}
                             </th>
 
                         </tr>
@@ -2764,59 +4003,63 @@ function balanceSheetPage() {
 
             </div>
 
-        </div>
 
-
-        <div class="panel">
-
-            <h3>
-                Liabilities & Equity
-            </h3>
+            <br>
 
 
             <div class="table-container">
 
                 <table>
 
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Liabilities
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
                     <tbody>
 
-                        <tr>
+                        ${
+                            liabilityRows ||
 
-                            <td>
-                                Accounts Payable
-                            </td>
+                            `
+                            <tr>
 
-                            <td>
-                                Nu.
-                                ${formatMoney(payables)}
-                            </td>
+                                <td>
+                                    No liabilities.
+                                </td>
 
-                        </tr>
+                                <td>
+                                    Nu. 0.00
+                                </td>
 
-
-                        <tr>
-
-                            <td>
-                                Owner's Equity
-                            </td>
-
-                            <td>
-                                Nu.
-                                ${formatMoney(equity)}
-                            </td>
-
-                        </tr>
+                            </tr>
+                            `
+                        }
 
 
                         <tr>
 
                             <th>
-                                Total Liabilities & Equity
+                                Total Liabilities
                             </th>
 
                             <th>
                                 Nu.
-                                ${formatMoney(liabilitiesEquity)}
+                                ${formatMoney(
+                                    totalLiabilities
+                                )}
                             </th>
 
                         </tr>
@@ -2826,6 +4069,145 @@ function balanceSheetPage() {
                 </table>
 
             </div>
+
+
+            <br>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Equity
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        ${
+                            equityRows ||
+
+                            `
+                            <tr>
+
+                                <td>
+                                    No equity accounts.
+                                </td>
+
+                                <td>
+                                    Nu. 0.00
+                                </td>
+
+                            </tr>
+                            `
+                        }
+
+
+                        <tr>
+
+                            <td>
+                                Current Net Profit
+                            </td>
+
+                            <td>
+                                Nu.
+                                ${formatMoney(
+                                    netProfit
+                                )}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <th>
+                                Total Equity
+                            </th>
+
+                            <th>
+                                Nu.
+                                ${formatMoney(
+                                    totalEquityWithProfit
+                                )}
+                            </th>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <th>
+                                Total Liabilities
+                                + Equity
+                            </th>
+
+                            <th>
+                                Nu.
+                                ${formatMoney(
+                                    totalLiabilitiesEquity
+                                )}
+                            </th>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <th>
+                                Balance Sheet Check
+                            </th>
+
+                            <th>
+                                Nu.
+                                ${formatMoney(
+                                    balanceCheck
+                                )}
+                            </th>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- REPORT ACTIONS -->
+
+            <div class="report-actions">
+
+                <button
+                    onclick="exportBalanceSheetCSV()">
+
+                    📄 Export CSV
+
+                </button>
+
+
+                <button
+                    onclick="printBalanceSheet()">
+
+                    🖨️ Print / Save PDF
+
+                </button>
+
+            </div>
+
 
         </div>
 
@@ -2834,6 +4216,926 @@ function balanceSheetPage() {
 }
 
 
+/* =========================================================
+   BALANCE SHEET CSV EXPORT
+   ========================================================= */
+
+function exportBalanceSheetCSV() {
+
+    const balances = {};
+
+
+    appData.journalEntries.forEach(entry => {
+
+        const account =
+            entry.account || "Unassigned";
+
+
+        if (!balances[account]) {
+
+            balances[account] = {
+                debit: 0,
+                credit: 0
+            };
+
+        }
+
+
+        balances[account].debit +=
+            Number(entry.debit || 0);
+
+
+        balances[account].credit +=
+            Number(entry.credit || 0);
+
+    });
+
+
+    const accountBalances = {};
+
+
+    Object.keys(balances).forEach(account => {
+
+        accountBalances[account] =
+            balances[account].debit -
+            balances[account].credit;
+
+    });
+
+
+    const assets = {};
+    const liabilities = {};
+    const equity = {};
+
+
+    Object.keys(accountBalances).forEach(account => {
+
+        const name =
+            account.toLowerCase();
+
+
+        const balance =
+            accountBalances[account];
+
+
+        if (
+            name.includes("cash") ||
+            name.includes("bank") ||
+            name.includes("receivable") ||
+            name.includes("inventory") ||
+            name.includes("asset") ||
+            name.includes("equipment") ||
+            name.includes("property") ||
+            name.includes("vehicle")
+        ) {
+
+            assets[account] =
+                balance;
+
+        }
+
+
+        else if (
+            name.includes("payable") ||
+            name.includes("loan") ||
+            name.includes("liability") ||
+            name.includes("tax payable")
+        ) {
+
+            liabilities[account] =
+                -balance;
+
+        }
+
+
+        else if (
+            name.includes("capital") ||
+            name.includes("equity") ||
+            name.includes("owner")
+        ) {
+
+            equity[account] =
+                -balance;
+
+        }
+
+    });
+
+
+    const totalAssets =
+        Object.values(assets).reduce(
+            (sum, value) =>
+                sum + value,
+            0
+        );
+
+
+    const totalLiabilities =
+        Object.values(liabilities).reduce(
+            (sum, value) =>
+                sum + value,
+            0
+        );
+
+
+    const totalEquity =
+        Object.values(equity).reduce(
+            (sum, value) =>
+                sum + value,
+            0
+        );
+
+
+    const sales =
+        calculateSales();
+
+
+    const cogs =
+        calculateCOGS();
+
+
+    const expenses =
+        calculateExpenses();
+
+
+    const actualCOGS =
+        cogs > 0
+            ? cogs
+            : calculatePurchases();
+
+
+    const grossProfit =
+        sales - actualCOGS;
+
+
+    const netProfit =
+        grossProfit - expenses;
+
+
+    const totalEquityWithProfit =
+        totalEquity + netProfit;
+
+
+    const totalLiabilitiesEquity =
+        totalLiabilities +
+        totalEquityWithProfit;
+
+
+    const balanceCheck =
+        totalAssets -
+        totalLiabilitiesEquity;
+
+
+    let csv =
+        "PT Accounting System\n";
+
+    csv +=
+        "Balance Sheet Report\n\n";
+
+
+    csv +=
+        "ASSETS\n";
+
+    csv +=
+        "Account,Amount\n";
+
+
+    Object.keys(assets).forEach(account => {
+
+        csv +=
+            `"${account.replace(/"/g, '""')}",` +
+            `${assets[account].toFixed(2)}\n`;
+
+    });
+
+
+    csv +=
+        `"Total Assets",${totalAssets.toFixed(2)}\n\n`;
+
+
+    csv +=
+        "LIABILITIES\n";
+
+    csv +=
+        "Account,Amount\n";
+
+
+    Object.keys(liabilities).forEach(account => {
+
+        csv +=
+            `"${account.replace(/"/g, '""')}",` +
+            `${liabilities[account].toFixed(2)}\n`;
+
+    });
+
+
+    csv +=
+        `"Total Liabilities",${totalLiabilities.toFixed(2)}\n\n`;
+
+
+    csv +=
+        "EQUITY\n";
+
+    csv +=
+        "Account,Amount\n";
+
+
+    Object.keys(equity).forEach(account => {
+
+        csv +=
+            `"${account.replace(/"/g, '""')}",` +
+            `${equity[account].toFixed(2)}\n`;
+
+    });
+
+
+    csv +=
+        `"Current Net Profit",${netProfit.toFixed(2)}\n`;
+
+
+    csv +=
+        `"Total Equity",${totalEquityWithProfit.toFixed(2)}\n`;
+
+
+    csv +=
+        `"Total Liabilities + Equity",` +
+        `${totalLiabilitiesEquity.toFixed(2)}\n`;
+
+
+    csv +=
+        `"Balance Sheet Check",` +
+        `${balanceCheck.toFixed(2)}\n`;
+
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        "PT-Accounting-Balance-Sheet.csv";
+
+
+    document.body.appendChild(link);
+
+
+    link.click();
+
+
+    document.body.removeChild(link);
+
+
+    URL.revokeObjectURL(url);
+
+}
+
+
+/* =========================================================
+   BALANCE SHEET PRINT / SAVE PDF
+   ========================================================= */
+
+function printBalanceSheet() {
+
+    const balances = {};
+
+
+    appData.journalEntries.forEach(entry => {
+
+        const account =
+            entry.account || "Unassigned";
+
+
+        if (!balances[account]) {
+
+            balances[account] = {
+                debit: 0,
+                credit: 0
+            };
+
+        }
+
+
+        balances[account].debit +=
+            Number(entry.debit || 0);
+
+
+        balances[account].credit +=
+            Number(entry.credit || 0);
+
+    });
+
+
+    const accountBalances = {};
+
+
+    Object.keys(balances).forEach(account => {
+
+        accountBalances[account] =
+            balances[account].debit -
+            balances[account].credit;
+
+    });
+
+
+    const assets = {};
+    const liabilities = {};
+    const equity = {};
+
+
+    Object.keys(accountBalances).forEach(account => {
+
+        const name =
+            account.toLowerCase();
+
+
+        const balance =
+            accountBalances[account];
+
+
+        if (
+            name.includes("cash") ||
+            name.includes("bank") ||
+            name.includes("receivable") ||
+            name.includes("inventory") ||
+            name.includes("asset") ||
+            name.includes("equipment") ||
+            name.includes("property") ||
+            name.includes("vehicle")
+        ) {
+
+            assets[account] =
+                balance;
+
+        }
+
+
+        else if (
+            name.includes("payable") ||
+            name.includes("loan") ||
+            name.includes("liability") ||
+            name.includes("tax payable")
+        ) {
+
+            liabilities[account] =
+                -balance;
+
+        }
+
+
+        else if (
+            name.includes("capital") ||
+            name.includes("equity") ||
+            name.includes("owner")
+        ) {
+
+            equity[account] =
+                -balance;
+
+        }
+
+    });
+
+
+    const totalAssets =
+        Object.values(assets).reduce(
+            (sum, value) =>
+                sum + value,
+            0
+        );
+
+
+    const totalLiabilities =
+        Object.values(liabilities).reduce(
+            (sum, value) =>
+                sum + value,
+            0
+        );
+
+
+    const totalEquity =
+        Object.values(equity).reduce(
+            (sum, value) =>
+                sum + value,
+            0
+        );
+
+
+    const sales =
+        calculateSales();
+
+
+    const cogs =
+        calculateCOGS();
+
+
+    const expenses =
+        calculateExpenses();
+
+
+    const actualCOGS =
+        cogs > 0
+            ? cogs
+            : calculatePurchases();
+
+
+    const grossProfit =
+        sales - actualCOGS;
+
+
+    const netProfit =
+        grossProfit - expenses;
+
+
+    const totalEquityWithProfit =
+        totalEquity + netProfit;
+
+
+    const totalLiabilitiesEquity =
+        totalLiabilities +
+        totalEquityWithProfit;
+
+
+    const balanceCheck =
+        totalAssets -
+        totalLiabilitiesEquity;
+
+
+    const assetRows =
+        Object.keys(assets)
+            .map(account => `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(account)}
+                    </td>
+
+                    <td>
+                        Nu.
+                        ${formatMoney(
+                            assets[account]
+                        )}
+                    </td>
+
+                </tr>
+
+            `)
+            .join("");
+
+
+    const liabilityRows =
+        Object.keys(liabilities)
+            .map(account => `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(account)}
+                    </td>
+
+                    <td>
+                        Nu.
+                        ${formatMoney(
+                            liabilities[account]
+                        )}
+                    </td>
+
+                </tr>
+
+            `)
+            .join("");
+
+
+    const equityRows =
+        Object.keys(equity)
+            .map(account => `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(account)}
+                    </td>
+
+                    <td>
+                        Nu.
+                        ${formatMoney(
+                            equity[account]
+                        )}
+                    </td>
+
+                </tr>
+
+            `)
+            .join("");
+
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if (!printWindow) {
+
+        alert(
+            "Please allow pop-ups to print the report."
+        );
+
+        return;
+
+    }
+
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>
+                Balance Sheet Report
+            </title>
+
+
+            <style>
+
+                body {
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    padding:
+                        40px;
+
+                }
+
+
+                h1,
+                h2 {
+
+                    text-align:
+                        center;
+
+                }
+
+
+                .date {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        30px;
+
+                    color:
+                        #555;
+
+                }
+
+
+                h3 {
+
+                    margin-top:
+                        25px;
+
+                }
+
+
+                table {
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                    margin-bottom:
+                        20px;
+
+                }
+
+
+                th,
+                td {
+
+                    border:
+                        1px solid #000;
+
+                    padding:
+                        10px;
+
+                }
+
+
+                th {
+
+                    background:
+                        #eeeeee;
+
+                }
+
+
+                td:last-child,
+                th:last-child {
+
+                    text-align:
+                        right;
+
+                }
+
+
+                .total {
+
+                    font-weight:
+                        bold;
+
+                }
+
+
+                .check {
+
+                    font-weight:
+                        bold;
+
+                }
+
+
+                @media print {
+
+                    body {
+
+                        padding:
+                            20px;
+
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+
+            <h1>
+                PT Accounting System
+            </h1>
+
+
+            <h2>
+                Balance Sheet
+            </h2>
+
+
+            <div class="date">
+
+                Generated on:
+                ${new Date().toLocaleString()}
+
+            </div>
+
+
+            <h3>
+                Assets
+            </h3>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Account
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${assetRows}
+
+
+                    <tr class="total">
+
+                        <th>
+                            Total Assets
+                        </th>
+
+                        <th>
+                            Nu.
+                            ${formatMoney(
+                                totalAssets
+                            )}
+                        </th>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+
+            <h3>
+                Liabilities
+            </h3>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Account
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${liabilityRows}
+
+
+                    <tr class="total">
+
+                        <th>
+                            Total Liabilities
+                        </th>
+
+                        <th>
+                            Nu.
+                            ${formatMoney(
+                                totalLiabilities
+                            )}
+                        </th>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+
+            <h3>
+                Equity
+            </h3>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Account
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${equityRows}
+
+
+                    <tr>
+
+                        <td>
+                            Current Net Profit
+                        </td>
+
+                        <td>
+                            Nu.
+                            ${formatMoney(
+                                netProfit
+                            )}
+                        </td>
+
+                    </tr>
+
+
+                    <tr class="total">
+
+                        <th>
+                            Total Equity
+                        </th>
+
+                        <th>
+                            Nu.
+                            ${formatMoney(
+                                totalEquityWithProfit
+                            )}
+                        </th>
+
+                    </tr>
+
+
+                    <tr class="total">
+
+                        <th>
+                            Total Liabilities + Equity
+                        </th>
+
+                        <th>
+                            Nu.
+                            ${formatMoney(
+                                totalLiabilitiesEquity
+                            )}
+                        </th>
+
+                    </tr>
+
+
+                    <tr class="check">
+
+                        <th>
+                            Balance Sheet Check
+                        </th>
+
+                        <th>
+                            Nu.
+                            ${formatMoney(
+                                balanceCheck
+                            )}
+                        </th>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+
+    printWindow.focus();
+
+
+    setTimeout(
+        () => {
+
+            printWindow.print();
+
+        },
+        250
+    );
+
+}
 /* =========================================================
    SETTINGS
    ========================================================= */
