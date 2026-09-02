@@ -7703,6 +7703,383 @@ function loadData() {
    SETTINGS
    ========================================================= */
 
+/* =========================================================
+   SETTINGS PAGE
+   ========================================================= */
+
+function settingsPage() {
+
+    const businessName =
+        localStorage.getItem("businessName") || "";
+
+
+    /*
+     * Count records
+     */
+
+    const accountsCount =
+        appData.accounts.length;
+
+    const customersCount =
+        appData.customers.length;
+
+    const suppliersCount =
+        appData.suppliers.length;
+
+    const productsCount =
+        appData.products.length;
+
+    const salesCount =
+        appData.sales.length;
+
+    const purchasesCount =
+        appData.purchases.length;
+
+    const receiptsCount =
+        appData.receipts.length;
+
+    const paymentsCount =
+        appData.payments.length;
+
+    const journalCount =
+        appData.journalEntries.length;
+
+
+    return `
+
+        <div class="page-header">
+
+            <h2>
+                Settings
+            </h2>
+
+            <p>
+                Manage your business settings,
+                accounting data and backups.
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             BUSINESS SETTINGS
+             ================================================= -->
+
+        <div class="panel">
+
+            <h3>
+                Business Information
+            </h3>
+
+
+            <div class="form-group">
+
+                <label>
+                    Business Name
+                </label>
+
+
+                <input
+                    type="text"
+                    id="businessName"
+                    value="${escapeHTML(businessName)}"
+                    placeholder="Enter business name"
+                >
+
+            </div>
+
+
+            <div class="report-actions">
+
+                <button
+                    onclick="saveSettings()">
+
+                    💾 Save Settings
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             DATA SUMMARY
+             ================================================= -->
+
+        <div class="panel">
+
+            <h3>
+                Data Summary
+            </h3>
+
+
+            <div class="cards">
+
+
+                <div class="card">
+
+                    <small>
+                        Accounts
+                    </small>
+
+                    <strong>
+                        ${accountsCount}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <small>
+                        Customers
+                    </small>
+
+                    <strong>
+                        ${customersCount}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <small>
+                        Suppliers
+                    </small>
+
+                    <strong>
+                        ${suppliersCount}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <small>
+                        Products
+                    </small>
+
+                    <strong>
+                        ${productsCount}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <small>
+                        Sales
+                    </small>
+
+                    <strong>
+                        ${salesCount}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <small>
+                        Purchases
+                    </small>
+
+                    <strong>
+                        ${purchasesCount}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <small>
+                        Receipts
+                    </small>
+
+                    <strong>
+                        ${receiptsCount}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <small>
+                        Payments
+                    </small>
+
+                    <strong>
+                        ${paymentsCount}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <small>
+                        Journal Entries
+                    </small>
+
+                    <strong>
+                        ${journalCount}
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             BACKUP
+             ================================================= -->
+
+        <div class="panel">
+
+            <h3>
+                Backup & Restore
+            </h3>
+
+
+            <p>
+                Create a backup of all accounting data
+                and restore it whenever required.
+            </p>
+
+
+            <div class="report-actions">
+
+
+                <button
+                    onclick="backupData()">
+
+                    💾 Backup Data
+
+                </button>
+
+
+                <button
+                    onclick="document.getElementById('restoreFile').click()">
+
+                    📥 Restore Data
+
+                </button>
+
+
+                <input
+                    type="file"
+                    id="restoreFile"
+                    accept=".json"
+                    style="display:none"
+                    onchange="restoreData(event)"
+                >
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CLEAR DATA
+             ================================================= -->
+
+        <div class="panel">
+
+            <h3>
+                Danger Zone
+            </h3>
+
+
+            <p>
+                Clearing data will permanently remove
+                all accounting records from this browser.
+            </p>
+
+
+            <div class="report-actions">
+
+
+                <button
+                    onclick="clearAllData()">
+
+                    🗑️ Clear All Data
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SYSTEM INFORMATION
+             ================================================= -->
+
+        <div class="panel">
+
+            <h3>
+                System Information
+            </h3>
+
+
+            <p>
+                <strong>
+                    Application:
+                </strong>
+
+                PT Accounting System
+            </p>
+
+
+            <p>
+                <strong>
+                    Storage:
+                </strong>
+
+                Local Browser Storage
+            </p>
+
+
+            <p>
+                <strong>
+                    Accounting:
+                </strong>
+
+                Double-entry accounting
+            </p>
+
+
+            <p>
+                <strong>
+                    Reports:
+                </strong>
+
+                General Ledger, Trial Balance,
+                Profit & Loss, Balance Sheet
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   SAVE SETTINGS
+   ========================================================= */
+
 function saveSettings() {
 
     const element =
@@ -7729,6 +8106,309 @@ function saveSettings() {
     alert(
         "Settings saved successfully."
     );
+
+}
+
+
+/* =========================================================
+   BACKUP DATA
+   ========================================================= */
+
+function backupData() {
+
+    const backup = {
+
+        application:
+            "PT Accounting System",
+
+        version:
+            "1.0",
+
+        backupDate:
+            new Date().toISOString(),
+
+        businessName:
+            localStorage.getItem(
+                "businessName"
+            ) || "",
+
+        appData:
+            appData
+
+    };
+
+
+    const json =
+        JSON.stringify(
+            backup,
+            null,
+            4
+        );
+
+
+    const blob =
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        "PT-Accounting-Backup-" +
+        new Date()
+            .toISOString()
+            .slice(0, 10) +
+        ".json";
+
+
+    document.body.appendChild(link);
+
+
+    link.click();
+
+
+    document.body.removeChild(link);
+
+
+    URL.revokeObjectURL(url);
+
+
+    alert(
+        "Backup created successfully."
+    );
+
+}
+
+
+/* =========================================================
+   RESTORE DATA
+   ========================================================= */
+
+function restoreData(event) {
+
+    const file =
+        event.target.files[0];
+
+
+    if (!file) {
+        return;
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e) {
+
+            try {
+
+                const backup =
+                    JSON.parse(
+                        e.target.result
+                    );
+
+
+                if (
+                    !backup.appData
+                ) {
+
+                    alert(
+                        "Invalid backup file."
+                    );
+
+                    return;
+
+                }
+
+
+                const confirmed =
+                    confirm(
+                        "Restoring this backup will replace the current data. Continue?"
+                    );
+
+
+                if (!confirmed) {
+                    return;
+                }
+
+
+                /*
+                 * Restore application data
+                 */
+
+                appData.accounts =
+                    backup.appData.accounts || [];
+
+                appData.customers =
+                    backup.appData.customers || [];
+
+                appData.suppliers =
+                    backup.appData.suppliers || [];
+
+                appData.products =
+                    backup.appData.products || [];
+
+                appData.sales =
+                    backup.appData.sales || [];
+
+                appData.purchases =
+                    backup.appData.purchases || [];
+
+                appData.receipts =
+                    backup.appData.receipts || [];
+
+                appData.payments =
+                    backup.appData.payments || [];
+
+                appData.journalEntries =
+                    backup.appData.journalEntries || [];
+
+
+                /*
+                 * Restore business name
+                 */
+
+                if (
+                    backup.businessName !== undefined
+                ) {
+
+                    localStorage.setItem(
+                        "businessName",
+                        backup.businessName
+                    );
+
+                }
+
+
+                /*
+                 * Save restored data
+                 */
+
+                saveData();
+
+
+                alert(
+                    "Data restored successfully."
+                );
+
+
+                /*
+                 * Refresh application
+                 */
+
+                location.reload();
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    error
+                );
+
+
+                alert(
+                    "Unable to restore the backup file."
+                );
+
+            }
+
+        };
+
+
+    reader.readAsText(file);
+
+
+    /*
+     * Reset file input
+     */
+
+    event.target.value = "";
+
+}
+
+
+/* =========================================================
+   CLEAR ALL DATA
+   ========================================================= */
+
+function clearAllData() {
+
+    const firstConfirm =
+        confirm(
+            "WARNING: This will permanently delete all accounting data. Continue?"
+        );
+
+
+    if (!firstConfirm) {
+        return;
+    }
+
+
+    const secondConfirm =
+        confirm(
+            "Are you absolutely sure? Please make sure you have a backup first."
+        );
+
+
+    if (!secondConfirm) {
+        return;
+    }
+
+
+    /*
+     * Clear application arrays
+     */
+
+    appData.accounts = [];
+
+    appData.customers = [];
+
+    appData.suppliers = [];
+
+    appData.products = [];
+
+    appData.sales = [];
+
+    appData.purchases = [];
+
+    appData.receipts = [];
+
+    appData.payments = [];
+
+    appData.journalEntries = [];
+
+
+    /*
+     * Save empty data
+     */
+
+    saveData();
+
+
+    alert(
+        "All accounting data has been cleared."
+    );
+
+
+    location.reload();
 
 }
 
