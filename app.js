@@ -1830,6 +1830,23 @@ function dashboardPage() {
     const payables =
         calculatePayables();
 
+   const cashBank =
+    appData.journalEntries.reduce(
+        (sum, entry) => {
+
+            if (
+                entry.account === "Cash/Bank"
+            ) {
+                return sum +
+                    Number(entry.debit || 0) -
+                    Number(entry.credit || 0);
+            }
+
+            return sum;
+
+        },
+        0
+    );
 
     /*
      * Gross Profit
@@ -1846,10 +1863,10 @@ function dashboardPage() {
      * Financial Position
      */
 
-    const totalAssets =
-        inventory +
-        receivables;
-
+   const totalAssets =
+    cashBank +
+    inventory +
+    receivables;
 
     const totalLiabilities =
         payables;
@@ -2172,6 +2189,24 @@ function exportDashboardCSV() {
     const payables =
         calculatePayables();
 
+   const cashBank =
+    appData.journalEntries.reduce(
+        (sum, entry) => {
+
+            if (
+                entry.account === "Cash/Bank"
+            ) {
+                return sum +
+                    Number(entry.debit || 0) -
+                    Number(entry.credit || 0);
+            }
+
+            return sum;
+
+        },
+        0
+    );
+
     const cogs =
         calculateCOGS();
 
@@ -2179,8 +2214,9 @@ function exportDashboardCSV() {
         sales - cogs;
 
     const totalAssets =
-        inventory +
-        receivables;
+    cashBank +
+    inventory +
+    receivables;
 
     const totalLiabilities =
         payables;
@@ -2303,6 +2339,24 @@ function printDashboard() {
     const payables =
         calculatePayables();
 
+   const cashBank =
+    appData.journalEntries.reduce(
+        (sum, entry) => {
+
+            if (
+                entry.account === "Cash/Bank"
+            ) {
+                return sum +
+                    Number(entry.debit || 0) -
+                    Number(entry.credit || 0);
+            }
+
+            return sum;
+
+        },
+        0
+    );
+
     const cogs =
         calculateCOGS();
 
@@ -2310,8 +2364,9 @@ function printDashboard() {
         sales - cogs;
 
     const totalAssets =
-        inventory +
-        receivables;
+    cashBank +
+    inventory +
+    receivables;
 
     const totalLiabilities =
         payables;
