@@ -412,6 +412,41 @@ function dashboardPage() {
         calculatePayables();
 
 
+    /*
+     * Calculate Gross Profit
+     */
+
+    const grossProfit =
+        sales -
+        calculateCOGS();
+
+
+    /*
+     * Calculate Total Assets
+     */
+
+    const totalAssets =
+        inventory +
+        receivables;
+
+
+    /*
+     * Calculate Total Liabilities
+     */
+
+    const totalLiabilities =
+        payables;
+
+
+    /*
+     * Calculate Total Equity
+     */
+
+    const totalEquity =
+        totalAssets -
+        totalLiabilities;
+
+
     return `
 
         <div class="welcome">
@@ -429,7 +464,10 @@ function dashboardPage() {
         </div>
 
 
+        <!-- MAIN SUMMARY -->
+
         <div class="cards">
+
 
             <div class="card">
 
@@ -498,10 +536,14 @@ function dashboardPage() {
 
             </div>
 
+
         </div>
 
 
+        <!-- RECEIVABLES / PAYABLES -->
+
         <div class="cards">
+
 
             <div class="card">
 
@@ -536,8 +578,96 @@ function dashboardPage() {
 
             </div>
 
+
+            <div class="card">
+
+                <div class="card-icon">
+                    📊
+                </div>
+
+                <small>
+                    Gross Profit
+                </small>
+
+                <strong>
+                    Nu. ${formatMoney(grossProfit)}
+                </strong>
+
+            </div>
+
+
         </div>
 
+
+        <!-- BALANCE SHEET SUMMARY -->
+
+        <div class="panel">
+
+            <h3>
+                Financial Position
+            </h3>
+
+
+            <div class="cards">
+
+
+                <div class="card">
+
+                    <div class="card-icon">
+                        🏦
+                    </div>
+
+                    <small>
+                        Total Assets
+                    </small>
+
+                    <strong>
+                        Nu. ${formatMoney(totalAssets)}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="card-icon">
+                        📋
+                    </div>
+
+                    <small>
+                        Total Liabilities
+                    </small>
+
+                    <strong>
+                        Nu. ${formatMoney(totalLiabilities)}
+                    </strong>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="card-icon">
+                        💼
+                    </div>
+
+                    <small>
+                        Total Equity
+                    </small>
+
+                    <strong>
+                        Nu. ${formatMoney(totalEquity)}
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- SYSTEM STATUS -->
 
         <div class="panel">
 
@@ -550,12 +680,47 @@ function dashboardPage() {
                 Data is stored locally in your browser.
             </p>
 
+            <p>
+                All major accounting modules and financial
+                reports are available.
+            </p>
+
+        </div>
+
+
+        <!-- REPORT ACTIONS -->
+
+        <div class="panel">
+
+            <h3>
+                Dashboard Reports
+            </h3>
+
+
+            <div class="report-actions">
+
+                <button
+                    onclick="exportDashboardCSV()">
+
+                    📄 Export CSV
+
+                </button>
+
+
+                <button
+                    onclick="printDashboard()">
+
+                    🖨️ Print / Save PDF
+
+                </button>
+
+            </div>
+
         </div>
 
     `;
 
 }
-
 
 /* =========================================================
    CHART OF ACCOUNTS
