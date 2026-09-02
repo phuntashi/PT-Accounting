@@ -391,6 +391,10 @@ function setupMobileMenu() {
    DASHBOARD
    ========================================================= */
 
+/* =========================================================
+   DASHBOARD PAGE
+   ========================================================= */
+
 function dashboardPage() {
 
     const sales =
@@ -413,16 +417,18 @@ function dashboardPage() {
 
 
     /*
-     * Calculate Gross Profit
+     * Gross Profit
      */
 
-    const grossProfit =
-        sales -
+    const cogs =
         calculateCOGS();
+
+    const grossProfit =
+        sales - cogs;
 
 
     /*
-     * Calculate Total Assets
+     * Financial Position
      */
 
     const totalAssets =
@@ -430,17 +436,9 @@ function dashboardPage() {
         receivables;
 
 
-    /*
-     * Calculate Total Liabilities
-     */
-
     const totalLiabilities =
         payables;
 
-
-    /*
-     * Calculate Total Equity
-     */
 
     const totalEquity =
         totalAssets -
@@ -464,7 +462,9 @@ function dashboardPage() {
         </div>
 
 
-        <!-- MAIN SUMMARY -->
+        <!-- =================================================
+             MAIN SUMMARY
+             ================================================= -->
 
         <div class="cards">
 
@@ -540,7 +540,9 @@ function dashboardPage() {
         </div>
 
 
-        <!-- RECEIVABLES / PAYABLES -->
+        <!-- =================================================
+             RECEIVABLES / PAYABLES / GROSS PROFIT
+             ================================================= -->
 
         <div class="cards">
 
@@ -599,7 +601,9 @@ function dashboardPage() {
         </div>
 
 
-        <!-- BALANCE SHEET SUMMARY -->
+        <!-- =================================================
+             FINANCIAL POSITION
+             ================================================= -->
 
         <div class="panel">
 
@@ -667,7 +671,9 @@ function dashboardPage() {
         </div>
 
 
-        <!-- SYSTEM STATUS -->
+        <!-- =================================================
+             SYSTEM STATUS
+             ================================================= -->
 
         <div class="panel">
 
@@ -688,7 +694,9 @@ function dashboardPage() {
         </div>
 
 
-        <!-- REPORT ACTIONS -->
+        <!-- =================================================
+             DASHBOARD REPORTS
+             ================================================= -->
 
         <div class="panel">
 
@@ -698,6 +706,7 @@ function dashboardPage() {
 
 
             <div class="report-actions">
+
 
                 <button
                     onclick="exportDashboardCSV()">
@@ -714,6 +723,7 @@ function dashboardPage() {
 
                 </button>
 
+
             </div>
 
         </div>
@@ -722,6 +732,620 @@ function dashboardPage() {
 
 }
 
+
+/* =========================================================
+   DASHBOARD CSV EXPORT
+   ========================================================= */
+
+function exportDashboardCSV() {
+
+    const sales =
+        calculateSales();
+
+    const purchases =
+        calculatePurchases();
+
+    const inventory =
+        calculateInventory();
+
+    const profit =
+        calculateProfit();
+
+    const receivables =
+        calculateReceivables();
+
+    const payables =
+        calculatePayables();
+
+    const cogs =
+        calculateCOGS();
+
+    const grossProfit =
+        sales - cogs;
+
+    const totalAssets =
+        inventory +
+        receivables;
+
+    const totalLiabilities =
+        payables;
+
+    const totalEquity =
+        totalAssets -
+        totalLiabilities;
+
+
+    let csv =
+        "PT Accounting System\n";
+
+    csv +=
+        "Dashboard Financial Summary\n\n";
+
+
+    csv +=
+        "Particular,Amount\n";
+
+
+    csv +=
+        `Total Sales,${sales.toFixed(2)}\n`;
+
+    csv +=
+        `Total Purchases,${purchases.toFixed(2)}\n`;
+
+    csv +=
+        `Inventory Value,${inventory.toFixed(2)}\n`;
+
+    csv +=
+        `Receivables,${receivables.toFixed(2)}\n`;
+
+    csv +=
+        `Payables,${payables.toFixed(2)}\n`;
+
+    csv +=
+        `Cost of Goods Sold,${cogs.toFixed(2)}\n`;
+
+    csv +=
+        `Gross Profit,${grossProfit.toFixed(2)}\n`;
+
+    csv +=
+        `Net Profit,${profit.toFixed(2)}\n`;
+
+    csv +=
+        `Total Assets,${totalAssets.toFixed(2)}\n`;
+
+    csv +=
+        `Total Liabilities,${totalLiabilities.toFixed(2)}\n`;
+
+    csv +=
+        `Total Equity,${totalEquity.toFixed(2)}\n`;
+
+
+    /*
+     * Create CSV file
+     */
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        "PT-Accounting-Dashboard.csv";
+
+
+    document.body.appendChild(link);
+
+
+    link.click();
+
+
+    document.body.removeChild(link);
+
+
+    URL.revokeObjectURL(url);
+
+}
+
+
+/* =========================================================
+   DASHBOARD PRINT / SAVE PDF
+   ========================================================= */
+
+function printDashboard() {
+
+    const sales =
+        calculateSales();
+
+    const purchases =
+        calculatePurchases();
+
+    const inventory =
+        calculateInventory();
+
+    const profit =
+        calculateProfit();
+
+    const receivables =
+        calculateReceivables();
+
+    const payables =
+        calculatePayables();
+
+    const cogs =
+        calculateCOGS();
+
+    const grossProfit =
+        sales - cogs;
+
+    const totalAssets =
+        inventory +
+        receivables;
+
+    const totalLiabilities =
+        payables;
+
+    const totalEquity =
+        totalAssets -
+        totalLiabilities;
+
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if (!printWindow) {
+
+        alert(
+            "Please allow pop-ups to print the report."
+        );
+
+        return;
+
+    }
+
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>
+                PT Accounting Dashboard
+            </title>
+
+
+            <style>
+
+                body {
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    padding:
+                        30px;
+
+                }
+
+
+                h1 {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        5px;
+
+                }
+
+
+                h2 {
+
+                    text-align:
+                        center;
+
+                    margin-top:
+                        5px;
+
+                }
+
+
+                .date {
+
+                    text-align:
+                        center;
+
+                    color:
+                        #555;
+
+                    margin-bottom:
+                        30px;
+
+                }
+
+
+                table {
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                    margin-top:
+                        20px;
+
+                }
+
+
+                th,
+                td {
+
+                    border:
+                        1px solid #000;
+
+                    padding:
+                        10px;
+
+                }
+
+
+                th {
+
+                    text-align:
+                        left;
+
+                    background:
+                        #eeeeee;
+
+                }
+
+
+                td:last-child {
+
+                    text-align:
+                        right;
+
+                }
+
+
+                .section {
+
+                    margin-top:
+                        30px;
+
+                }
+
+
+                .profit {
+
+                    font-weight:
+                        bold;
+
+                }
+
+
+                @media print {
+
+                    body {
+
+                        padding:
+                            15px;
+
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+
+            <h1>
+                PT Accounting System
+            </h1>
+
+
+            <h2>
+                Dashboard Financial Summary
+            </h2>
+
+
+            <div class="date">
+
+                Generated on:
+                ${new Date().toLocaleString()}
+
+            </div>
+
+
+            <!-- PROFIT & LOSS -->
+
+            <div class="section">
+
+                <h3>
+                    Profit & Loss Summary
+                </h3>
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Particular
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+                                Total Sales
+                            </td>
+
+                            <td>
+                                Nu. ${formatMoney(sales)}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Cost of Goods Sold
+                            </td>
+
+                            <td>
+                                Nu. ${formatMoney(cogs)}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Gross Profit
+                            </td>
+
+                            <td class="profit">
+                                Nu. ${formatMoney(grossProfit)}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Net Profit
+                            </td>
+
+                            <td class="profit">
+                                Nu. ${formatMoney(profit)}
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- WORKING CAPITAL -->
+
+            <div class="section">
+
+                <h3>
+                    Working Capital
+                </h3>
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Particular
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+                                Inventory Value
+                            </td>
+
+                            <td>
+                                Nu. ${formatMoney(inventory)}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Receivables
+                            </td>
+
+                            <td>
+                                Nu. ${formatMoney(receivables)}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Payables
+                            </td>
+
+                            <td>
+                                Nu. ${formatMoney(payables)}
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- FINANCIAL POSITION -->
+
+            <div class="section">
+
+                <h3>
+                    Financial Position
+                </h3>
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Particular
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+                                Total Assets
+                            </td>
+
+                            <td>
+                                Nu. ${formatMoney(totalAssets)}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Total Liabilities
+                            </td>
+
+                            <td>
+                                Nu. ${formatMoney(totalLiabilities)}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Total Equity
+                            </td>
+
+                            <td>
+                                Nu. ${formatMoney(totalEquity)}
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+
+    printWindow.focus();
+
+
+    setTimeout(
+        () => {
+
+            printWindow.print();
+
+        },
+        250
+    );
+
+}
 /* =========================================================
    CHART OF ACCOUNTS
    ========================================================= */
