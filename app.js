@@ -8055,8 +8055,28 @@ function addSale() {
         generateNumber("SI");
 
 
+    /* =====================================================
+       SELECT CUSTOMER
+       ===================================================== */
+
+    if (appData.customers.length === 0) {
+
+        alert(
+            "Please create a customer first."
+        );
+
+        return;
+
+    }
+
+
     const customer =
-        prompt("Customer name:");
+        prompt(
+            "Customer name:\n\n" +
+            appData.customers
+                .map(customer => customer.name)
+                .join("\n")
+        );
 
 
     if (
@@ -8069,22 +8089,178 @@ function addSale() {
     }
 
 
-    const total =
-        Number(
-            prompt("Invoice total:") || 0
+    const customerName =
+        customer.trim();
+
+
+    const customerExists =
+        appData.customers.some(
+            customer =>
+                customer.name.toLowerCase() ===
+                customerName.toLowerCase()
         );
 
 
-    if (total <= 0) {
+    if (!customerExists) {
 
         alert(
-            "Invoice total must be greater than zero."
+            "Customer not found."
         );
 
         return;
 
     }
 
+
+    /* =====================================================
+       SELECT PRODUCT
+       ===================================================== */
+
+    if (appData.products.length === 0) {
+
+        alert(
+            "Please create a product first."
+        );
+
+        return;
+
+    }
+
+
+    const product =
+        prompt(
+            "Product name:\n\n" +
+            appData.products
+                .map(product => product.name)
+                .join("\n")
+        );
+
+
+    if (
+        !product ||
+        !product.trim()
+    ) {
+
+        return;
+
+    }
+
+
+    const productName =
+        product.trim();
+
+
+    const selectedProduct =
+        appData.products.find(
+            product =>
+                product.name.toLowerCase() ===
+                productName.toLowerCase()
+        );
+
+
+    if (!selectedProduct) {
+
+        alert(
+            "Product not found."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       QUANTITY
+       ===================================================== */
+
+    const quantity =
+        Number(
+            prompt(
+                "Quantity:",
+                "1"
+            ) || 0
+        );
+
+
+    if (
+        quantity <= 0 ||
+        !Number.isFinite(quantity)
+    ) {
+
+        alert(
+            "Quantity must be greater than zero."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        quantity >
+        Number(selectedProduct.stock || 0)
+    ) {
+
+        alert(
+            "Insufficient stock.\n\n" +
+            "Available stock: " +
+            Number(selectedProduct.stock || 0)
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       PRICE
+       ===================================================== */
+
+    const unitPrice =
+        Number(
+            selectedProduct.price || 0
+        );
+
+
+    if (unitPrice <= 0) {
+
+        alert(
+            "Product selling price must be greater than zero."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       CALCULATE SALE
+       ===================================================== */
+
+    const total =
+        quantity *
+        unitPrice;
+
+
+    const unitCost =
+        Number(
+            selectedProduct.cost || 0
+        );
+
+
+    const cogs =
+        quantity *
+        unitCost;
+
+
+    const grossProfit =
+        total -
+        cogs;
+
+
+    /* =====================================================
+       STATUS
+       ===================================================== */
 
     const status =
         prompt(
@@ -8093,24 +8269,187 @@ function addSale() {
         ) || "Unpaid";
 
 
+    /* =====================================================
+       CREATE SALES RECORD
+       ===================================================== */
+
     appData.sales.push({
 
-        id: generateNumber("SALE"),
+        id:
+            generateNumber("SALE"),
 
-        invoice: invoice,
+        invoice:
+            invoice,
 
-        date: today(),
+        date:
+            today(),
 
-        customer: customer.trim(),
+        customer:
+            customerName,
 
-        total: total,
+        product:
+            selectedProduct.name,
 
-        status: status.trim(),
+        quantity:
+            quantity,
 
-        cogs: 0
+        unitPrice:
+            unitPrice,
+
+        total:
+            total,
+
+        status:
+            status.trim(),
+
+        cogs:
+            cogs,
+
+        grossProfit:
+            grossProfit
 
     });
 
+
+    /* =====================================================
+       UPDATE INVENTORY
+       ===================================================== */
+
+    selectedProduct.stock =
+        Number(selectedProduct.stock || 0) -
+        quantity;
+
+
+    /* =====================================================
+       UPDATE CUSTOMER RECEIVABLE
+       ===================================================== */
+
+    const selectedCustomer =
+        appData.customers.find(
+            customer =>
+                customer.name.toLowerCase() ===
+                customerName.toLowerCase()
+        );
+
+
+    if (selectedCustomer) {
+
+        selectedCustomer.balance =
+            Number(
+                selectedCustomer.balance || 0
+            ) +
+            total;
+
+    }
+
+
+    /* =====================================================
+       DOUBLE-ENTRY JOURNAL
+       ===================================================== */
+
+    // Accounts Receivable — Debit
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            invoice,
+
+        description:
+            "Sales invoice " +
+            invoice,
+
+        account:
+            "Accounts Receivable",
+
+        debit:
+            total,
+
+        credit:
+            0
+
+    });
+
+
+    // Sales Revenue — Credit
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            invoice,
+
+        description:
+            "Sales invoice " +
+            invoice,
+
+        account:
+            "Sales Revenue",
+
+        debit:
+            0,
+
+        credit:
+            total
+
+    });
+
+
+    // Cost of Goods Sold — Debit
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            invoice,
+
+        description:
+            "COGS for " +
+            invoice,
+
+        account:
+            "Cost of Goods Sold",
+
+        debit:
+            cogs,
+
+        credit:
+            0
+
+    });
+
+
+    // Inventory — Credit
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            invoice,
+
+        description:
+            "Inventory reduction for " +
+            invoice,
+
+        account:
+            "Inventory",
+
+        debit:
+            0,
+
+        credit:
+            cogs
+
+    });
+
+
+    /* =====================================================
+       SAVE
+       ===================================================== */
 
     saveData();
 
@@ -8118,7 +8457,16 @@ function addSale() {
     alert(
         "Sales invoice " +
         invoice +
-        " created successfully."
+        " created successfully.\n\n" +
+
+        "Total: Nu. " +
+        formatMoney(total) +
+
+        "\nCOGS: Nu. " +
+        formatMoney(cogs) +
+
+        "\nGross Profit: Nu. " +
+        formatMoney(grossProfit)
     );
 
 
