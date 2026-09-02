@@ -8625,109 +8625,226 @@ function createJournalEntry(entry) {
 
 function addReceipt() {
 
-const from =
-    prompt("Received from:");
+    const from =
+        prompt("Received from:");
 
-if (
-    !from ||
-    !from.trim()
-) {
-    return;
-}
+    if (
+        !from ||
+        !from.trim()
+    ) {
+        return;
+    }
 
-const account =
-    prompt(
-        "Receipt account:",
-        "Cash"
-    ) || "Cash";
 
-const amount =
-    Number(
-        prompt("Amount received:") || 0
-    );
+    /* =====================================================
+       CHECK CUSTOMER
+       ===================================================== */
 
-if (amount <= 0) {
+    const customer =
+        appData.customers.find(
+            customer =>
+                customer.name.toLowerCase() ===
+                from.trim().toLowerCase()
+        );
+
+
+    if (!customer) {
+
+        alert(
+            "Customer not found."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       RECEIPT ACCOUNT
+       ===================================================== */
+
+    const account =
+        prompt(
+            "Receipt account:",
+            "Cash/Bank"
+        ) || "Cash/Bank";
+
+
+    /* =====================================================
+       AMOUNT
+       ===================================================== */
+
+    const amount =
+        Number(
+            prompt(
+                "Amount received:",
+                "0"
+            ) || 0
+        );
+
+
+    if (
+        amount <= 0 ||
+        !Number.isFinite(amount)
+    ) {
+
+        alert(
+            "Amount must be greater than zero."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       CHECK RECEIVABLE BALANCE
+       ===================================================== */
+
+    const customerBalance =
+        Number(
+            customer.balance || 0
+        );
+
+
+    if (amount > customerBalance) {
+
+        alert(
+            "Receipt cannot be greater than " +
+            "the customer's outstanding balance.\n\n" +
+
+            "Outstanding balance: Nu. " +
+            formatMoney(customerBalance)
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       REFERENCE
+       ===================================================== */
+
+    const reference =
+        generateNumber("REC");
+
+
+    /* =====================================================
+       CREATE RECEIPT RECORD
+       ===================================================== */
+
+    appData.receipts.push({
+
+        id:
+            generateNumber("RECEIPT"),
+
+        date:
+            today(),
+
+        reference:
+            reference,
+
+        from:
+            from.trim(),
+
+        account:
+            account.trim(),
+
+        amount:
+            amount
+
+    });
+
+
+    /* =====================================================
+       UPDATE CUSTOMER RECEIVABLE
+       ===================================================== */
+
+    customer.balance =
+        customerBalance -
+        amount;
+
+
+    /* =====================================================
+       DOUBLE-ENTRY ACCOUNTING
+       ===================================================== */
+
+    // Debit Cash / Bank
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            reference,
+
+        description:
+            "Receipt from " +
+            from.trim(),
+
+        account:
+            account.trim(),
+
+        debit:
+            amount,
+
+        credit:
+            0
+
+    });
+
+
+    // Credit Accounts Receivable
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            reference,
+
+        description:
+            "Receipt from " +
+            from.trim(),
+
+        account:
+            "Accounts Receivable",
+
+        debit:
+            0,
+
+        credit:
+            amount
+
+    });
+
+
+    /* =====================================================
+       SAVE
+       ===================================================== */
+
+    saveData();
+
 
     alert(
-        "Amount must be greater than zero."
+        "Receipt " +
+        reference +
+        " recorded successfully.\n\n" +
+
+        "Amount: Nu. " +
+        formatMoney(amount) +
+
+        "\nRemaining balance: Nu. " +
+        formatMoney(
+            customer.balance
+        )
     );
 
-    return;
+
+    showPage("receipts");
+
 }
-
-const reference =
-    generateNumber("REC");
-
-appData.receipts.push({
-
-    id: generateNumber("RECEIPT"),
-
-    date: today(),
-
-    reference: reference,
-
-    from: from.trim(),
-
-    account: account.trim(),
-
-    amount: amount
-
-});
-
-/*
- * DOUBLE-ENTRY ACCOUNTING
- *
- * Debit  = Cash / Bank
- * Credit = Accounts Receivable
- */
-
-createJournalEntry({
-
-    date: today(),
-
-    reference: reference,
-
-    description:
-        "Receipt from " +
-        from.trim(),
-
-    account: account.trim(),
-
-    debit: amount,
-
-    credit: 0
-
-});
-
-createJournalEntry({
-
-    date: today(),
-
-    reference: reference,
-
-    description:
-        "Receipt from " +
-        from.trim(),
-
-    account: "Accounts Receivable",
-
-    debit: 0,
-
-    credit: amount
-
-});
-
-saveData();
-
-alert(
-    "Receipt " +
-    reference +
-    " recorded successfully."
-);
-
-showPage("receipts");
-}
-
 
 /* =========================================================
    ADD PAYMENT
