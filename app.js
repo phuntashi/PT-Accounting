@@ -1938,7 +1938,7 @@ function journalPage() {
 
 
 /* =========================================================
-   GENERAL LEDGER
+   GENERAL LEDGER PAGE
    ========================================================= */
 
 function ledgerPage() {
@@ -1946,74 +1946,51 @@ function ledgerPage() {
     const entries =
         appData.journalEntries;
 
+
     /*
      * Group journal entries by account
      */
+
     const grouped = {};
+
 
     entries.forEach(entry => {
 
         const account =
             entry.account || "Unknown";
 
+
         if (!grouped[account]) {
+
             grouped[account] = [];
+
         }
+
 
         grouped[account].push(entry);
 
     });
 
-    let rows = "";
+
+    const accounts =
+        Object.keys(grouped);
+
 
     /*
-     * Build ledger account-by-account
+     * Create ledger rows
      */
-    Object.keys(grouped)
-        .sort()
-        .forEach(account => {
 
-            let balance = 0;
+    const rows =
+        accounts.map(account => {
 
-            rows += `
-
-                <tr class="ledger-account-header">
-
-                    <td colspan="7">
-
-                        <strong>
-                            ${escapeHTML(account)}
-                        </strong>
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            grouped[account].forEach(entry => {
-
-                const debit =
-                    Number(entry.debit || 0);
-
-                const credit =
-                    Number(entry.credit || 0);
-
-                balance += debit - credit;
-
-                rows += `
+            return grouped[account]
+                .map(entry => `
 
                     <tr>
 
                         <td>
                             ${escapeHTML(
                                 entry.date || ""
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                account
                             )}
                         </td>
 
@@ -2031,51 +2008,29 @@ function ledgerPage() {
 
                         <td>
                             Nu.
-                            ${formatMoney(debit)}
+                            ${formatMoney(
+                                Number(
+                                    entry.debit || 0
+                                )
+                            )}
                         </td>
 
                         <td>
                             Nu.
-                            ${formatMoney(credit)}
-                        </td>
-
-                        <td>
-                            Nu.
-                            ${formatMoney(balance)}
+                            ${formatMoney(
+                                Number(
+                                    entry.credit || 0
+                                )
+                            )}
                         </td>
 
                     </tr>
 
-                `;
+                `)
+                .join("");
 
-            });
-
-            rows += `
-
-                <tr class="ledger-total">
-
-                    <td colspan="6">
-
-                        <strong>
-                            Closing Balance
-                        </strong>
-
-                    </td>
-
-                    <td>
-
-                        <strong>
-                            Nu.
-                            ${formatMoney(balance)}
-                        </strong>
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        });
+        })
+        .join("");
 
 
     return `
@@ -2087,51 +2042,11 @@ function ledgerPage() {
             </h2>
 
             <p>
-                Account-by-account transaction history
-                with running balances.
+                Account-by-account transaction history.
             </p>
 
         </div>
 
-
-        <!-- EXPORT REPORT PANEL -->
-
-        <div class="panel">
-
-            <h3>
-                Generate Report
-            </h3>
-
-            <p>
-                Export the General Ledger.
-            </p>
-
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
-
-                <button
-                    type="button"
-                    class="btn-primary"
-                    onclick="exportGeneralLedgerCSV()">
-
-                    📄 Export CSV
-
-                </button>
-
-                <button
-                    type="button"
-                    class="btn-primary"
-                    onclick="window.print()">
-
-                    🖨️ Print / Save PDF
-
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- LEDGER TABLE -->
 
         <div class="panel">
 
@@ -2143,13 +2058,25 @@ function ledgerPage() {
 
                         <tr>
 
-                            <th>Date</th>
-                            <th>Account</th>
-                            <th>Reference</th>
-                            <th>Description</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
-                            <th>Balance</th>
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Reference
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Debit
+                            </th>
+
+                            <th>
+                                Credit
+                            </th>
 
                         </tr>
 
@@ -2159,27 +2086,21 @@ function ledgerPage() {
                     <tbody>
 
                         ${
-                            entries.length === 0
-
-                            ?
+                            rows ||
 
                             `
                             <tr>
 
                                 <td
-                                    colspan="7"
+                                    colspan="5"
                                     class="empty">
 
-                                    No ledger transactions yet.
+                                    No journal entries yet.
 
                                 </td>
 
                             </tr>
                             `
-
-                            :
-
-                            rows
                         }
 
                     </tbody>
@@ -2188,6 +2109,29 @@ function ledgerPage() {
 
             </div>
 
+
+            <!-- REPORT ACTIONS -->
+
+            <div class="report-actions">
+
+                <button
+                    onclick="exportLedgerCSV()">
+
+                    📄 Export CSV
+
+                </button>
+
+
+                <button
+                    onclick="printLedger()">
+
+                    🖨️ Print / Save PDF
+
+                </button>
+
+            </div>
+
+
         </div>
 
     `;
@@ -2195,122 +2139,134 @@ function ledgerPage() {
 }
 
 
-/*
- * EXPORT GENERAL LEDGER TO CSV
- */
-function exportGeneralLedgerCSV() {
+/* =========================================================
+   GENERAL LEDGER CSV EXPORT
+   ========================================================= */
+
+function exportLedgerCSV() {
 
     const entries =
         appData.journalEntries;
 
-    if (!entries || entries.length === 0) {
 
-        alert(
-            "There are no General Ledger transactions to export."
-        );
+    let csv =
+        "PT Accounting System\n";
 
-        return;
-
-    }
+    csv +=
+        "General Ledger Report\n\n";
 
 
-    const headers = [
-        "Date",
-        "Account",
-        "Reference",
-        "Description",
-        "Debit",
-        "Credit",
-        "Balance"
-    ];
+    csv +=
+        "Account,Date,Reference,Description,Debit,Credit\n";
 
-
-    const rows = [];
-
-    /*
-     * Group entries by account
-     */
-    const grouped = {};
 
     entries.forEach(entry => {
 
         const account =
             entry.account || "Unknown";
 
-        if (!grouped[account]) {
-            grouped[account] = [];
-        }
 
-        grouped[account].push(entry);
+        const date =
+            entry.date || "";
+
+
+        const reference =
+            entry.reference || "";
+
+
+        const description =
+            entry.description || "";
+
+
+        const debit =
+            Number(entry.debit || 0);
+
+
+        const credit =
+            Number(entry.credit || 0);
+
+
+        const safeAccount =
+            account.replace(
+                /"/g,
+                '""'
+            );
+
+
+        const safeDate =
+            date.replace(
+                /"/g,
+                '""'
+            );
+
+
+        const safeReference =
+            reference.replace(
+                /"/g,
+                '""'
+            );
+
+
+        const safeDescription =
+            description.replace(
+                /"/g,
+                '""'
+            );
+
+
+        csv +=
+            `"${safeAccount}",` +
+            `"${safeDate}",` +
+            `"${safeReference}",` +
+            `"${safeDescription}",` +
+            `${debit.toFixed(2)},` +
+            `${credit.toFixed(2)}\n`;
 
     });
 
 
     /*
-     * Create CSV rows
+     * Totals
      */
-    Object.keys(grouped)
-        .sort()
-        .forEach(account => {
 
-            let balance = 0;
-
-            grouped[account].forEach(entry => {
-
-                const debit =
-                    Number(entry.debit || 0);
-
-                const credit =
-                    Number(entry.credit || 0);
-
-                balance += debit - credit;
-
-
-                rows.push([
-                    entry.date || "",
-                    account,
-                    entry.reference || "",
-                    entry.description || "",
-                    debit.toFixed(2),
-                    credit.toFixed(2),
-                    balance.toFixed(2)
-                ]);
-
-            });
-
-        });
-
-
-    /*
-     * Convert data to CSV
-     */
-    const csvRows = [];
-
-    csvRows.push(
-        headers.map(csvEscape).join(",")
-    );
-
-    rows.forEach(row => {
-
-        csvRows.push(
-            row.map(csvEscape).join(",")
+    const totalDebit =
+        entries.reduce(
+            (sum, entry) =>
+                sum +
+                Number(
+                    entry.debit || 0
+                ),
+            0
         );
 
-    });
+
+    const totalCredit =
+        entries.reduce(
+            (sum, entry) =>
+                sum +
+                Number(
+                    entry.credit || 0
+                ),
+            0
+        );
 
 
-    const csv =
-        csvRows.join("\r\n");
+    csv +=
+        `\n"TOTAL","","","","` +
+        `${totalDebit.toFixed(2)},` +
+        `${totalCredit.toFixed(2)}"\n`;
 
 
     /*
-     * Create downloadable file
+     * Download CSV
      */
+
     const blob =
         new Blob(
             [csv],
             {
-                type: "text/csv;charset=utf-8;"
+                type:
+                    "text/csv;charset=utf-8;"
             }
         );
 
@@ -2322,46 +2278,389 @@ function exportGeneralLedgerCSV() {
     const link =
         document.createElement("a");
 
-    link.href = url;
+
+    link.href =
+        url;
+
 
     link.download =
-        "General_Ledger.csv";
+        "PT-Accounting-General-Ledger.csv";
 
 
     document.body.appendChild(link);
 
+
     link.click();
 
+
     document.body.removeChild(link);
+
 
     URL.revokeObjectURL(url);
 
 }
 
 
-/*
- * Protect commas, quotes and line breaks
- * inside CSV fields.
- */
-function csvEscape(value) {
+/* =========================================================
+   GENERAL LEDGER PRINT / SAVE PDF
+   ========================================================= */
 
-    const text =
-        String(value ?? "");
+function printLedger() {
 
-    if (
-        text.includes(",") ||
-        text.includes('"') ||
-        text.includes("\n") ||
-        text.includes("\r")
-    ) {
+    const entries =
+        appData.journalEntries;
 
-        return '"' +
-            text.replace(/"/g, '""') +
-            '"';
+
+    const totalDebit =
+        entries.reduce(
+            (sum, entry) =>
+                sum +
+                Number(
+                    entry.debit || 0
+                ),
+            0
+        );
+
+
+    const totalCredit =
+        entries.reduce(
+            (sum, entry) =>
+                sum +
+                Number(
+                    entry.credit || 0
+                ),
+            0
+        );
+
+
+    const rows =
+        entries.map(entry => `
+
+            <tr>
+
+                <td>
+                    ${escapeHTML(
+                        entry.account || "Unknown"
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        entry.date || ""
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        entry.reference || ""
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        entry.description || ""
+                    )}
+                </td>
+
+                <td class="number">
+                    Nu.
+                    ${formatMoney(
+                        Number(
+                            entry.debit || 0
+                        )
+                    )}
+                </td>
+
+                <td class="number">
+                    Nu.
+                    ${formatMoney(
+                        Number(
+                            entry.credit || 0
+                        )
+                    )}
+                </td>
+
+            </tr>
+
+        `)
+        .join("");
+
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if (!printWindow) {
+
+        alert(
+            "Please allow pop-ups to print the report."
+        );
+
+        return;
 
     }
 
-    return text;
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>
+                General Ledger Report
+            </title>
+
+
+            <style>
+
+                body {
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    padding:
+                        30px;
+
+                }
+
+
+                h1 {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        5px;
+
+                }
+
+
+                h2 {
+
+                    text-align:
+                        center;
+
+                    margin-top:
+                        5px;
+
+                }
+
+
+                .date {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        30px;
+
+                    color:
+                        #555;
+
+                }
+
+
+                table {
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                }
+
+
+                th,
+                td {
+
+                    border:
+                        1px solid #000;
+
+                    padding:
+                        8px;
+
+                }
+
+
+                th {
+
+                    background:
+                        #eeeeee;
+
+                }
+
+
+                .number {
+
+                    text-align:
+                        right;
+
+                }
+
+
+                tfoot {
+
+                    font-weight:
+                        bold;
+
+                }
+
+
+                @media print {
+
+                    body {
+
+                        padding:
+                            15px;
+
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+
+            <h1>
+                PT Accounting System
+            </h1>
+
+
+            <h2>
+                General Ledger
+            </h2>
+
+
+            <div class="date">
+
+                Generated on:
+                ${new Date().toLocaleString()}
+
+            </div>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Account
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Reference
+                        </th>
+
+                        <th>
+                            Description
+                        </th>
+
+                        <th>
+                            Debit
+                        </th>
+
+                        <th>
+                            Credit
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${
+                        rows ||
+
+                        `
+                        <tr>
+
+                            <td colspan="6">
+
+                                No journal entries yet.
+
+                            </td>
+
+                        </tr>
+                        `
+                    }
+
+                </tbody>
+
+
+                <tfoot>
+
+                    <tr>
+
+                        <th colspan="4">
+                            TOTAL
+                        </th>
+
+                        <th class="number">
+
+                            Nu.
+                            ${formatMoney(
+                                totalDebit
+                            )}
+
+                        </th>
+
+                        <th class="number">
+
+                            Nu.
+                            ${formatMoney(
+                                totalCredit
+                            )}
+
+                        </th>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+
+    printWindow.focus();
+
+
+    setTimeout(
+        () => {
+
+            printWindow.print();
+
+        },
+        250
+    );
 
 }
 
