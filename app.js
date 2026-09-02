@@ -78,18 +78,22 @@ const rolePermissions = {
 function initializeUsers() {
 
     if (!Array.isArray(appData.users)) {
-
         appData.users = [];
-
     }
 
+    /*
+     * Check whether Administrator already exists
+     */
+    const adminExists = appData.users.some(
+        user =>
+            user.username &&
+            user.username.toLowerCase() === "admin"
+    );
 
     /*
-     * Create default Administrator
-     * only when there are no users.
+     * Create Administrator if missing
      */
-
-    if (appData.users.length === 0) {
+    if (!adminExists) {
 
         appData.users.push({
 
@@ -1239,9 +1243,7 @@ function deleteUser(id) {
 /* =========================================================
    APPLICATION DATA
    ========================================================= */
-
 const appData = {
-
     accounts: [],
     customers: [],
     suppliers: [],
@@ -1252,9 +1254,7 @@ const appData = {
     payments: [],
     journalEntries: [],
     users: []
-
 };
-
 
 /* =========================================================
    PAGE INFORMATION
