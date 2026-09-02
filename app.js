@@ -573,6 +573,137 @@ function showLoginScreen() {
 
 
 /* =========================================================
+   USER SESSION BAR + LOGOUT
+   ========================================================= */
+
+function showUserSessionBar() {
+
+    /*
+     * Do not create duplicate session bars
+     */
+    if (document.getElementById("userSessionBar")) {
+        return;
+    }
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    /*
+     * Create session bar
+     */
+    const bar =
+        document.createElement("div");
+
+    bar.id =
+        "userSessionBar";
+
+    bar.style.cssText = `
+        display:flex;
+        align-items:center;
+        justify-content:flex-end;
+        gap:12px;
+        padding:10px 20px;
+        background:#ffffff;
+        border-bottom:1px solid #ddd;
+        font-size:14px;
+    `;
+
+
+    bar.innerHTML = `
+
+        <span>
+            Logged in as:
+            <strong>
+                ${escapeHTML(currentUser.fullName)}
+            </strong>
+
+            <span style="margin-left:6px;">
+                (${escapeHTML(currentUser.role)})
+            </span>
+        </span>
+
+
+        <button
+            class="btn"
+            type="button"
+            onclick="logout()"
+            style="
+                padding:6px 14px;
+                cursor:pointer;
+            "
+        >
+            Logout
+        </button>
+
+    `;
+
+
+    /*
+     * Insert at the top of the application
+     */
+    const app =
+        document.querySelector(".app");
+
+    if (app) {
+
+        app.insertBefore(
+            bar,
+            app.firstChild
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+function logout() {
+
+    /*
+     * Clear current user
+     */
+    currentUser = null;
+
+
+    /*
+     * Remove saved login session
+     */
+    localStorage.removeItem(
+        "ptAccountingCurrentUser"
+    );
+
+
+    /*
+     * Show login screen
+     */
+    showLoginScreen();
+
+}
+
+/* =========================================================
+   START USER SESSION BAR
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        if (currentUser) {
+
+            showUserSessionBar();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
    PERFORM LOGIN
    ========================================================= */
 
