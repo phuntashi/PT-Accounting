@@ -9092,6 +9092,14 @@ function loadData() {
 
         }
 
+       if (
+    Array.isArray(data.users)
+) {
+
+    appData.users =
+        data.users;
+
+}
 
         if (
             Array.isArray(data.journalEntries)
