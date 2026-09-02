@@ -3,6 +3,1238 @@
    COMPLETE app.js
    ========================================================= */
 
+/* =========================================================
+   PT ACCOUNTING SYSTEM
+   USER MANAGEMENT & PERMISSION SYSTEM
+   ========================================================= */
+
+
+/* =========================================================
+   CURRENT USER
+   ========================================================= */
+
+let currentUser = null;
+
+
+/* =========================================================
+   ROLE PERMISSIONS
+   ========================================================= */
+
+const rolePermissions = {
+
+    Administrator: [
+        "*"
+    ],
+
+    Accountant: [
+        "dashboard",
+        "accounts",
+        "customers",
+        "suppliers",
+        "products",
+        "sales",
+        "purchases",
+        "receipts",
+        "payments",
+        "journal",
+        "ledger",
+        "trial",
+        "profit-loss",
+        "balance-sheet",
+        "settings"
+    ],
+
+    "Sales User": [
+        "dashboard",
+        "customers",
+        "products",
+        "sales",
+        "receipts"
+    ],
+
+    "Purchase User": [
+        "dashboard",
+        "suppliers",
+        "products",
+        "purchases",
+        "payments"
+    ],
+
+    Viewer: [
+        "dashboard",
+        "ledger",
+        "trial",
+        "profit-loss",
+        "balance-sheet"
+    ]
+
+};
+
+
+/* =========================================================
+   INITIALIZE USERS
+   ========================================================= */
+
+function initializeUsers() {
+
+    if (!Array.isArray(appData.users)) {
+
+        appData.users = [];
+
+    }
+
+
+    /*
+     * Create default Administrator
+     * only when there are no users.
+     */
+
+    if (appData.users.length === 0) {
+
+        appData.users.push({
+
+            id:
+                "USR-" +
+                Date.now(),
+
+            username:
+                "admin",
+
+            password:
+                "admin123",
+
+            fullName:
+                "System Administrator",
+
+            role:
+                "Administrator",
+
+            active:
+                true
+
+        });
+
+        saveData();
+
+    }
+
+}
+
+
+/* =========================================================
+   CHECK PAGE PERMISSION
+   ========================================================= */
+
+function hasPermission(page) {
+
+    if (!currentUser) {
+
+        return false;
+
+    }
+
+
+    const permissions =
+        rolePermissions[currentUser.role] || [];
+
+
+    /*
+     * Administrator has access to everything.
+     */
+
+    if (permissions.includes("*")) {
+
+        return true;
+
+    }
+
+
+    return permissions.includes(page);
+
+}
+
+
+/* =========================================================
+   APPLY PERMISSIONS TO NAVIGATION
+   ========================================================= */
+
+function applyPermissions() {
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(button => {
+
+            const page =
+                button.dataset.page;
+
+
+            if (hasPermission(page)) {
+
+                button.style.display = "";
+
+            } else {
+
+                button.style.display = "none";
+
+            }
+
+        });
+
+
+    /*
+     * Show current user information
+     * if a user display area exists.
+     */
+
+    const userDisplay =
+        document.getElementById(
+            "currentUserDisplay"
+        );
+
+
+    if (userDisplay && currentUser) {
+
+        userDisplay.innerHTML = `
+
+            <strong>
+                ${escapeHTML(currentUser.fullName)}
+            </strong>
+
+            <small>
+                ${escapeHTML(currentUser.role)}
+            </small>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHTML(value) {
+
+    if (value === null ||
+        value === undefined) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
+function login(username, password) {
+
+    const user =
+        appData.users.find(
+
+            user =>
+
+                user.username.toLowerCase() ===
+                username.toLowerCase() &&
+
+                user.password ===
+                password &&
+
+                user.active === true
+
+        );
+
+
+    if (!user) {
+
+        alert(
+            "Invalid username or password."
+        );
+
+        return false;
+
+    }
+
+
+    currentUser = user;
+
+
+    localStorage.setItem(
+
+        "ptAccountingCurrentUser",
+
+        JSON.stringify({
+
+            id:
+                user.id,
+
+            username:
+                user.username
+
+        })
+
+    );
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   LOAD CURRENT USER
+   ========================================================= */
+
+function loadCurrentUser() {
+
+    const savedUser =
+        localStorage.getItem(
+            "ptAccountingCurrentUser"
+        );
+
+
+    if (!savedUser) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const saved =
+            JSON.parse(savedUser);
+
+
+        const user =
+            appData.users.find(
+
+                u =>
+                    u.id ===
+                    saved.id &&
+
+                    u.username ===
+                    saved.username &&
+
+                    u.active === true
+
+            );
+
+
+        if (user) {
+
+            currentUser = user;
+
+        } else {
+
+            localStorage.removeItem(
+                "ptAccountingCurrentUser"
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Unable to restore logged-in user.",
+            error
+        );
+
+        localStorage.removeItem(
+            "ptAccountingCurrentUser"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+function logout() {
+
+    currentUser = null;
+
+
+    localStorage.removeItem(
+        "ptAccountingCurrentUser"
+    );
+
+
+    location.reload();
+
+}
+
+
+/* =========================================================
+   LOGIN SCREEN
+   ========================================================= */
+
+function showLoginScreen() {
+
+    document.body.innerHTML = `
+
+        <div
+            style="
+                min-height:100vh;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                padding:20px;
+                background:#f4f6f8;
+            "
+        >
+
+            <div
+                class="panel"
+                style="
+                    width:100%;
+                    max-width:420px;
+                    box-sizing:border-box;
+                "
+            >
+
+                <div
+                    style="
+                        text-align:center;
+                        margin-bottom:25px;
+                    "
+                >
+
+                    <h1>
+                        PT Accounting System
+                    </h1>
+
+                    <p>
+                        Please sign in to continue.
+                    </p>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="loginUsername"
+                        placeholder="Enter username"
+                        autocomplete="username"
+                    >
+
+                </div>
+
+
+                <br>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter password"
+                        autocomplete="current-password"
+                    >
+
+                </div>
+
+
+                <br>
+
+
+                <button
+                    class="btn btn-primary"
+                    style="width:100%;"
+                    onclick="performLogin()"
+                >
+
+                    Login
+
+                </button>
+
+
+                <div
+                    style="
+                        margin-top:20px;
+                        padding:12px;
+                        background:#f8f8f8;
+                        border-radius:6px;
+                        text-align:center;
+                        font-size:13px;
+                    "
+                >
+
+                    <strong>
+                        First Login
+                    </strong>
+
+                    <br><br>
+
+                    Username:
+                    <strong>admin</strong>
+
+                    <br>
+
+                    Password:
+                    <strong>admin123</strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    /*
+     * Allow ENTER key to login.
+     */
+
+    const passwordInput =
+        document.getElementById(
+            "loginPassword"
+        );
+
+
+    if (passwordInput) {
+
+        passwordInput.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    performLogin();
+
+                }
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PERFORM LOGIN
+   ========================================================= */
+
+function performLogin() {
+
+    const username =
+        document
+            .getElementById("loginUsername")
+            .value
+            .trim();
+
+
+    const password =
+        document
+            .getElementById("loginPassword")
+            .value;
+
+
+    if (!username) {
+
+        alert(
+            "Please enter username."
+        );
+
+        return;
+
+    }
+
+
+    if (!password) {
+
+        alert(
+            "Please enter password."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        login(
+            username,
+            password
+        )
+    ) {
+
+        location.reload();
+
+    }
+
+}
+
+
+/* =========================================================
+   USERS PAGE
+   ========================================================= */
+
+function usersPage() {
+
+    /*
+     * Only Administrator can manage users.
+     */
+
+    if (
+        !currentUser ||
+        currentUser.role !==
+        "Administrator"
+    ) {
+
+        return `
+
+            <div class="panel">
+
+                <h3>
+                    Access Denied
+                </h3>
+
+                <p>
+                    Only the Administrator
+                    can manage users.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+
+    return `
+
+        <div class="page-header">
+
+            <h2>
+                User Management
+            </h2>
+
+            <p>
+                Create users and control
+                their system permissions.
+            </p>
+
+        </div>
+
+
+        <div class="panel">
+
+            <h3>
+                Add New User
+            </h3>
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+                    <label>
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="newUserFullName"
+                        placeholder="Enter full name"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="newUsername"
+                        placeholder="Enter username"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="newUserPassword"
+                        placeholder="Enter password"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Role
+                    </label>
+
+                    <select id="newUserRole">
+
+                        <option value="Accountant">
+                            Accountant
+                        </option>
+
+                        <option value="Sales User">
+                            Sales User
+                        </option>
+
+                        <option value="Purchase User">
+                            Purchase User
+                        </option>
+
+                        <option value="Viewer">
+                            Viewer
+                        </option>
+
+                        <option value="Administrator">
+                            Administrator
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+            </div>
+
+
+            <br>
+
+
+            <button
+                class="btn btn-primary"
+                onclick="addUser()"
+            >
+
+                + Create User
+
+            </button>
+
+        </div>
+
+
+        <div class="panel">
+
+            <h3>
+                Users
+            </h3>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                User ID
+                            </th>
+
+                            <th>
+                                Username
+                            </th>
+
+                            <th>
+                                Full Name
+                            </th>
+
+                            <th>
+                                Role
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        ${
+                            appData.users.length === 0
+
+                            ?
+
+                            `
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="empty"
+                                >
+
+                                    No users found.
+
+                                </td>
+
+                            </tr>
+
+                            `
+
+                            :
+
+                            appData.users.map(
+                                user => `
+
+                                <tr>
+
+                                    <td>
+                                        ${escapeHTML(user.id)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(user.username)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(user.fullName)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(user.role)}
+                                    </td>
+
+                                    <td>
+
+                                        ${
+                                            user.active
+
+                                            ?
+
+                                            `<span class="status status-paid">
+                                                Active
+                                            </span>`
+
+                                            :
+
+                                            `<span class="status">
+                                                Inactive
+                                            </span>`
+                                        }
+
+                                    </td>
+
+                                    <td>
+
+                                        ${
+                                            user.id ===
+                                            currentUser.id
+
+                                            ?
+
+                                            `<strong>
+                                                Current User
+                                            </strong>`
+
+                                            :
+
+                                            `
+
+                                            <button
+                                                class="btn btn-secondary"
+                                                onclick="toggleUser('${user.id}')"
+                                            >
+
+                                                ${
+                                                    user.active
+                                                    ?
+                                                    "Deactivate"
+                                                    :
+                                                    "Activate"
+                                                }
+
+                                            </button>
+
+
+                                            <button
+                                                class="btn btn-danger"
+                                                onclick="deleteUser('${user.id}')"
+                                            >
+
+                                                Delete
+
+                                            </button>
+
+                                            `
+
+                                        }
+
+                                    </td>
+
+                                </tr>
+
+                            `
+                            ).join("")
+
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   ADD USER
+   ========================================================= */
+
+function addUser() {
+
+    if (
+        !currentUser ||
+        currentUser.role !==
+        "Administrator"
+    ) {
+
+        alert(
+            "Only the Administrator can create users."
+        );
+
+        return;
+
+    }
+
+
+    const fullName =
+        document
+            .getElementById(
+                "newUserFullName"
+            )
+            .value
+            .trim();
+
+
+    const username =
+        document
+            .getElementById(
+                "newUsername"
+            )
+            .value
+            .trim();
+
+
+    const password =
+        document
+            .getElementById(
+                "newUserPassword"
+            )
+            .value;
+
+
+    const role =
+        document
+            .getElementById(
+                "newUserRole"
+            )
+            .value;
+
+
+    if (!fullName) {
+
+        alert(
+            "Please enter the full name."
+        );
+
+        return;
+
+    }
+
+
+    if (!username) {
+
+        alert(
+            "Please enter a username."
+        );
+
+        return;
+
+    }
+
+
+    if (!password) {
+
+        alert(
+            "Please enter a password."
+        );
+
+        return;
+
+    }
+
+
+    if (password.length < 4) {
+
+        alert(
+            "Password must contain at least 4 characters."
+        );
+
+        return;
+
+    }
+
+
+    const usernameExists =
+        appData.users.some(
+
+            user =>
+                user.username.toLowerCase() ===
+                username.toLowerCase()
+
+        );
+
+
+    if (usernameExists) {
+
+        alert(
+            "Username already exists."
+        );
+
+        return;
+
+    }
+
+
+    appData.users.push({
+
+        id:
+            "USR-" +
+            Date.now(),
+
+        username:
+            username,
+
+        password:
+            password,
+
+        fullName:
+            fullName,
+
+        role:
+            role,
+
+        active:
+            true
+
+    });
+
+
+    saveData();
+
+
+    alert(
+        "User created successfully."
+    );
+
+
+    showPage("users");
+
+}
+
+
+/* =========================================================
+   TOGGLE USER
+   ========================================================= */
+
+function toggleUser(id) {
+
+    if (
+        !currentUser ||
+        currentUser.role !==
+        "Administrator"
+    ) {
+
+        alert(
+            "Only the Administrator can change user status."
+        );
+
+        return;
+
+    }
+
+
+    const user =
+        appData.users.find(
+            u => u.id === id
+        );
+
+
+    if (!user) {
+
+        return;
+
+    }
+
+
+    /*
+     * Prevent Administrator from
+     * deactivating their own account.
+     */
+
+    if (
+        user.id ===
+        currentUser.id
+    ) {
+
+        alert(
+            "You cannot deactivate your own account."
+        );
+
+        return;
+
+    }
+
+
+    user.active =
+        !user.active;
+
+
+    saveData();
+
+
+    showPage("users");
+
+}
+
+
+/* =========================================================
+   DELETE USER
+   ========================================================= */
+
+function deleteUser(id) {
+
+    if (
+        !currentUser ||
+        currentUser.role !==
+        "Administrator"
+    ) {
+
+        alert(
+            "Only the Administrator can delete users."
+        );
+
+        return;
+
+    }
+
+
+    const user =
+        appData.users.find(
+            u => u.id === id
+        );
+
+
+    if (!user) {
+
+        return;
+
+    }
+
+
+    if (
+        user.id ===
+        currentUser.id
+    ) {
+
+        alert(
+            "You cannot delete the currently logged-in user."
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "Delete user " +
+            user.username +
+            "?"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    appData.users =
+        appData.users.filter(
+            u => u.id !== id
+        );
+
+
+    saveData();
+
+
+    showPage("users");
+
+}
+
 
 /* =========================================================
    APPLICATION DATA
@@ -18,8 +1250,8 @@ const appData = {
     purchases: [],
     receipts: [],
     payments: [],
-
     journalEntries: [],
+    users: []
 
 };
 
@@ -100,6 +1332,11 @@ const pages = {
         subtitle: "View assets, liabilities and equity"
     },
 
+    users: {
+       title: "User Management",
+       subtitle: "Manage users and system permissions"
+    },
+
     settings: {
         title: "Settings",
         subtitle: "System configuration"
@@ -116,9 +1353,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loadData();
 
+    initializeUsers();
+
+    loadCurrentUser();
+
     setupNavigation();
 
     setupMobileMenu();
+
+
+    if (!currentUser) {
+
+        showLoginScreen();
+
+        return;
+
+    }
+
+
+    applyPermissions();
 
     showPage("dashboard");
 
@@ -196,17 +1449,6 @@ function setupNavigation() {
 
 function showPage(page) {
 
-    if (!pages[page]) {
-
-        console.error(
-            "PT Accounting: Page does not exist:",
-            page
-        );
-
-        return;
-    }
-
-
     const title =
         document.getElementById("pageTitle");
 
@@ -217,69 +1459,76 @@ function showPage(page) {
         document.getElementById("content");
 
 
-    if (title) {
+    if (!pages[page]) {
 
-        title.textContent =
-            pages[page].title;
-
-    }
-
-
-    if (subtitle) {
-
-        subtitle.textContent =
-            pages[page].subtitle;
+        return;
 
     }
 
 
     /*
-       Update active navigation button.
-    */
+     * Permission check
+     */
+
+    if (!hasPermission(page)) {
+
+        alert(
+            "Access denied. Your user role does not have permission to open this page."
+        );
+
+        return;
+
+    }
+
+
+    title.textContent =
+        pages[page].title;
+
+
+    subtitle.textContent =
+        pages[page].subtitle;
+
 
     document
         .querySelectorAll(".nav-item")
         .forEach(button => {
 
-            button.classList.remove("active");
+            button.classList.remove(
+                "active"
+            );
+
 
             if (
-                button.getAttribute("data-page") === page
+                button.dataset.page ===
+                page
             ) {
 
-                button.classList.add("active");
+                button.classList.add(
+                    "active"
+                );
 
             }
 
         });
 
 
-    /*
-       Render selected page.
-    */
-
-    if (content) {
-
-        content.innerHTML =
-            renderPage(page);
-
-    }
+    content.innerHTML =
+        renderPage(page);
 
 
     /*
-       Close mobile sidebar.
-    */
+     * Re-apply permissions
+     */
+
+    applyPermissions();
+
 
     if (window.innerWidth <= 700) {
 
-        const sidebar =
-            document.getElementById("sidebar");
-
-        if (sidebar) {
-
-            sidebar.classList.remove("open");
-
-        }
+        document
+            .getElementById("sidebar")
+            .classList
+            .remove("open");
 
     }
 
@@ -336,10 +1585,13 @@ function renderPage(page) {
         case "balance-sheet":
             return balanceSheetPage();
 
-        case "settings":
-            return settingsPage();
+        case "users":
+            return usersPage();
 
-        default:
+      case "settings":
+            return settingsPage();
+            
+       default:
 
             return `
                 <div class="panel">
