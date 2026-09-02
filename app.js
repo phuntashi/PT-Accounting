@@ -77,29 +77,34 @@ const rolePermissions = {
 
 function initializeUsers() {
 
+    /*
+     * Make sure users array exists
+     */
     if (!Array.isArray(appData.users)) {
         appData.users = [];
     }
 
+
     /*
-     * Check whether Administrator already exists
+     * Find Administrator account
      */
-    const adminExists = appData.users.some(
+    let adminUser = appData.users.find(
         user =>
+            user &&
             user.username &&
             user.username.toLowerCase() === "admin"
     );
 
+
     /*
      * Create Administrator if missing
      */
-    if (!adminExists) {
+    if (!adminUser) {
 
-        appData.users.push({
+        adminUser = {
 
             id:
-                "USR-" +
-                Date.now(),
+                "USR-ADMIN",
 
             username:
                 "admin",
@@ -116,14 +121,31 @@ function initializeUsers() {
             active:
                 true
 
-        });
+        };
 
-        saveData();
+        appData.users.push(adminUser);
 
     }
 
-}
 
+    /*
+     * Repair Administrator account
+     * in case an older version saved
+     * incorrect information.
+     */
+    adminUser.username = "admin";
+    adminUser.password = "admin123";
+    adminUser.fullName = "System Administrator";
+    adminUser.role = "Administrator";
+    adminUser.active = true;
+
+
+    /*
+     * Save repaired user data
+     */
+    saveData();
+
+}
 
 /* =========================================================
    CHECK PAGE PERMISSION
@@ -562,7 +584,6 @@ function performLogin() {
             .value
             .trim();
 
-
     const password =
         document
             .getElementById("loginPassword")
@@ -591,12 +612,23 @@ function performLogin() {
     }
 
 
-    if (
+    /*
+     * Make sure Administrator exists
+     */
+    initializeUsers();
+
+
+    /*
+     * Try login
+     */
+    const success =
         login(
             username,
             password
-        )
-    ) {
+        );
+
+
+    if (success) {
 
         location.reload();
 
