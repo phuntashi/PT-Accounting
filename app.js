@@ -9993,7 +9993,6 @@ function updatePurchaseItem(element) {
 
 }
 
-
 function updatePurchaseTotal() {
 
     const amounts =
@@ -10236,67 +10235,6 @@ function clearPurchaseForm() {
     }
 
 }
-
-function updatePurchasePrice() {
-
-    const productName =
-        document
-            .getElementById("purchaseProduct")
-            .value;
-
-
-    const selectedProduct =
-        appData.products.find(
-            product =>
-                product.name === productName
-        );
-
-
-    const price =
-        selectedProduct
-            ? Number(selectedProduct.cost || 0)
-            : 0;
-
-
-    document
-        .getElementById("purchaseUnitPrice")
-        .value = price;
-
-
-    updatePurchaseTotal();
-
-}
-
-
-function updatePurchaseTotal() {
-
-    const quantity =
-        Number(
-            document
-                .getElementById("purchaseQuantity")
-                .value || 0
-        );
-
-
-    const unitPrice =
-        Number(
-            document
-                .getElementById("purchaseUnitPrice")
-                .value || 0
-        );
-
-
-    const total =
-        quantity * unitPrice;
-
-
-    document
-        .getElementById("purchaseTotal")
-        .value =
-        total.toFixed(2);
-
-}
-
 
 /* =========================================================
    ADD RECEIPT
