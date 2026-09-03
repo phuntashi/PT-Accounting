@@ -5357,7 +5357,6 @@ function cleanOrphanJournalEntries() {
 
 }
 
-cleanOrphanJournalEntries();
 
 /* =========================================================
    GENERAL LEDGER PAGE
@@ -9993,13 +9992,11 @@ function saveReceipt() {
             .value
             .trim();
 
-
     const account =
         document
             .getElementById("receiptAccount")
             .value
             .trim();
-
 
     const amount =
         Number(
@@ -10019,27 +10016,6 @@ function saveReceipt() {
 
     }
 
-function clearReceiptForm() {
-
-    document
-        .getElementById("receiptFrom")
-        .value = "";
-
-
-    document
-        .getElementById("receiptAccount")
-        .value = "Cash/Bank";
-
-
-    document
-        .getElementById("receiptAmount")
-        .value = "";
-
-}
-
-    /* =====================================================
-       CHECK CUSTOMER
-       ===================================================== */
 
     const customer =
         appData.customers.find(
@@ -10060,10 +10036,6 @@ function clearReceiptForm() {
     }
 
 
-    /* =====================================================
-       AMOUNT
-       ===================================================== */
-
     if (
         amount <= 0 ||
         !Number.isFinite(amount)
@@ -10077,10 +10049,6 @@ function clearReceiptForm() {
 
     }
 
-
-    /* =====================================================
-       CHECK RECEIVABLE BALANCE
-       ===================================================== */
 
     const customerBalance =
         Number(
@@ -10103,17 +10071,9 @@ function clearReceiptForm() {
     }
 
 
-    /* =====================================================
-       REFERENCE
-       ===================================================== */
-
     const reference =
         generateNumber("REC");
 
-
-    /* =====================================================
-       CREATE RECEIPT RECORD
-       ===================================================== */
 
     appData.receipts.push({
 
@@ -10138,20 +10098,14 @@ function clearReceiptForm() {
     });
 
 
-    /* =====================================================
-       UPDATE CUSTOMER RECEIVABLE
-       ===================================================== */
-
     customer.balance =
         customerBalance -
         amount;
 
 
-    /* =====================================================
-       DOUBLE-ENTRY ACCOUNTING
-       ===================================================== */
-
-    // Debit Cash / Bank
+    /*
+     * Debit Cash / Bank
+     */
 
     createJournalEntry({
 
@@ -10177,7 +10131,9 @@ function clearReceiptForm() {
     });
 
 
-    // Credit Accounts Receivable
+    /*
+     * Credit Accounts Receivable
+     */
 
     createJournalEntry({
 
@@ -10203,10 +10159,6 @@ function clearReceiptForm() {
     });
 
 
-    /* =====================================================
-       SAVE
-       ===================================================== */
-
     saveData();
 
 
@@ -10226,6 +10178,23 @@ function clearReceiptForm() {
 
 
     showPage("receipts");
+
+}
+
+
+function clearReceiptForm() {
+
+    document
+        .getElementById("receiptFrom")
+        .value = "";
+
+    document
+        .getElementById("receiptAccount")
+        .value = "Cash/Bank";
+
+    document
+        .getElementById("receiptAmount")
+        .value = "";
 
 }
 
