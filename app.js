@@ -5357,6 +5357,8 @@ function cleanOrphanJournalEntries() {
 
 }
 
+cleanOrphanJournalEntries();
+
 /* =========================================================
    GENERAL LEDGER PAGE
    ========================================================= */
