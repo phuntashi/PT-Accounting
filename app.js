@@ -5304,6 +5304,246 @@ function paymentsPage() {
 
 }
 
+function savePayment() {
+
+    const to =
+        document
+            .getElementById("paymentTo")
+            .value
+            .trim();
+
+    const account =
+        document
+            .getElementById("paymentAccount")
+            .value
+            .trim();
+
+    const amount =
+        Number(
+            document
+                .getElementById("paymentAmount")
+                .value || 0
+        );
+
+
+    /*
+     * Validate supplier
+     */
+
+    if (!to) {
+
+        alert("Please select a supplier.");
+
+        return;
+
+    }
+
+
+    /*
+     * Find supplier
+     */
+
+    const supplier =
+        appData.suppliers.find(
+            supplier =>
+                supplier.name.toLowerCase() ===
+                to.toLowerCase()
+        );
+
+
+    if (!supplier) {
+
+        alert("Supplier not found.");
+
+        return;
+
+    }
+
+
+    /*
+     * Validate amount
+     */
+
+    if (
+        amount <= 0 ||
+        !Number.isFinite(amount)
+    ) {
+
+        alert(
+            "Amount must be greater than zero."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Check outstanding supplier balance
+     */
+
+    const supplierBalance =
+        Number(
+            supplier.balance || 0
+        );
+
+
+    if (amount > supplierBalance) {
+
+        alert(
+            "Payment cannot be greater than " +
+            "the supplier's outstanding balance.\n\n" +
+            "Outstanding balance: Nu. " +
+            formatMoney(supplierBalance)
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Generate payment reference
+     */
+
+    const reference =
+        generateNumber("PAY");
+
+
+    /*
+     * Save payment
+     */
+
+    appData.payments.push({
+
+        id:
+            generateNumber("PAYMENT"),
+
+        date:
+            today(),
+
+        reference:
+            reference,
+
+        to:
+            to,
+
+        account:
+            account,
+
+        amount:
+            amount
+
+    });
+
+
+    /*
+     * Reduce supplier balance
+     */
+
+    supplier.balance =
+        supplierBalance -
+        amount;
+
+
+    /*
+     * Journal Entry:
+     * Debit Accounts Payable
+     */
+
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            reference,
+
+        description:
+            "Payment to " + to,
+
+        account:
+            "Accounts Payable",
+
+        debit:
+            amount,
+
+        credit:
+            0
+
+    });
+
+
+    /*
+     * Journal Entry:
+     * Credit Cash / Bank
+     */
+
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            reference,
+
+        description:
+            "Payment to " + to,
+
+        account:
+            account,
+
+        debit:
+            0,
+
+        credit:
+            amount
+
+    });
+
+
+    /*
+     * Save data
+     */
+
+    saveData();
+
+
+    alert(
+        "Payment " +
+        reference +
+        " recorded successfully.\n\n" +
+        "Amount: Nu. " +
+        formatMoney(amount) +
+        "\nRemaining balance: Nu. " +
+        formatMoney(supplier.balance)
+    );
+
+
+    showPage("payments");
+
+}
+
+
+
+function clearPaymentForm() {
+
+    document
+        .getElementById("paymentTo")
+        .value = "";
+
+
+    document
+        .getElementById("paymentAccount")
+        .value = "Cash/Bank";
+
+
+    document
+        .getElementById("paymentAmount")
+        .value = "";
+
+}
+
 /* =========================================================
    JOURNAL
    ========================================================= */
