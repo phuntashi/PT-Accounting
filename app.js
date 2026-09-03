@@ -3521,6 +3521,7 @@ function suppliersPage() {
     `;
 
 }
+
 /* =========================================================
    PRODUCTS
    ========================================================= */
@@ -3542,19 +3543,125 @@ function productsPage() {
         </div>
 
 
+        <!-- PRODUCT ENTRY SHEET -->
+
         <div class="panel">
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="addProduct()">
+            <h3>
+                Add New Product
+            </h3>
 
-                + Add Product
 
-            </button>
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit, minmax(200px, 1fr));
+                    gap:15px;
+                "
+            >
+
+                <div>
+
+                    <label>
+                        Product Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="productName"
+                        placeholder="Enter product name"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Purchase Price
+                    </label>
+
+                    <input
+                        type="number"
+                        id="productCost"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Selling Price
+                    </label>
+
+                    <input
+                        type="number"
+                        id="productPrice"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Opening Stock
+                    </label>
+
+                    <input
+                        type="number"
+                        id="productOpeningStock"
+                        min="0"
+                        step="1"
+                        placeholder="0"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    gap:10px;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="saveProduct()">
+
+                    💾 Save Product
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="clearProductForm()">
+
+                    Clear
+
+                </button>
+
+            </div>
 
         </div>
 
+
+        <!-- PRODUCT LIST -->
 
         <div class="panel">
 
@@ -3672,7 +3779,6 @@ function productsPage() {
     `;
 
 }
-
 
 /* =========================================================
    SALES
@@ -8406,34 +8512,57 @@ function clearSupplierForm() {
    ADD PRODUCT
    ========================================================= */
 
-function addProduct() {
+function saveProduct() {
 
     const name =
-        prompt("Product name:");
-
-
-    if (!name || !name.trim()) {
-        return;
-    }
+        document
+            .getElementById("productName")
+            .value
+            .trim();
 
 
     const cost =
         Number(
-            prompt("Purchase price:") || 0
+            document
+                .getElementById("productCost")
+                .value || 0
         );
 
 
     const price =
         Number(
-            prompt("Selling price:") || 0
+            document
+                .getElementById("productPrice")
+                .value || 0
         );
 
 
     const openingStock =
         Number(
-            prompt("Opening stock:") || 0
+            document
+                .getElementById("productOpeningStock")
+                .value || 0
         );
 
+
+    /*
+     * Validate product name
+     */
+
+    if (!name) {
+
+        alert(
+            "Please enter the product name."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Validate numbers
+     */
 
     if (
         cost < 0 ||
@@ -8450,11 +8579,15 @@ function addProduct() {
     }
 
 
+    /*
+     * Save product
+     */
+
     appData.products.push({
 
         id: generateNumber("PROD"),
 
-        name: name.trim(),
+        name: name,
 
         cost: cost,
 
@@ -8475,10 +8608,47 @@ function addProduct() {
     );
 
 
+    /*
+     * Refresh Products page.
+     * The entry sheet will be ready
+     * for the next product.
+     */
+
     showPage("products");
 
 }
 
+/* =========================================================
+   CLEAR PRODUCT FORM
+   ========================================================= */
+
+function clearProductForm() {
+
+    document
+        .getElementById("productName")
+        .value = "";
+
+
+    document
+        .getElementById("productCost")
+        .value = "";
+
+
+    document
+        .getElementById("productPrice")
+        .value = "";
+
+
+    document
+        .getElementById("productOpeningStock")
+        .value = "";
+
+
+    document
+        .getElementById("productName")
+        .focus();
+
+}
 
 /* =========================================================
    ADD SALE
