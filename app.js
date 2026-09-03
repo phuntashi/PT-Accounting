@@ -10521,16 +10521,67 @@ function deleteProduct(index) {
 
 function deleteSale(index) {
 
-    if (
-        !confirm("Delete this sales invoice?")
-    ) {
-
+    if (!confirm("Delete this sales invoice?")) {
         return;
+    }
+
+    const sale =
+        appData.sales[index];
+
+    if (!sale) {
+        return;
+    }
+
+    /*
+     * Restore product stock
+     */
+    const product =
+        appData.products.find(
+            p => p.name === sale.product
+        );
+
+    if (product) {
+
+        product.stock =
+            Number(product.stock || 0) +
+            Number(sale.quantity || 0);
 
     }
 
 
+    /*
+     * Restore customer balance
+     */
+    const customer =
+        appData.customers.find(
+            c => c.name === sale.customer
+        );
+
+    if (customer) {
+
+        customer.balance =
+            Number(customer.balance || 0) -
+            Number(sale.total || 0);
+
+    }
+
+
+    /*
+     * Remove journal entries
+     * belonging to this invoice
+     */
+    appData.journalEntries =
+        appData.journalEntries.filter(
+            entry =>
+                entry.reference !== sale.invoice
+        );
+
+
+    /*
+     * Delete the sales invoice
+     */
     appData.sales.splice(index, 1);
+
 
     saveData();
 
@@ -10541,24 +10592,74 @@ function deleteSale(index) {
 
 function deletePurchase(index) {
 
-    if (
-        !confirm("Delete this purchase invoice?")
-    ) {
-
+    if (!confirm("Delete this purchase invoice?")) {
         return;
+    }
+
+    const purchase =
+        appData.purchases[index];
+
+    if (!purchase) {
+        return;
+    }
+
+
+    /*
+     * Reverse product stock
+     */
+    const product =
+        appData.products.find(
+            p => p.name === purchase.product
+        );
+
+    if (product) {
+
+        product.stock =
+            Number(product.stock || 0) -
+            Number(purchase.quantity || 0);
 
     }
 
 
+    /*
+     * Reverse supplier balance
+     */
+    const supplier =
+        appData.suppliers.find(
+            s => s.name === purchase.supplier
+        );
+
+    if (supplier) {
+
+        supplier.balance =
+            Number(supplier.balance || 0) -
+            Number(purchase.total || 0);
+
+    }
+
+
+    /*
+     * Remove journal entries
+     * belonging to this invoice
+     */
+    appData.journalEntries =
+        appData.journalEntries.filter(
+            entry =>
+                entry.reference !== purchase.invoice
+        );
+
+
+    /*
+     * Delete the purchase invoice
+     */
     appData.purchases.splice(index, 1);
+
 
     saveData();
 
     showPage("purchases");
 
 }
-
-
 /* =========================================================
    CALCULATIONS
    ========================================================= */
