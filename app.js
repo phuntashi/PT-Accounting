@@ -4144,60 +4144,231 @@ function purchasesPage() {
             </h3>
 
 
+            <!-- SUPPLIER -->
+
+            <div style="margin-top:15px;">
+
+                <label>
+                    Supplier
+                </label>
+
+                <select
+                    id="purchaseSupplier"
+                    style="width:100%; padding:10px;"
+                >
+
+                    <option value="">
+                        Select Supplier
+                    </option>
+
+                    ${
+                        appData.suppliers
+                            .map(
+                                supplier => `
+                                    <option
+                                        value="${escapeHTML(
+                                            supplier.name
+                                        )}"
+                                    >
+                                        ${escapeHTML(
+                                            supplier.name
+                                        )}
+                                    </option>
+                                `
+                            )
+                            .join("")
+                    }
+
+                </select>
+
+            </div>
+
+
+            <!-- PURCHASE ITEMS -->
+
             <div
                 style="
-                    display:grid;
-                    grid-template-columns:
-                        repeat(auto-fit, minmax(220px, 1fr));
-                    gap:16px;
-                    margin-top:15px;
+                    margin-top:20px;
                 "
             >
 
+                <h3>
+                    Purchase Items
+                </h3>
 
-                <!-- SUPPLIER -->
 
-                <div>
+                <div class="table-container">
 
-                    <label>
-                        Supplier
-                    </label>
+                    <table>
 
-                    <select
-                        id="purchaseSupplier"
-                        style="width:100%; padding:10px;"
-                    >
+                        <thead>
 
-                        <option value="">
-                            Select Supplier
-                        </option>
+                            <tr>
 
-                        ${
-                            appData.suppliers
-                                .map(
-                                    supplier => `
-                                        <option
-                                            value="${escapeHTML(
-                                                supplier.name
-                                            )}"
-                                        >
-                                            ${escapeHTML(
-                                                supplier.name
-                                            )}
+                                <th>
+                                    Product
+                                </th>
+
+                                <th>
+                                    Quantity
+                                </th>
+
+                                <th>
+                                    Unit Price
+                                </th>
+
+                                <th>
+                                    Amount
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="purchaseItemsBody">
+
+                            <tr>
+
+                                <td>
+
+                                    <select
+                                        class="purchase-product"
+                                        onchange="updatePurchaseItem(this)"
+                                        style="width:100%; padding:8px;"
+                                    >
+
+                                        <option value="">
+                                            Select Product
                                         </option>
-                                    `
-                                )
-                                .join("")
-                        }
 
-                    </select>
+                                        ${
+                                            appData.products
+                                                .map(
+                                                    product => `
+                                                        <option
+                                                            value="${escapeHTML(
+                                                                product.name
+                                                            )}"
+                                                        >
+                                                            ${escapeHTML(
+                                                                product.name
+                                                            )}
+                                                        </option>
+                                                    `
+                                                )
+                                                .join("")
+                                        }
+
+                                    </select>
+
+                                </td>
+
+
+                                <td>
+
+                                    <input
+                                        type="number"
+                                        class="purchase-quantity"
+                                        min="1"
+                                        step="1"
+                                        value="1"
+                                        oninput="updatePurchaseItem(this)"
+                                        style="width:100%; padding:8px;"
+                                    >
+
+                                </td>
+
+
+                                <td>
+
+                                    <input
+                                        type="number"
+                                        class="purchase-unit-price"
+                                        min="0"
+                                        step="0.01"
+                                        value=""
+                                        oninput="updatePurchaseItem(this)"
+                                        style="width:100%; padding:8px;"
+                                    >
+
+                                </td>
+
+
+                                <td>
+
+                                    <input
+                                        type="number"
+                                        class="purchase-amount"
+                                        value="0.00"
+                                        readonly
+                                        style="width:100%; padding:8px;"
+                                    >
+
+                                </td>
+
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger"
+                                        onclick="removePurchaseItem(this)"
+                                    >
+
+                                        Remove
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
 
-                <!-- PURCHASE TOTAL -->
+                <!-- ADD ITEM -->
 
-                <div>
+                <div style="margin-top:15px;">
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="addPurchaseItem()"
+                    >
+
+                        + Add Item
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- TOTAL -->
+
+            <div
+                style="
+                    display:flex;
+                    justify-content:flex-end;
+                    margin-top:20px;
+                "
+            >
+
+                <div
+                    style="
+                        min-width:250px;
+                    "
+                >
 
                     <label>
                         Purchase Total
@@ -4206,43 +4377,52 @@ function purchasesPage() {
                     <input
                         type="number"
                         id="purchaseTotal"
-                        min="0"
-                        step="0.01"
-                        placeholder="0.00"
-                        style="width:100%; padding:10px;"
+                        value="0.00"
+                        readonly
+                        style="
+                            width:100%;
+                            padding:10px;
+                            font-size:18px;
+                            font-weight:bold;
+                        "
                     >
 
                 </div>
 
+            </div>
 
-                <!-- STATUS -->
 
-                <div>
+            <!-- STATUS -->
 
-                    <label>
-                        Status
-                    </label>
+            <div
+                style="
+                    margin-top:20px;
+                    max-width:300px;
+                "
+            >
 
-                    <select
-                        id="purchaseStatus"
-                        style="width:100%; padding:10px;"
-                    >
+                <label>
+                    Status
+                </label>
 
-                        <option value="Unpaid">
-                            Unpaid
-                        </option>
+                <select
+                    id="purchaseStatus"
+                    style="width:100%; padding:10px;"
+                >
 
-                        <option value="Partially Paid">
-                            Partially Paid
-                        </option>
+                    <option value="Unpaid">
+                        Unpaid
+                    </option>
 
-                        <option value="Paid">
-                            Paid
-                        </option>
+                    <option value="Partially Paid">
+                        Partially Paid
+                    </option>
 
-                    </select>
+                    <option value="Paid">
+                        Paid
+                    </option>
 
-                </div>
+                </select>
 
             </div>
 
@@ -4402,6 +4582,7 @@ function purchasesPage() {
     `;
 
 }
+
 
 /* =========================================================
    RECEIPTS
@@ -9468,14 +9649,6 @@ function savePurchase() {
             .trim();
 
 
-    const total =
-        Number(
-            document
-                .getElementById("purchaseTotal")
-                .value || 0
-        );
-
-
     const status =
         document
             .getElementById("purchaseStatus")
@@ -9486,6 +9659,83 @@ function savePurchase() {
 
         alert(
             "Please select a supplier."
+        );
+
+        return;
+
+    }
+
+
+    const rows =
+        document.querySelectorAll(
+            "#purchaseItemsBody tr"
+        );
+
+
+    const items = [];
+
+    let total = 0;
+
+
+    rows.forEach(row => {
+
+        const product =
+            row
+                .querySelector(".purchase-product")
+                .value
+                .trim();
+
+
+        const quantity =
+            Number(
+                row
+                    .querySelector(".purchase-quantity")
+                    .value || 0
+            );
+
+
+        const unitPrice =
+            Number(
+                row
+                    .querySelector(".purchase-unit-price")
+                    .value || 0
+            );
+
+
+        if (
+            product &&
+            quantity > 0 &&
+            unitPrice > 0
+        ) {
+
+            const amount =
+                quantity * unitPrice;
+
+
+            items.push({
+
+                product: product,
+
+                quantity: quantity,
+
+                unitPrice: unitPrice,
+
+                amount: amount
+
+            });
+
+
+            total += amount;
+
+        }
+
+    });
+
+
+    if (items.length === 0) {
+
+        alert(
+            "Please enter at least one purchase item."
         );
 
         return;
@@ -9523,7 +9773,9 @@ function savePurchase() {
 
         total: total,
 
-        status: status
+        status: status,
+
+        items: items
 
     });
 
@@ -9534,11 +9786,454 @@ function savePurchase() {
     alert(
         "Purchase invoice " +
         invoice +
-        " created successfully."
+        " created successfully.\n\n" +
+        "Total: Nu. " +
+        formatMoney(total)
     );
 
 
     showPage("purchases");
+
+}
+
+function addPurchaseItem() {
+
+    const tbody =
+        document.getElementById(
+            "purchaseItemsBody"
+        );
+
+
+    if (!tbody) {
+        return;
+    }
+
+
+    const row =
+        document.createElement("tr");
+
+
+    row.innerHTML = `
+
+        <td>
+
+            <select
+                class="purchase-product"
+                onchange="updatePurchaseItem(this)"
+                style="width:100%; padding:8px;"
+            >
+
+                <option value="">
+                    Select Product
+                </option>
+
+                ${
+                    appData.products
+                        .map(
+                            product => `
+                                <option
+                                    value="${escapeHTML(
+                                        product.name
+                                    )}"
+                                >
+                                    ${escapeHTML(
+                                        product.name
+                                    )}
+                                </option>
+                            `
+                        )
+                        .join("")
+                }
+
+            </select>
+
+        </td>
+
+
+        <td>
+
+            <input
+                type="number"
+                class="purchase-quantity"
+                min="1"
+                step="1"
+                value="1"
+                oninput="updatePurchaseItem(this)"
+                style="width:100%; padding:8px;"
+            >
+
+        </td>
+
+
+        <td>
+
+            <input
+                type="number"
+                class="purchase-unit-price"
+                min="0"
+                step="0.01"
+                value=""
+                oninput="updatePurchaseItem(this)"
+                style="width:100%; padding:8px;"
+            >
+
+        </td>
+
+
+        <td>
+
+            <input
+                type="number"
+                class="purchase-amount"
+                value="0.00"
+                readonly
+                style="width:100%; padding:8px;"
+            >
+
+        </td>
+
+
+        <td>
+
+            <button
+                type="button"
+                class="btn btn-danger"
+                onclick="removePurchaseItem(this)"
+            >
+
+                Remove
+
+            </button>
+
+        </td>
+
+    `;
+
+
+    tbody.appendChild(row);
+
+}
+
+
+function updatePurchaseItem(element) {
+
+    const row =
+        element.closest("tr");
+
+
+    if (!row) {
+        return;
+    }
+
+
+    const productName =
+        row
+            .querySelector(".purchase-product")
+            .value;
+
+
+    const quantity =
+        Number(
+            row
+                .querySelector(".purchase-quantity")
+                .value || 0
+        );
+
+
+    const priceInput =
+        row
+            .querySelector(".purchase-unit-price");
+
+
+    /*
+     * Automatically use the product cost
+     * when a product is selected.
+     */
+    if (
+        productName &&
+        !priceInput.value
+    ) {
+
+        const product =
+            appData.products.find(
+                item =>
+                    item.name === productName
+            );
+
+
+        if (product) {
+
+            priceInput.value =
+                Number(
+                    product.cost || 0
+                ).toFixed(2);
+
+        }
+
+    }
+
+
+    const unitPrice =
+        Number(
+            priceInput.value || 0
+        );
+
+
+    const amount =
+        quantity * unitPrice;
+
+
+    row
+        .querySelector(".purchase-amount")
+        .value =
+        amount.toFixed(2);
+
+
+    updatePurchaseTotal();
+
+}
+
+
+function updatePurchaseTotal() {
+
+    const amounts =
+        document.querySelectorAll(
+            ".purchase-amount"
+        );
+
+
+    let total = 0;
+
+
+    amounts.forEach(input => {
+
+        total +=
+            Number(
+                input.value || 0
+            );
+
+    });
+
+
+    const totalField =
+        document.getElementById(
+            "purchaseTotal"
+        );
+
+
+    if (totalField) {
+
+        totalField.value =
+            total.toFixed(2);
+
+    }
+
+}
+
+
+function removePurchaseItem(button) {
+
+    const tbody =
+        document.getElementById(
+            "purchaseItemsBody"
+        );
+
+
+    if (!tbody) {
+        return;
+    }
+
+
+    const rows =
+        tbody.querySelectorAll("tr");
+
+
+    /*
+     * Always keep at least one row.
+     */
+    if (rows.length === 1) {
+
+        const row = rows[0];
+
+
+        row
+            .querySelector(".purchase-product")
+            .value = "";
+
+
+        row
+            .querySelector(".purchase-quantity")
+            .value = "1";
+
+
+        row
+            .querySelector(".purchase-unit-price")
+            .value = "";
+
+
+        row
+            .querySelector(".purchase-amount")
+            .value = "0.00";
+
+
+    } else {
+
+        button
+            .closest("tr")
+            .remove();
+
+    }
+
+
+    updatePurchaseTotal();
+
+}
+
+
+function clearPurchaseForm() {
+
+    const supplier =
+        document.getElementById(
+            "purchaseSupplier"
+        );
+
+
+    if (supplier) {
+        supplier.value = "";
+    }
+
+
+    const status =
+        document.getElementById(
+            "purchaseStatus"
+        );
+
+
+    if (status) {
+        status.value = "Unpaid";
+    }
+
+
+    const tbody =
+        document.getElementById(
+            "purchaseItemsBody"
+        );
+
+
+    if (tbody) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td>
+
+                    <select
+                        class="purchase-product"
+                        onchange="updatePurchaseItem(this)"
+                        style="width:100%; padding:8px;"
+                    >
+
+                        <option value="">
+                            Select Product
+                        </option>
+
+                        ${
+                            appData.products
+                                .map(
+                                    product => `
+                                        <option
+                                            value="${escapeHTML(
+                                                product.name
+                                            )}"
+                                        >
+                                            ${escapeHTML(
+                                                product.name
+                                            )}
+                                        </option>
+                                    `
+                                )
+                                .join("")
+                        }
+
+                    </select>
+
+                </td>
+
+
+                <td>
+
+                    <input
+                        type="number"
+                        class="purchase-quantity"
+                        min="1"
+                        step="1"
+                        value="1"
+                        oninput="updatePurchaseItem(this)"
+                        style="width:100%; padding:8px;"
+                    >
+
+                </td>
+
+
+                <td>
+
+                    <input
+                        type="number"
+                        class="purchase-unit-price"
+                        min="0"
+                        step="0.01"
+                        value=""
+                        oninput="updatePurchaseItem(this)"
+                        style="width:100%; padding:8px;"
+                    >
+
+                </td>
+
+
+                <td>
+
+                    <input
+                        type="number"
+                        class="purchase-amount"
+                        value="0.00"
+                        readonly
+                        style="width:100%; padding:8px;"
+                    >
+
+                </td>
+
+
+                <td>
+
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        onclick="removePurchaseItem(this)"
+                    >
+
+                        Remove
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    const total =
+        document.getElementById(
+            "purchaseTotal"
+        );
+
+
+    if (total) {
+        total.value = "0.00";
+    }
 
 }
 
