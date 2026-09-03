@@ -3092,19 +3092,104 @@ function customersPage() {
         </div>
 
 
+        <!-- CUSTOMER ENTRY SHEET -->
+
         <div class="panel">
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="addCustomer()">
+            <h3>
+                Add New Customer
+            </h3>
 
-                + Add Customer
 
-            </button>
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit, minmax(200px, 1fr));
+                    gap:15px;
+                "
+            >
+
+                <div>
+
+                    <label>
+                        Customer Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="customerName"
+                        placeholder="Enter customer name"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Phone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="customerPhone"
+                        placeholder="Enter phone number"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="customerEmail"
+                        placeholder="Enter email address"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    gap:10px;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="saveCustomer()">
+
+                    💾 Save Customer
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="clearCustomerForm()">
+
+                    Clear
+
+                </button>
+
+            </div>
 
         </div>
 
+
+        <!-- CUSTOMER LIST -->
 
         <div class="panel">
 
@@ -3172,10 +3257,12 @@ function customersPage() {
                                     </td>
 
                                     <td>
+
                                         Nu.
                                         ${formatMoney(
                                             customer.balance || 0
                                         )}
+
                                     </td>
 
                                     <td>
@@ -3209,8 +3296,6 @@ function customersPage() {
     `;
 
 }
-
-
 /* =========================================================
    SUPPLIERS
    ========================================================= */
@@ -7996,34 +8081,57 @@ function saveAccount() {
    ADD CUSTOMER
    ========================================================= */
 
-function addCustomer() {
+function saveCustomer() {
 
     const name =
-        prompt("Customer name:");
-
-
-    if (!name || !name.trim()) {
-        return;
-    }
+        document
+            .getElementById("customerName")
+            .value
+            .trim();
 
 
     const phone =
-        prompt("Phone number:") || "";
+        document
+            .getElementById("customerPhone")
+            .value
+            .trim();
 
 
     const email =
-        prompt("Email address:") || "";
+        document
+            .getElementById("customerEmail")
+            .value
+            .trim();
 
+
+    /*
+     * Validate customer name
+     */
+
+    if (!name) {
+
+        alert(
+            "Please enter the customer name."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Save customer
+     */
 
     appData.customers.push({
 
         id: generateNumber("CUS"),
 
-        name: name.trim(),
+        name: name,
 
-        phone: phone.trim(),
+        phone: phone,
 
-        email: email.trim(),
+        email: email,
 
         balance: 0
 
@@ -8038,11 +8146,43 @@ function addCustomer() {
     );
 
 
+    /*
+     * Refresh Customers page
+     * The entry sheet will appear ready
+     * for the next customer.
+     */
+
     showPage("customers");
 
 }
 
 
+/* =========================================================
+   CLEAR CUSTOMER FORM
+   ========================================================= */
+
+function clearCustomerForm() {
+
+    document
+        .getElementById("customerName")
+        .value = "";
+
+
+    document
+        .getElementById("customerPhone")
+        .value = "";
+
+
+    document
+        .getElementById("customerEmail")
+        .value = "";
+
+
+    document
+        .getElementById("customerName")
+        .focus();
+
+}
 /* =========================================================
    ADD SUPPLIER
    ========================================================= */
