@@ -4918,8 +4918,19 @@ function receiptsPage() {
                             <th>From</th>
                             <th>Account</th>
                             <th>Amount</th>
+                            <th>Action</th>
 
-                        </tr>
+                       <td>
+
+                      <button
+                       type="button"
+                       class="btn btn-danger"
+                       onclick="deleteReceipt(${index})"
+                       >
+                       Delete
+                      </button>
+
+                    </td>
 
                     </thead>
 
