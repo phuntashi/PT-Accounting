@@ -10821,8 +10821,9 @@ showPage("payments");
 }
 
 
+
 /* =========================================================
-   ADD JOURNAL ENTRY
+   MANUAL JOURNAL ENTRY
    ========================================================= */
 
 function addJournalEntry() {
@@ -10833,9 +10834,7 @@ function addJournalEntry() {
         );
 
     if (existingModal) {
-
         existingModal.remove();
-
     }
 
 
@@ -10904,8 +10903,6 @@ function addJournalEntry() {
 
             </div>
 
-
-            <!-- DATE -->
 
             <div style="margin-bottom:20px;">
 
@@ -10922,269 +10919,6 @@ function addJournalEntry() {
             </div>
 
 
-            <!-- JOURNAL ROWS -->
-
-            <div
-                class="table-container"
-            >
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Account
-                            </th>
-
-                            <th>
-                                Description
-                            </th>
-
-                            <th>
-                                Debit
-                            </th>
-
-                            <th>
-                                Credit
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody
-                        id="manualJournalRows"
-                    >
-
-                    </tbody>
-
-
-                    <tfoot>
-
-                        <tr>
-
-                            <th colspan="2">
-                                Total
-                            </th>
-
-                            <th>
-                                Nu.
-                                <span
-                                    id="manualJournalDebitTotal"
-                                >
-                                    0.00
-                                </span>
-                            </th>
-
-                            <th>
-                                Nu.
-                                <span
-                                    id="manualJournalCreditTotal"
-                                >
-                                    0.00
-                                </span>
-                            </th>
-
-                            <th></th>
-
-                        </tr>
-
-                    </tfoot>
-
-                </table>
-
-            </div>
-
-
-            <!-- STATUS -->
-
-            <div
-                id="manualJournalStatus"
-                style="
-                    margin-top:15px;
-                    font-weight:bold;
-                "
-            >
-                Please enter journal rows.
-            </div>
-
-
-            <!-- BUTTONS -->
-
-            <div
-                style="
-                    margin-top:20px;
-                    display:flex;
-                    gap:10px;
-                    flex-wrap:wrap;
-                "
-            >
-
-                <button
-                    type="button"
-                    class="btn"
-                    onclick="addJournalRow()"
-                >
-                    ➕ Add Row
-                </button>
-
-
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="saveManualJournal()"
-                >
-                    💾 Save Journal Entry
-                </button>
-
-
-                <button
-                    type="button"
-                    class="btn"
-                    onclick="closeJournalEntryForm()"
-                >
-                    Cancel
-                </button>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    document.body.appendChild(modal);
-
-
-    /*
-     * Add two rows automatically.
-     */
-
-    addJournalRow();
-
-    addJournalRow();
-
-
-    updateManualJournalTotals();
-
-}
-
-
-
-/* =========================================================
-   MANUAL JOURNAL ENTRY
-   ========================================================= */
-
-function addJournalEntry() {
-
-    const existingModal =
-        document.getElementById(
-            "manualJournalModal"
-        );
-
-    if (existingModal) {
-
-        existingModal.remove();
-
-    }
-
-
-    const modal =
-        document.createElement("div");
-
-    modal.id =
-        "manualJournalModal";
-
-
-    modal.style =
-        `
-        position:fixed;
-        inset:0;
-        background:rgba(0,0,0,0.5);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:20px;
-        z-index:9999;
-        `;
-
-
-    modal.innerHTML = `
-
-        <div
-            class="panel"
-            style="
-                width:100%;
-                max-width:1100px;
-                max-height:90vh;
-                overflow:auto;
-            "
-        >
-
-            <div
-                style="
-                    display:flex;
-                    justify-content:space-between;
-                    align-items:center;
-                    margin-bottom:20px;
-                "
-            >
-
-                <div>
-
-                    <h2>
-                        New Journal Entry
-                    </h2>
-
-                    <p>
-                        Enter two or more rows.
-                        Total Debit must equal Total Credit.
-                    </p>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="btn"
-                    onclick="closeJournalEntryForm()"
-                >
-                    ✕
-                </button>
-
-            </div>
-
-
-            <!-- DATE -->
-
-            <div
-                style="
-                    margin-bottom:20px;
-                "
-            >
-
-                <label>
-                    Date
-                </label>
-
-                <input
-                    type="date"
-                    id="manualJournalDate"
-                    value="${today()}"
-                >
-
-            </div>
-
-
-            <!-- JOURNAL TABLE -->
-
             <div class="table-container">
 
                 <table>
@@ -11193,25 +10927,15 @@ function addJournalEntry() {
 
                         <tr>
 
-                            <th>
-                                Account
-                            </th>
+                            <th>Account</th>
 
-                            <th>
-                                Description
-                            </th>
+                            <th>Description</th>
 
-                            <th>
-                                Debit
-                            </th>
+                            <th>Debit</th>
 
-                            <th>
-                                Credit
-                            </th>
+                            <th>Credit</th>
 
-                            <th>
-                                Action
-                            </th>
+                            <th>Action</th>
 
                         </tr>
 
@@ -11221,7 +10945,6 @@ function addJournalEntry() {
                     <tbody
                         id="manualJournalRows"
                     >
-
                     </tbody>
 
 
@@ -11234,27 +10957,21 @@ function addJournalEntry() {
                             </th>
 
                             <th>
-
                                 Nu.
-
                                 <span
                                     id="manualJournalDebitTotal"
                                 >
                                     0.00
                                 </span>
-
                             </th>
 
                             <th>
-
                                 Nu.
-
                                 <span
                                     id="manualJournalCreditTotal"
                                 >
                                     0.00
                                 </span>
-
                             </th>
 
                             <th></th>
@@ -11268,8 +10985,6 @@ function addJournalEntry() {
             </div>
 
 
-            <!-- STATUS -->
-
             <div
                 id="manualJournalStatus"
                 style="
@@ -11280,8 +10995,6 @@ function addJournalEntry() {
                 Please enter journal rows.
             </div>
 
-
-            <!-- BUTTONS -->
 
             <div
                 style="
@@ -11328,9 +11041,7 @@ function addJournalEntry() {
     document.body.appendChild(modal);
 
 
-    /*
-     * Create two rows automatically.
-     */
+    /* Create TWO initial rows */
 
     addJournalRow();
 
@@ -11340,7 +11051,6 @@ function addJournalEntry() {
     updateManualJournalTotals();
 
 }
-
 
 /* =========================================================
    ADD JOURNAL ROW
@@ -12122,10 +11832,6 @@ function loadData() {
 
 }
 
-
-/* =========================================================
-   SETTINGS
-   ========================================================= */
 
 /* =========================================================
    SETTINGS PAGE
