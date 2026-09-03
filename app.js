@@ -11346,10 +11346,6 @@ function addJournalEntry() {
    ADD JOURNAL ROW
    ========================================================= */
 
-/* =========================================================
-   ADD JOURNAL ROW
-   ========================================================= */
-
 function addJournalRow() {
 
     const tbody =
@@ -11357,322 +11353,114 @@ function addJournalRow() {
             "manualJournalRows"
         );
 
-
     if (!tbody) {
         return;
     }
 
-
     const row =
         document.createElement("tr");
 
-
-    /* =====================================================
-       ACCOUNT CELL
-       ===================================================== */
-
-    const accountCell =
-        document.createElement("td");
-
-
-    const accountSelect =
-        document.createElement("select");
-
-
-    accountSelect.className =
-        "manual-journal-account";
-
-
-    accountSelect.style.width =
-        "100%";
-
-
-    const defaultOption =
-        document.createElement("option");
-
-
-    defaultOption.value = "";
-
-
-    defaultOption.textContent =
-        "Select Account";
-
-
-    accountSelect.appendChild(
-        defaultOption
-    );
-
-
-    /*
-     * Load Chart of Accounts
-     * into the dropdown.
-     */
-
-    if (
-        Array.isArray(appData.accounts)
-    ) {
-
-        appData.accounts.forEach(
-            account => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    account.name || "";
-
-
-                option.textContent =
-                    (
-                        account.code
-                            ? account.code + " - "
-                            : ""
-                    ) +
-                    (
-                        account.name || ""
-                    );
-
-
-                accountSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
-    }
-
-
-    accountCell.appendChild(
-        accountSelect
-    );
-
-
-    /* =====================================================
-       DESCRIPTION CELL
-       ===================================================== */
-
-    const descriptionCell =
-        document.createElement("td");
-
-
-    const descriptionInput =
-        document.createElement("input");
-
-
-    descriptionInput.type =
-        "text";
-
-
-    descriptionInput.className =
-        "manual-journal-description";
-
-
-    descriptionInput.placeholder =
-        "Description";
-
-
-    descriptionInput.style.width =
-        "100%";
-
-
-    descriptionCell.appendChild(
-        descriptionInput
-    );
-
-
-    /* =====================================================
-       DEBIT CELL
-       ===================================================== */
-
-    const debitCell =
-        document.createElement("td");
-
-
-    const debitInput =
-        document.createElement("input");
-
-
-    debitInput.type =
-        "number";
-
-
-    debitInput.className =
-        "manual-journal-debit";
-
-
-    debitInput.min = "0";
-
-
-    debitInput.step = "0.01";
-
-
-    debitInput.value = "0";
-
-
-    debitInput.style.width =
-        "100%";
-
-
-    debitInput.addEventListener(
-        "input",
-        updateManualJournalTotals
-    );
-
-
-    debitCell.appendChild(
-        debitInput
-    );
-
-
-    /* =====================================================
-       CREDIT CELL
-       ===================================================== */
-
-    const creditCell =
-        document.createElement("td");
-
-
-    const creditInput =
-        document.createElement("input");
-
-
-    creditInput.type =
-        "number";
-
-
-    creditInput.className =
-        "manual-journal-credit";
-
-
-    creditInput.min = "0";
-
-
-    creditInput.step = "0.01";
-
-
-    creditInput.value = "0";
-
-
-    creditInput.style.width =
-        "100%";
-
-
-    creditInput.addEventListener(
-        "input",
-        updateManualJournalTotals
-    );
-
-
-    creditCell.appendChild(
-        creditInput
-    );
-
-
-    /* =====================================================
-       ACTION CELL
-       ===================================================== */
-
-    const actionCell =
-        document.createElement("td");
-
-
-    const deleteButton =
-        document.createElement("button");
-
-
-    deleteButton.type =
-        "button";
-
-
-    deleteButton.className =
-        "btn btn-danger";
-
-
-    deleteButton.textContent =
-        "Delete";
-
-
-    deleteButton.addEventListener(
-        "click",
-        function () {
-
-            removeJournalRow(
-                deleteButton
-            );
-
-        }
-    );
-
-
-    actionCell.appendChild(
-        deleteButton
-    );
-
-
-    /* =====================================================
-       ADD CELLS TO ROW
-       ===================================================== */
-
-    row.appendChild(
-        accountCell
-    );
-
-
-    row.appendChild(
-        descriptionCell
-    );
-
-
-    row.appendChild(
-        debitCell
-    );
-
-
-    row.appendChild(
-        creditCell
-    );
-
-
-    row.appendChild(
-        actionCell
-    );
-
-
-    /* =====================================================
-       ADD ROW TO TABLE
-       ===================================================== */
-
-    tbody.appendChild(
-        row
-    );
-
+    row.innerHTML = `
+
+        <td>
+
+            <select
+                class="manual-journal-account"
+                style="width:100%;"
+            >
+
+                <option value="">
+                    Select Account
+                </option>
+
+                ${
+                    Array.isArray(appData.accounts)
+                    ?
+                    appData.accounts
+                        .map(account => `
+                            <option
+                                value="${escapeHTML(
+                                    account.name || ""
+                                )}"
+                            >
+                                ${escapeHTML(
+                                    account.code || ""
+                                )}
+                                -
+                                ${escapeHTML(
+                                    account.name || ""
+                                )}
+                            </option>
+                        `)
+                        .join("")
+                    :
+                    ""
+                }
+
+            </select>
+
+        </td>
+
+
+        <td>
+
+            <input
+                type="text"
+                class="manual-journal-description"
+                placeholder="Description"
+                style="width:100%;"
+            >
+
+        </td>
+
+
+        <td>
+
+            <input
+                type="number"
+                class="manual-journal-debit"
+                min="0"
+                step="0.01"
+                value="0"
+                style="width:100%;"
+                oninput="updateManualJournalTotals()"
+            >
+
+        </td>
+
+
+        <td>
+
+            <input
+                type="number"
+                class="manual-journal-credit"
+                min="0"
+                step="0.01"
+                value="0"
+                style="width:100%;"
+                oninput="updateManualJournalTotals()"
+            >
+
+        </td>
+
+
+        <td>
+
+            <button
+                type="button"
+                class="btn btn-danger"
+                onclick="removeJournalRow(this)"
+            >
+                Delete
+            </button>
+
+        </td>
+
+    `;
+
+    tbody.appendChild(row);
 
     updateManualJournalTotals();
-
-}
-
-
-/* =========================================================
-   CLOSE JOURNAL FORM
-   ========================================================= */
-
-function closeJournalEntryForm() {
-
-    const modal =
-        document.getElementById(
-            "manualJournalModal"
-        );
-
-
-    if (modal) {
-
-        modal.remove();
-
-    }
 
 }
 
