@@ -10027,9 +10027,6 @@ function updatePurchaseTotal() {
 
     }
 
-}
-
-
 function removePurchaseItem(button) {
 
     const tbody =
