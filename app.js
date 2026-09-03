@@ -3904,14 +3904,11 @@ function salesPage() {
                         step="1"
                         value="1"
                         oninput="updateSaleTotal()"
-              
-                        }
-
-                    </select>
+                    >
 
                 </div>
 
-                
+
                 <!-- UNIT PRICE -->
 
                 <div>
@@ -4064,24 +4061,34 @@ function salesPage() {
                                 <tr>
 
                                     <td>
-                                        ${escapeHTML(sale.invoice)}
+                                        ${escapeHTML(
+                                            sale.invoice || ""
+                                        )}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(sale.date)}
+                                        ${escapeHTML(
+                                            sale.date || ""
+                                        )}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(sale.customer)}
+                                        ${escapeHTML(
+                                            sale.customer || ""
+                                        )}
                                     </td>
 
                                     <td>
                                         Nu.
-                                        ${formatMoney(sale.total)}
+                                        ${formatMoney(
+                                            sale.total || 0
+                                        )}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(sale.status)}
+                                        ${escapeHTML(
+                                            sale.status || ""
+                                        )}
                                     </td>
 
                                     <td>
@@ -4113,332 +4120,6 @@ function salesPage() {
         </div>
 
     `;
-
-}
-
-function updatePurchasePrice() {
-
-    const productName =
-        document
-            .getElementById("purchaseProduct")
-            .value;
-
-
-    const selectedProduct =
-        appData.products.find(
-            product =>
-                product.name === productName
-        );
-
-
-    const price =
-        selectedProduct
-            ? Number(
-                selectedProduct.purchasePrice ??
-                selectedProduct.costPrice ??
-                selectedProduct.cost ??
-                0
-            )
-            : 0;
-
-
-    document
-        .getElementById("purchaseUnitPrice")
-        .value = price;
-
-
-    updatePurchaseTotal();
-
-}
-
-
-function updatePurchaseTotal() {
-
-    const quantity =
-        Number(
-            document
-                .getElementById("purchaseQuantity")
-                .value || 0
-        );
-
-
-    const unitPrice =
-        Number(
-            document
-                .getElementById("purchaseUnitPrice")
-                .value || 0
-        );
-
-
-    const total =
-        quantity * unitPrice;
-
-
-    document
-        .getElementById("purchaseTotal")
-        .value =
-            total.toFixed(2);
-
-}
-
-
-function savePurchase() {
-
-    const invoice =
-        generateNumber("PI");
-
-
-    const supplierName =
-        document
-            .getElementById("purchaseSupplier")
-            .value
-            .trim();
-
-
-    const productName =
-        document
-            .getElementById("purchaseProduct")
-            .value;
-
-
-    const quantity =
-        Number(
-            document
-                .getElementById("purchaseQuantity")
-                .value || 0
-        );
-
-
-    const selectedProduct =
-        appData.products.find(
-            product =>
-                product.name === productName
-        );
-
-
-    if (!supplierName) {
-
-        alert(
-            "Please select a supplier."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        !productName ||
-        !selectedProduct
-    ) {
-
-        alert(
-            "Please select a product."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        quantity <= 0 ||
-        !Number.isFinite(quantity)
-    ) {
-
-        alert(
-            "Quantity must be greater than zero."
-        );
-
-        return;
-
-    }
-
-
-    const unitPrice =
-        Number(
-            selectedProduct.purchasePrice ??
-            selectedProduct.costPrice ??
-            selectedProduct.cost ??
-            0
-        );
-
-
-    if (unitPrice <= 0) {
-
-        alert(
-            "Product purchase price must be greater than zero."
-        );
-
-        return;
-
-    }
-
-
-    const total =
-        quantity * unitPrice;
-
-
-    const status =
-        document
-            .getElementById("purchaseStatus")
-            .value;
-
-
-    appData.purchases.push({
-
-        id:
-            generateNumber("PUR"),
-
-        invoice:
-            invoice,
-
-        date:
-            today(),
-
-        supplier:
-            supplierName,
-
-        product:
-            selectedProduct.name,
-
-        quantity:
-            quantity,
-
-        unitPrice:
-            unitPrice,
-
-        total:
-            total,
-
-        status:
-            status
-
-    });
-
-
-    selectedProduct.stock =
-        Number(
-            selectedProduct.stock || 0
-        ) +
-        quantity;
-
-
-    const selectedSupplier =
-        appData.suppliers.find(
-            supplier =>
-                supplier.name ===
-                supplierName
-        );
-
-
-    if (selectedSupplier) {
-
-        selectedSupplier.balance =
-            Number(
-                selectedSupplier.balance || 0
-            ) +
-            total;
-
-    }
-
-
-    createJournalEntry({
-
-        date:
-            today(),
-
-        reference:
-            invoice,
-
-        description:
-            "Purchase invoice " +
-            invoice,
-
-        account:
-            "Inventory",
-
-        debit:
-            total,
-
-        credit:
-            0
-
-    });
-
-
-    createJournalEntry({
-
-        date:
-            today(),
-
-        reference:
-            invoice,
-
-        description:
-            "Purchase invoice " +
-            invoice,
-
-        account:
-            "Accounts Payable",
-
-        debit:
-            0,
-
-        credit:
-            total
-
-    });
-
-
-    saveData();
-
-
-    alert(
-        "Purchase invoice " +
-        invoice +
-        " created successfully.\n\n" +
-
-        "Total: Nu. " +
-        formatMoney(total)
-    );
-
-
-    showPage("purchases");
-
-}
-
-
-function clearPurchaseForm() {
-
-    document
-        .getElementById("purchaseSupplier")
-        .value = "";
-
-
-    document
-        .getElementById("purchaseProduct")
-        .value = "";
-
-
-    document
-        .getElementById("purchaseQuantity")
-        .value = "1";
-
-
-    document
-        .getElementById("purchaseUnitPrice")
-        .value = "";
-
-
-    document
-        .getElementById("purchaseTotal")
-        .value = "";
-
-
-    document
-        .getElementById("purchaseStatus")
-        .value = "Unpaid";
 
 }
 
@@ -9512,7 +9193,9 @@ function updateSalePrice() {
 
     const price =
         selectedProduct
-            ? Number(selectedProduct.price || 0)
+            ? Number(
+                selectedProduct.price || 0
+            )
             : 0;
 
 
@@ -9555,10 +9238,10 @@ function updateSaleTotal() {
 
     document
         .getElementById("saleTotal")
-        .value = total.toFixed(2);
+        .value =
+            total.toFixed(2);
 
 }
-
 
 
 /* =========================================================
