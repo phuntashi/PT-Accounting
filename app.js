@@ -11077,9 +11077,6 @@ function addJournalEntry() {
 }
 
 
-/* =========================================================
-   ADD MANUAL JOURNAL ROW
-   ========================================================= */
 
 /* =========================================================
    MANUAL JOURNAL ENTRY
@@ -11349,6 +11346,10 @@ function addJournalEntry() {
    ADD JOURNAL ROW
    ========================================================= */
 
+/* =========================================================
+   ADD JOURNAL ROW
+   ========================================================= */
+
 function addJournalRow() {
 
     const tbody =
@@ -11366,466 +11367,291 @@ function addJournalRow() {
         document.createElement("tr");
 
 
-    row.innerHTML = `
+    /* =====================================================
+       ACCOUNT CELL
+       ===================================================== */
 
-        <td>
+    const accountCell =
+        document.createElement("td");
 
-            <select
-                class="manual-journal-account"
-            >
 
-                <option value="">
-                    Select Account
-                </option>
+    const accountSelect =
+        document.createElement("select");
 
-                ${
-                    appData.accounts
-                        .map(account => `
 
-                            <option
-                                value="${escapeHTML(
-                                    account.name
-                                )}"
-                            >
+    accountSelect.className =
+        "manual-journal-account";
 
-                                ${escapeHTML(
-                                    account.code
-                                )}
-                                -
-                                ${escapeHTML(
-                                    account.name
-                                )}
 
-                            </option>
+    accountSelect.style.width =
+        "100%";
 
-                        `)
-                        .join("")
-                }
 
-            </select>
+    const defaultOption =
+        document.createElement("option");
 
-        </td>
 
+    defaultOption.value = "";
 
-        <td>
 
-            <input
-                type="text"
-                class="manual-journal-description"
-                placeholder="Description"
-            >
+    defaultOption.textContent =
+        "Select Account";
 
-        </td>
 
-
-        <td>
-
-            <input
-                type="number"
-                class="manual-journal-debit"
-                min="0"
-                step="0.01"
-                value="0"
-                oninput="updateManualJournalTotals()"
-            >
-
-        </td>
-
-
-        <td>
-
-            <input
-                type="number"
-                class="manual-journal-credit"
-                min="0"
-                step="0.01"
-                value="0"
-                oninput="updateManualJournalTotals()"
-            >
-
-        </td>
-
-
-        <td>
-
-            <button
-                type="button"
-                class="btn btn-danger"
-                onclick="removeJournalRow(this)"
-            >
-                Delete
-            </button>
-
-        </td>
-
-    `;
-
-
-    tbody.appendChild(row);
-
-
-    updateManualJournalTotals();
-
-}
-
-
-/* =========================================================
-   REMOVE JOURNAL ROW
-   ========================================================= */
-
-function removeJournalRow(button) {
-
-    const row =
-        button.closest("tr");
-
-
-    if (row) {
-
-        row.remove();
-
-    }
-
-
-    updateManualJournalTotals();
-
-}
-
-
-/* =========================================================
-   UPDATE JOURNAL TOTALS
-   ========================================================= */
-
-function updateManualJournalTotals() {
-
-    const debitInputs =
-        document.querySelectorAll(
-            ".manual-journal-debit"
-        );
-
-
-    const creditInputs =
-        document.querySelectorAll(
-            ".manual-journal-credit"
-        );
-
-
-    let totalDebit = 0;
-
-    let totalCredit = 0;
-
-
-    debitInputs.forEach(input => {
-
-        totalDebit +=
-            Number(input.value || 0);
-
-    });
-
-
-    creditInputs.forEach(input => {
-
-        totalCredit +=
-            Number(input.value || 0);
-
-    });
-
-
-    const debitTotal =
-        document.getElementById(
-            "manualJournalDebitTotal"
-        );
-
-
-    const creditTotal =
-        document.getElementById(
-            "manualJournalCreditTotal"
-        );
-
-
-    if (debitTotal) {
-
-        debitTotal.textContent =
-            formatMoney(totalDebit);
-
-    }
-
-
-    if (creditTotal) {
-
-        creditTotal.textContent =
-            formatMoney(totalCredit);
-
-    }
-
-
-    const status =
-        document.getElementById(
-            "manualJournalStatus"
-        );
-
-
-    if (!status) {
-        return;
-    }
-
-
-    if (
-        totalDebit === 0 &&
-        totalCredit === 0
-    ) {
-
-        status.textContent =
-            "Please enter debit and credit amounts.";
-
-        return;
-
-    }
-
-
-    if (
-        Math.abs(
-            totalDebit -
-            totalCredit
-        ) < 0.01
-    ) {
-
-        status.textContent =
-            "✓ Journal is balanced.";
-
-    } else {
-
-        status.textContent =
-            "⚠ Journal is not balanced. " +
-            "Debit and Credit must be equal.";
-
-    }
-
-}
-
-
-/* =========================================================
-   SAVE MANUAL JOURNAL
-   ========================================================= */
-
-function saveManualJournal() {
-
-    const rows =
-        document.querySelectorAll(
-            "#manualJournalRows tr"
-        );
-
-
-    if (rows.length < 2) {
-
-        alert(
-            "A journal entry must have at least two rows."
-        );
-
-        return;
-
-    }
-
-
-    const date =
-        document.getElementById(
-            "manualJournalDate"
-        ).value || today();
-
-
-    const journalRows = [];
-
-
-    let totalDebit = 0;
-
-    let totalCredit = 0;
-
-
-    let invalidRow = false;
-
-
-    rows.forEach(row => {
-
-        const account =
-            row.querySelector(
-                ".manual-journal-account"
-            ).value.trim();
-
-
-        const description =
-            row.querySelector(
-                ".manual-journal-description"
-            ).value.trim();
-
-
-        const debit =
-            Number(
-                row.querySelector(
-                    ".manual-journal-debit"
-                ).value || 0
-            );
-
-
-        const credit =
-            Number(
-                row.querySelector(
-                    ".manual-journal-credit"
-                ).value || 0
-            );
-
-
-        if (!account) {
-
-            invalidRow = true;
-
-            return;
-
-        }
-
-
-        if (
-            debit < 0 ||
-            credit < 0
-        ) {
-
-            invalidRow = true;
-
-            return;
-
-        }
-
-
-        if (
-            debit > 0 &&
-            credit > 0
-        ) {
-
-            invalidRow = true;
-
-            return;
-
-        }
-
-
-        if (
-            debit === 0 &&
-            credit === 0
-        ) {
-
-            invalidRow = true;
-
-            return;
-
-        }
-
-
-        journalRows.push({
-
-            account:
-                account,
-
-            description:
-                description,
-
-            debit:
-                debit,
-
-            credit:
-                credit
-
-        });
-
-
-        totalDebit += debit;
-
-        totalCredit += credit;
-
-    });
-
-
-    if (invalidRow) {
-
-        alert(
-            "Please check every journal row.\n\n" +
-            "Each row must have an account and " +
-            "either a debit or credit amount."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        Math.abs(
-            totalDebit -
-            totalCredit
-        ) >= 0.01
-    ) {
-
-        alert(
-            "Journal is not balanced.\n\n" +
-            "Total Debit: Nu. " +
-            formatMoney(totalDebit) +
-            "\n" +
-            "Total Credit: Nu. " +
-            formatMoney(totalCredit)
-        );
-
-        return;
-
-    }
-
-
-    const reference =
-        generateNumber("JE");
-
-
-    journalRows.forEach(row => {
-
-        createJournalEntry({
-
-            date:
-                date,
-
-            reference:
-                reference,
-
-            description:
-                row.description,
-
-            account:
-                row.account,
-
-            debit:
-                row.debit,
-
-            credit:
-                row.credit
-
-        });
-
-    });
-
-
-    saveData();
-
-
-    closeJournalEntryForm();
-
-
-    alert(
-        "Journal entry " +
-        reference +
-        " saved successfully.\n\n" +
-        "Debit: Nu. " +
-        formatMoney(totalDebit) +
-        "\n" +
-        "Credit: Nu. " +
-        formatMoney(totalCredit)
+    accountSelect.appendChild(
+        defaultOption
     );
 
 
-    showPage("journal");
+    /*
+     * Load Chart of Accounts
+     * into the dropdown.
+     */
+
+    if (
+        Array.isArray(appData.accounts)
+    ) {
+
+        appData.accounts.forEach(
+            account => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    account.name || "";
+
+
+                option.textContent =
+                    (
+                        account.code
+                            ? account.code + " - "
+                            : ""
+                    ) +
+                    (
+                        account.name || ""
+                    );
+
+
+                accountSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+
+
+    accountCell.appendChild(
+        accountSelect
+    );
+
+
+    /* =====================================================
+       DESCRIPTION CELL
+       ===================================================== */
+
+    const descriptionCell =
+        document.createElement("td");
+
+
+    const descriptionInput =
+        document.createElement("input");
+
+
+    descriptionInput.type =
+        "text";
+
+
+    descriptionInput.className =
+        "manual-journal-description";
+
+
+    descriptionInput.placeholder =
+        "Description";
+
+
+    descriptionInput.style.width =
+        "100%";
+
+
+    descriptionCell.appendChild(
+        descriptionInput
+    );
+
+
+    /* =====================================================
+       DEBIT CELL
+       ===================================================== */
+
+    const debitCell =
+        document.createElement("td");
+
+
+    const debitInput =
+        document.createElement("input");
+
+
+    debitInput.type =
+        "number";
+
+
+    debitInput.className =
+        "manual-journal-debit";
+
+
+    debitInput.min = "0";
+
+
+    debitInput.step = "0.01";
+
+
+    debitInput.value = "0";
+
+
+    debitInput.style.width =
+        "100%";
+
+
+    debitInput.addEventListener(
+        "input",
+        updateManualJournalTotals
+    );
+
+
+    debitCell.appendChild(
+        debitInput
+    );
+
+
+    /* =====================================================
+       CREDIT CELL
+       ===================================================== */
+
+    const creditCell =
+        document.createElement("td");
+
+
+    const creditInput =
+        document.createElement("input");
+
+
+    creditInput.type =
+        "number";
+
+
+    creditInput.className =
+        "manual-journal-credit";
+
+
+    creditInput.min = "0";
+
+
+    creditInput.step = "0.01";
+
+
+    creditInput.value = "0";
+
+
+    creditInput.style.width =
+        "100%";
+
+
+    creditInput.addEventListener(
+        "input",
+        updateManualJournalTotals
+    );
+
+
+    creditCell.appendChild(
+        creditInput
+    );
+
+
+    /* =====================================================
+       ACTION CELL
+       ===================================================== */
+
+    const actionCell =
+        document.createElement("td");
+
+
+    const deleteButton =
+        document.createElement("button");
+
+
+    deleteButton.type =
+        "button";
+
+
+    deleteButton.className =
+        "btn btn-danger";
+
+
+    deleteButton.textContent =
+        "Delete";
+
+
+    deleteButton.addEventListener(
+        "click",
+        function () {
+
+            removeJournalRow(
+                deleteButton
+            );
+
+        }
+    );
+
+
+    actionCell.appendChild(
+        deleteButton
+    );
+
+
+    /* =====================================================
+       ADD CELLS TO ROW
+       ===================================================== */
+
+    row.appendChild(
+        accountCell
+    );
+
+
+    row.appendChild(
+        descriptionCell
+    );
+
+
+    row.appendChild(
+        debitCell
+    );
+
+
+    row.appendChild(
+        creditCell
+    );
+
+
+    row.appendChild(
+        actionCell
+    );
+
+
+    /* =====================================================
+       ADD ROW TO TABLE
+       ===================================================== */
+
+    tbody.appendChild(
+        row
+    );
+
+
+    updateManualJournalTotals();
 
 }
 
