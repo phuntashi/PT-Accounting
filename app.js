@@ -11070,9 +11070,6 @@ function addJournalRow() {
     const row =
         document.createElement("tr");
 
-   const row =
-    document.createElement("tr");
-
 alert(
     "Accounts found: " +
     (Array.isArray(appData.accounts)
