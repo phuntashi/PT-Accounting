@@ -5544,6 +5544,77 @@ function clearPaymentForm() {
 
 }
 
+function deletePayment(index) {
+
+    if (!confirm("Delete this payment?")) {
+        return;
+    }
+
+    const payment =
+        appData.payments[index];
+
+    if (!payment) {
+        return;
+    }
+
+
+    /*
+     * Restore supplier balance
+     */
+
+    const supplier =
+        appData.suppliers.find(
+            supplier =>
+                supplier.name.toLowerCase() ===
+                payment.to.toLowerCase()
+        );
+
+    if (supplier) {
+
+        supplier.balance =
+            Number(supplier.balance || 0) +
+            Number(payment.amount || 0);
+
+    }
+
+
+    /*
+     * Remove related journal entries
+     */
+
+    appData.journalEntries =
+        appData.journalEntries.filter(
+            entry =>
+                entry.reference !==
+                payment.reference
+        );
+
+
+    /*
+     * Delete payment
+     */
+
+    appData.payments.splice(
+        index,
+        1
+    );
+
+
+    /*
+     * Save changes
+     */
+
+    saveData();
+
+
+    /*
+     * Refresh Payments page
+     */
+
+    showPage("payments");
+
+}
+
 /* =========================================================
    JOURNAL
    ========================================================= */
