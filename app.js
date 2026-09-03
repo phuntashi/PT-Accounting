@@ -5680,6 +5680,7 @@ function journalPage() {
                             <th>Date</th>
                             <th>Reference</th>
                             <th>Description</th>
+                            <th>Account</th>
                             <th>Debit</th>
                             <th>Credit</th>
 
@@ -5699,7 +5700,7 @@ function journalPage() {
                             <tr>
 
                                 <td
-                                    colspan="5"
+                                    colspan="6"
                                     class="empty">
 
                                     No journal entries yet.
@@ -5717,29 +5718,46 @@ function journalPage() {
                                 <tr>
 
                                     <td>
-                                        ${escapeHTML(entry.date)}
-                                    </td>
-
-                                    <td>
                                         ${escapeHTML(
-                                            entry.reference
+                                            entry.date || ""
                                         )}
                                     </td>
 
+
                                     <td>
                                         ${escapeHTML(
-                                            entry.description
+                                            entry.reference || ""
                                         )}
                                     </td>
 
+
                                     <td>
-                                        Nu.
-                                        ${formatMoney(entry.debit)}
+                                        ${escapeHTML(
+                                            entry.description || ""
+                                        )}
                                     </td>
+
+
+                                    <td>
+                                        ${escapeHTML(
+                                            entry.account || ""
+                                        )}
+                                    </td>
+
 
                                     <td>
                                         Nu.
-                                        ${formatMoney(entry.credit)}
+                                        ${formatMoney(
+                                            entry.debit
+                                        )}
+                                    </td>
+
+
+                                    <td>
+                                        Nu.
+                                        ${formatMoney(
+                                            entry.credit
+                                        )}
                                     </td>
 
                                 </tr>
@@ -5756,14 +5774,16 @@ function journalPage() {
 
                         <tr>
 
-                            <th colspan="3">
+                            <th colspan="4">
                                 Total
                             </th>
+
 
                             <th>
                                 Nu.
                                 ${formatMoney(totalDebit)}
                             </th>
+
 
                             <th>
                                 Nu.
@@ -5781,62 +5801,6 @@ function journalPage() {
         </div>
 
     `;
-
-}
-
-function cleanOrphanJournalEntries() {
-
-    const validSalesInvoices =
-        new Set(
-            appData.sales.map(
-                sale => sale.invoice
-            )
-        );
-
-    const validPurchaseInvoices =
-        new Set(
-            appData.purchases.map(
-                purchase => purchase.invoice
-            )
-        );
-
-
-    appData.journalEntries =
-        appData.journalEntries.filter(
-            entry => {
-
-                const reference =
-                    entry.reference || "";
-
-
-                // Sales journal entry
-                if (reference.startsWith("SI-")) {
-
-                    return validSalesInvoices.has(
-                        reference
-                    );
-
-                }
-
-
-                // Purchase journal entry
-                if (reference.startsWith("PI-")) {
-
-                    return validPurchaseInvoices.has(
-                        reference
-                    );
-
-                }
-
-
-                // Keep all other journal entries
-                return true;
-
-            }
-        );
-
-
-    saveData();
 
 }
 
@@ -10863,49 +10827,924 @@ showPage("payments");
 
 function addJournalEntry() {
 
-    const account =
-        prompt("Account name:");
+    const existingModal =
+        document.getElementById(
+            "manualJournalModal"
+        );
+
+    if (existingModal) {
+
+        existingModal.remove();
+
+    }
+
+
+    const modal =
+        document.createElement("div");
+
+    modal.id =
+        "manualJournalModal";
+
+
+    modal.style =
+        `
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.5);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+        z-index:9999;
+        `;
+
+
+    modal.innerHTML = `
+
+        <div
+            class="panel"
+            style="
+                width:100%;
+                max-width:1100px;
+                max-height:90vh;
+                overflow:auto;
+            "
+        >
+
+            <div
+                style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin-bottom:20px;
+                "
+            >
+
+                <div>
+
+                    <h2>
+                        New Journal Entry
+                    </h2>
+
+                    <p>
+                        Enter two or more rows.
+                        Total Debit must equal Total Credit.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="closeJournalEntryForm()"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <!-- DATE -->
+
+            <div style="margin-bottom:20px;">
+
+                <label>
+                    Date
+                </label>
+
+                <input
+                    type="date"
+                    id="manualJournalDate"
+                    value="${today()}"
+                >
+
+            </div>
+
+
+            <!-- JOURNAL ROWS -->
+
+            <div
+                class="table-container"
+            >
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Account
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Debit
+                            </th>
+
+                            <th>
+                                Credit
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="manualJournalRows"
+                    >
+
+                    </tbody>
+
+
+                    <tfoot>
+
+                        <tr>
+
+                            <th colspan="2">
+                                Total
+                            </th>
+
+                            <th>
+                                Nu.
+                                <span
+                                    id="manualJournalDebitTotal"
+                                >
+                                    0.00
+                                </span>
+                            </th>
+
+                            <th>
+                                Nu.
+                                <span
+                                    id="manualJournalCreditTotal"
+                                >
+                                    0.00
+                                </span>
+                            </th>
+
+                            <th></th>
+
+                        </tr>
+
+                    </tfoot>
+
+                </table>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div
+                id="manualJournalStatus"
+                style="
+                    margin-top:15px;
+                    font-weight:bold;
+                "
+            >
+                Please enter journal rows.
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    gap:10px;
+                    flex-wrap:wrap;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="addJournalRow()"
+                >
+                    ➕ Add Row
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="saveManualJournal()"
+                >
+                    💾 Save Journal Entry
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="closeJournalEntryForm()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(modal);
+
+
+    /*
+     * Add two rows automatically.
+     */
+
+    addJournalRow();
+
+    addJournalRow();
+
+
+    updateManualJournalTotals();
+
+}
+
+
+/* =========================================================
+   ADD MANUAL JOURNAL ROW
+   ========================================================= */
+
+function addJournalEntry() {
+
+    const existingModal =
+        document.getElementById(
+            "manualJournalModal"
+        );
+
+    if (existingModal) {
+
+        existingModal.remove();
+
+    }
+
+
+    const modal =
+        document.createElement("div");
+
+    modal.id =
+        "manualJournalModal";
+
+
+    modal.style =
+        `
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.5);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+        z-index:9999;
+        `;
+
+
+    modal.innerHTML = `
+
+        <div
+            class="panel"
+            style="
+                width:100%;
+                max-width:1100px;
+                max-height:90vh;
+                overflow:auto;
+            "
+        >
+
+            <div
+                style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin-bottom:20px;
+                "
+            >
+
+                <div>
+
+                    <h2>
+                        New Journal Entry
+                    </h2>
+
+                    <p>
+                        Enter two or more rows.
+                        Total Debit must equal Total Credit.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="closeJournalEntryForm()"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <!-- DATE -->
+
+            <div style="margin-bottom:20px;">
+
+                <label>
+                    Date
+                </label>
+
+                <input
+                    type="date"
+                    id="manualJournalDate"
+                    value="${today()}"
+                >
+
+            </div>
+
+
+            <!-- JOURNAL ROWS -->
+
+            <div
+                class="table-container"
+            >
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Account
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Debit
+                            </th>
+
+                            <th>
+                                Credit
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="manualJournalRows"
+                    >
+
+                    </tbody>
+
+
+                    <tfoot>
+
+                        <tr>
+
+                            <th colspan="2">
+                                Total
+                            </th>
+
+                            <th>
+                                Nu.
+                                <span
+                                    id="manualJournalDebitTotal"
+                                >
+                                    0.00
+                                </span>
+                            </th>
+
+                            <th>
+                                Nu.
+                                <span
+                                    id="manualJournalCreditTotal"
+                                >
+                                    0.00
+                                </span>
+                            </th>
+
+                            <th></th>
+
+                        </tr>
+
+                    </tfoot>
+
+                </table>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div
+                id="manualJournalStatus"
+                style="
+                    margin-top:15px;
+                    font-weight:bold;
+                "
+            >
+                Please enter journal rows.
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    gap:10px;
+                    flex-wrap:wrap;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="addJournalRow()"
+                >
+                    ➕ Add Row
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="saveManualJournal()"
+                >
+                    💾 Save Journal Entry
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="closeJournalEntryForm()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(modal);
+
+
+    /*
+     * Add two rows automatically.
+     */
+
+    addJournalRow();
+
+    addJournalRow();
+
+
+    updateManualJournalTotals();
+
+}
+
+
+/* =========================================================
+   ADD MANUAL JOURNAL ROW
+   ========================================================= */
+
+function addJournalRow() {
+
+    const tbody =
+        document.getElementById(
+            "manualJournalRows"
+        );
+
+
+    if (!tbody) {
+        return;
+    }
+
+
+    const row =
+        document.createElement("tr");
+
+
+    row.innerHTML = `
+
+        <td>
+
+            <select
+                class="manual-journal-account"
+            >
+
+                <option value="">
+                    Select Account
+                </option>
+
+                ${
+                    appData.accounts
+                        .map(account => `
+                            <option
+                                value="${escapeHTML(account.name)}"
+                            >
+                                ${escapeHTML(account.name)}
+                            </option>
+                        `)
+                        .join("")
+                }
+
+            </select>
+
+        </td>
+
+
+        <td>
+
+            <input
+                type="text"
+                class="manual-journal-description"
+                placeholder="Description"
+            >
+
+        </td>
+
+
+        <td>
+
+            <input
+                type="number"
+                class="manual-journal-debit"
+                min="0"
+                step="0.01"
+                value="0"
+                oninput="updateManualJournalTotals()"
+            >
+
+        </td>
+
+
+        <td>
+
+            <input
+                type="number"
+                class="manual-journal-credit"
+                min="0"
+                step="0.01"
+                value="0"
+                oninput="updateManualJournalTotals()"
+            >
+
+        </td>
+
+
+        <td>
+
+            <button
+                type="button"
+                class="btn btn-danger"
+                onclick="removeJournalRow(this)"
+            >
+                Delete
+            </button>
+
+        </td>
+
+    `;
+
+
+    tbody.appendChild(row);
+
+
+    updateManualJournalTotals();
+
+}
+
+
+/* =========================================================
+   REMOVE MANUAL JOURNAL ROW
+   ========================================================= */
+
+function removeJournalRow(button) {
+
+    const row =
+        button.closest("tr");
+
+
+    if (row) {
+
+        row.remove();
+
+    }
+
+
+    updateManualJournalTotals();
+
+}
+
+
+/* =========================================================
+   UPDATE JOURNAL TOTALS
+   ========================================================= */
+
+function updateManualJournalTotals() {
+
+    const debitInputs =
+        document.querySelectorAll(
+            ".manual-journal-debit"
+        );
+
+
+    const creditInputs =
+        document.querySelectorAll(
+            ".manual-journal-credit"
+        );
+
+
+    let totalDebit = 0;
+
+    let totalCredit = 0;
+
+
+    debitInputs.forEach(input => {
+
+        totalDebit +=
+            Number(input.value || 0);
+
+    });
+
+
+    creditInputs.forEach(input => {
+
+        totalCredit +=
+            Number(input.value || 0);
+
+    });
+
+
+    const debitTotal =
+        document.getElementById(
+            "manualJournalDebitTotal"
+        );
+
+
+    const creditTotal =
+        document.getElementById(
+            "manualJournalCreditTotal"
+        );
+
+
+    if (debitTotal) {
+
+        debitTotal.textContent =
+            formatMoney(totalDebit);
+
+    }
+
+
+    if (creditTotal) {
+
+        creditTotal.textContent =
+            formatMoney(totalCredit);
+
+    }
+
+
+    const status =
+        document.getElementById(
+            "manualJournalStatus"
+        );
+
+
+    if (!status) {
+        return;
+    }
 
 
     if (
-        !account ||
-        !account.trim()
+        totalDebit === 0 &&
+        totalCredit === 0
     ) {
+
+        status.textContent =
+            "Please enter debit and credit amounts.";
 
         return;
 
     }
 
 
-    const description =
-        prompt("Description:") || "";
+    if (
+        Math.abs(
+            totalDebit -
+            totalCredit
+        ) < 0.01
+    ) {
+
+        status.textContent =
+            "✓ Journal is balanced.";
+
+    } else {
+
+        status.textContent =
+            "⚠ Journal is not balanced. " +
+            "Debit and Credit must be equal.";
+
+    }
+
+}
 
 
-    const debit =
-        Number(
-            prompt(
-                "Debit amount:",
-                "0"
-            ) || 0
+/* =========================================================
+   SAVE MANUAL JOURNAL
+   ========================================================= */
+
+function saveManualJournal() {
+
+    const rows =
+        document.querySelectorAll(
+            "#manualJournalRows tr"
         );
 
 
-    const credit =
-        Number(
-            prompt(
-                "Credit amount:",
-                "0"
-            ) || 0
+    if (rows.length < 2) {
+
+        alert(
+            "A journal entry must have at least two rows."
         );
+
+        return;
+
+    }
+
+
+    const date =
+        document.getElementById(
+            "manualJournalDate"
+        ).value || today();
+
+
+    const journalRows = [];
+
+
+    let totalDebit = 0;
+
+    let totalCredit = 0;
+
+
+    let invalidRow = false;
+
+
+    rows.forEach(row => {
+
+        const account =
+            row.querySelector(
+                ".manual-journal-account"
+            ).value.trim();
+
+
+        const description =
+            row.querySelector(
+                ".manual-journal-description"
+            ).value.trim();
+
+
+        const debit =
+            Number(
+                row.querySelector(
+                    ".manual-journal-debit"
+                ).value || 0
+            );
+
+
+        const credit =
+            Number(
+                row.querySelector(
+                    ".manual-journal-credit"
+                ).value || 0
+            );
+
+
+        if (!account) {
+
+            invalidRow = true;
+
+            return;
+
+        }
+
+
+        if (
+            debit < 0 ||
+            credit < 0
+        ) {
+
+            invalidRow = true;
+
+            return;
+
+        }
+
+
+        if (
+            debit > 0 &&
+            credit > 0
+        ) {
+
+            invalidRow = true;
+
+            return;
+
+        }
+
+
+        if (
+            debit === 0 &&
+            credit === 0
+        ) {
+
+            invalidRow = true;
+
+            return;
+
+        }
+
+
+        journalRows.push({
+
+            account:
+                account,
+
+            description:
+                description,
+
+            debit:
+                debit,
+
+            credit:
+                credit
+
+        });
+
+
+        totalDebit += debit;
+
+        totalCredit += credit;
+
+    });
+
+
+    if (invalidRow) {
+
+        alert(
+            "Please check every journal row.\n\n" +
+            "Each row must have an account and " +
+            "either a debit or credit amount."
+        );
+
+        return;
+
+    }
 
 
     if (
-        debit < 0 ||
-        credit < 0
+        Math.abs(
+            totalDebit -
+            totalCredit
+        ) >= 0.01
     ) {
 
         alert(
-            "Debit and credit cannot be negative."
+            "Journal is not balanced.\n\n" +
+            "Total Debit: Nu. " +
+            formatMoney(totalDebit) +
+            "\n" +
+            "Total Credit: Nu. " +
+            formatMoney(totalCredit)
         );
 
         return;
@@ -10913,50 +11752,33 @@ function addJournalEntry() {
     }
 
 
-    if (
-        debit === 0 &&
-        credit === 0
-    ) {
-
-        alert(
-            "Please enter a debit or credit amount."
-        );
-
-        return;
-
-    }
+    const reference =
+        generateNumber("JE");
 
 
-    if (
-        debit > 0 &&
-        credit > 0
-    ) {
+    journalRows.forEach(row => {
 
-        alert(
-            "For a single journal line, enter either debit or credit."
-        );
+        createJournalEntry({
 
-        return;
+            date:
+                date,
 
-    }
+            reference:
+                reference,
 
+            description:
+                row.description,
 
-    createJournalEntry({
+            account:
+                row.account,
 
-        date: today(),
+            debit:
+                row.debit,
 
-        reference:
-            generateNumber("JE"),
+            credit:
+                row.credit
 
-        description:
-            description.trim(),
-
-        account:
-            account.trim(),
-
-        debit: debit,
-
-        credit: credit
+        });
 
     });
 
@@ -10964,8 +11786,18 @@ function addJournalEntry() {
     saveData();
 
 
+    closeJournalEntryForm();
+
+
     alert(
-        "Journal entry added successfully."
+        "Journal entry " +
+        reference +
+        " saved successfully.\n\n" +
+        "Debit: Nu. " +
+        formatMoney(totalDebit) +
+        "\n" +
+        "Credit: Nu. " +
+        formatMoney(totalCredit)
     );
 
 
@@ -10973,6 +11805,26 @@ function addJournalEntry() {
 
 }
 
+
+/* =========================================================
+   CLOSE MANUAL JOURNAL FORM
+   ========================================================= */
+
+function closeJournalEntryForm() {
+
+    const modal =
+        document.getElementById(
+            "manualJournalModal"
+        );
+
+
+    if (modal) {
+
+        modal.remove();
+
+    }
+
+}
 
 /* =========================================================
    CREATE JOURNAL ENTRY
