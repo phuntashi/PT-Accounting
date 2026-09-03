@@ -4135,7 +4135,7 @@ function purchasesPage() {
         </div>
 
 
-        <!-- PURCHASE ENTRY SHEET -->
+        <!-- PURCHASE INVOICE ENTRY SHEET -->
 
         <div class="panel">
 
@@ -4144,285 +4144,166 @@ function purchasesPage() {
             </h3>
 
 
-            <!-- SUPPLIER -->
-
-            <div style="margin-top:15px;">
-
-                <label>
-                    Supplier
-                </label>
-
-                <select
-                    id="purchaseSupplier"
-                    style="width:100%; padding:10px;"
-                >
-
-                    <option value="">
-                        Select Supplier
-                    </option>
-
-                    ${
-                        appData.suppliers
-                            .map(
-                                supplier => `
-                                    <option
-                                        value="${escapeHTML(
-                                            supplier.name
-                                        )}"
-                                    >
-                                        ${escapeHTML(
-                                            supplier.name
-                                        )}
-                                    </option>
-                                `
-                            )
-                            .join("")
-                    }
-
-                </select>
-
-            </div>
-
-
-            <!-- PURCHASE ITEMS -->
-
             <div
                 style="
-                    margin-top:20px;
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit, minmax(200px, 1fr));
+                    gap:15px;
                 "
             >
 
-                <h3>
-                    Purchase Items
-                </h3>
+                <!-- SUPPLIER -->
 
-
-                <div class="table-container">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Product
-                                </th>
-
-                                <th>
-                                    Quantity
-                                </th>
-
-                                <th>
-                                    Unit Price
-                                </th>
-
-                                <th>
-                                    Amount
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="purchaseItemsBody">
-
-                            <tr>
-
-                                <td>
-
-                                    <select
-                                        class="purchase-product"
-                                        onchange="updatePurchaseItem(this)"
-                                        style="width:100%; padding:8px;"
-                                    >
-
-                                        <option value="">
-                                            Select Product
-                                        </option>
-
-                                        ${
-                                            appData.products
-                                                .map(
-                                                    product => `
-                                                        <option
-                                                            value="${escapeHTML(
-                                                                product.name
-                                                            )}"
-                                                        >
-                                                            ${escapeHTML(
-                                                                product.name
-                                                            )}
-                                                        </option>
-                                                    `
-                                                )
-                                                .join("")
-                                        }
-
-                                    </select>
-
-                                </td>
-
-
-                                <td>
-
-                                    <input
-                                        type="number"
-                                        class="purchase-quantity"
-                                        min="1"
-                                        step="1"
-                                        value="1"
-                                        oninput="updatePurchaseItem(this)"
-                                        style="width:100%; padding:8px;"
-                                    >
-
-                                </td>
-
-
-                                <td>
-
-                                    <input
-                                        type="number"
-                                        class="purchase-unit-price"
-                                        min="0"
-                                        step="0.01"
-                                        value=""
-                                        oninput="updatePurchaseItem(this)"
-                                        style="width:100%; padding:8px;"
-                                    >
-
-                                </td>
-
-
-                                <td>
-
-                                    <input
-                                        type="number"
-                                        class="purchase-amount"
-                                        value="0.00"
-                                        readonly
-                                        style="width:100%; padding:8px;"
-                                    >
-
-                                </td>
-
-
-                                <td>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-danger"
-                                        onclick="removePurchaseItem(this)"
-                                    >
-
-                                        Remove
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-
-                <!-- ADD ITEM -->
-
-                <div style="margin-top:15px;">
-
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        onclick="addPurchaseItem()"
-                    >
-
-                        + Add Item
-
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- TOTAL -->
-
-            <div
-                style="
-                    display:flex;
-                    justify-content:flex-end;
-                    margin-top:20px;
-                "
-            >
-
-                <div
-                    style="
-                        min-width:250px;
-                    "
-                >
+                <div>
 
                     <label>
-                        Purchase Total
+                        Supplier
+                    </label>
+
+                    <select id="purchaseSupplier">
+
+                        <option value="">
+                            Select Supplier
+                        </option>
+
+                        ${
+                            appData.suppliers
+                                .map(supplier => `
+
+                                    <option
+                                        value="${escapeHTML(supplier.name)}">
+
+                                        ${escapeHTML(supplier.name)}
+
+                                    </option>
+
+                                `)
+                                .join("")
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- PRODUCT -->
+
+                <div>
+
+                    <label>
+                        Product
+                    </label>
+
+                    <select
+                        id="purchaseProduct"
+                        onchange="updatePurchasePrice()">
+
+                        <option value="">
+                            Select Product
+                        </option>
+
+                        ${
+                            appData.products
+                                .map(product => `
+
+                                    <option
+                                        value="${escapeHTML(product.name)}">
+
+                                        ${escapeHTML(product.name)}
+
+                                    </option>
+
+                                `)
+                                .join("")
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- QUANTITY -->
+
+                <div>
+
+                    <label>
+                        Quantity
+                    </label>
+
+                    <input
+                        type="number"
+                        id="purchaseQuantity"
+                        min="1"
+                        step="1"
+                        value="1"
+                        oninput="updatePurchaseTotal()"
+                    >
+
+                </div>
+
+
+                <!-- UNIT PRICE -->
+
+                <div>
+
+                    <label>
+                        Unit Price
+                    </label>
+
+                    <input
+                        type="number"
+                        id="purchaseUnitPrice"
+                        min="0"
+                        step="0.01"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- TOTAL -->
+
+                <div>
+
+                    <label>
+                        Total
                     </label>
 
                     <input
                         type="number"
                         id="purchaseTotal"
-                        value="0.00"
                         readonly
-                        style="
-                            width:100%;
-                            padding:10px;
-                            font-size:18px;
-                            font-weight:bold;
-                        "
                     >
 
                 </div>
 
-            </div>
 
+                <!-- STATUS -->
 
-            <!-- STATUS -->
+                <div>
 
-            <div
-                style="
-                    margin-top:20px;
-                    max-width:300px;
-                "
-            >
+                    <label>
+                        Payment Status
+                    </label>
 
-                <label>
-                    Status
-                </label>
+                    <select id="purchaseStatus">
 
-                <select
-                    id="purchaseStatus"
-                    style="width:100%; padding:10px;"
-                >
+                        <option value="Unpaid">
+                            Unpaid
+                        </option>
 
-                    <option value="Unpaid">
-                        Unpaid
-                    </option>
+                        <option value="Partially Paid">
+                            Partially Paid
+                        </option>
 
-                    <option value="Partially Paid">
-                        Partially Paid
-                    </option>
+                        <option value="Paid">
+                            Paid
+                        </option>
 
-                    <option value="Paid">
-                        Paid
-                    </option>
+                    </select>
 
-                </select>
+                </div>
 
             </div>
 
@@ -4431,20 +4312,18 @@ function purchasesPage() {
 
             <div
                 style="
+                    margin-top:20px;
                     display:flex;
                     gap:10px;
-                    margin-top:20px;
-                    flex-wrap:wrap;
                 "
             >
 
                 <button
                     type="button"
                     class="btn btn-primary"
-                    onclick="savePurchase()"
-                >
+                    onclick="savePurchase()">
 
-                    Save Purchase Invoice
+                    💾 Save Purchase Invoice
 
                 </button>
 
@@ -4452,8 +4331,7 @@ function purchasesPage() {
                 <button
                     type="button"
                     class="btn"
-                    onclick="clearPurchaseForm()"
-                >
+                    onclick="clearPurchaseForm()">
 
                     Clear
 
@@ -4500,8 +4378,7 @@ function purchasesPage() {
 
                                 <td
                                     colspan="6"
-                                    class="empty"
-                                >
+                                    class="empty">
 
                                     No purchase invoices yet.
 
@@ -4513,61 +4390,58 @@ function purchasesPage() {
                             :
 
                             appData.purchases
-                                .map(
-                                    (purchase, index) => `
+                                .map((purchase, index) => `
 
-                                    <tr>
+                                <tr>
 
-                                        <td>
-                                            ${escapeHTML(
-                                                purchase.invoice
-                                            )}
-                                        </td>
+                                    <td>
+                                        ${escapeHTML(
+                                            purchase.invoice
+                                        )}
+                                    </td>
 
-                                        <td>
-                                            ${escapeHTML(
-                                                purchase.date
-                                            )}
-                                        </td>
+                                    <td>
+                                        ${escapeHTML(
+                                            purchase.date
+                                        )}
+                                    </td>
 
-                                        <td>
-                                            ${escapeHTML(
-                                                purchase.supplier
-                                            )}
-                                        </td>
+                                    <td>
+                                        ${escapeHTML(
+                                            purchase.supplier
+                                        )}
+                                    </td>
 
-                                        <td>
-                                            Nu.
-                                            ${formatMoney(
-                                                purchase.total
-                                            )}
-                                        </td>
+                                    <td>
+                                        Nu.
+                                        ${formatMoney(
+                                            purchase.total
+                                        )}
+                                    </td>
 
-                                        <td>
-                                            ${escapeHTML(
-                                                purchase.status
-                                            )}
-                                        </td>
+                                    <td>
+                                        ${escapeHTML(
+                                            purchase.status
+                                        )}
+                                    </td>
 
-                                        <td>
+                                    <td>
 
-                                            <button
-                                                type="button"
-                                                class="btn btn-danger"
-                                                onclick="deletePurchase(${index})"
-                                            >
+                                        <button
+                                            type="button"
+                                            class="btn btn-danger"
+                                            onclick="deletePurchase(${index})">
 
-                                                Delete
+                                            Delete
 
-                                            </button>
+                                        </button>
 
-                                        </td>
+                                    </td>
 
-                                    </tr>
+                                </tr>
 
-                                `
-                                )
-                                .join("")
+                            `)
+                            .join("")
 
                         }
 
@@ -10234,6 +10108,66 @@ function clearPurchaseForm() {
     if (total) {
         total.value = "0.00";
     }
+
+}
+
+function updatePurchasePrice() {
+
+    const productName =
+        document
+            .getElementById("purchaseProduct")
+            .value;
+
+
+    const selectedProduct =
+        appData.products.find(
+            product =>
+                product.name === productName
+        );
+
+
+    const price =
+        selectedProduct
+            ? Number(selectedProduct.cost || 0)
+            : 0;
+
+
+    document
+        .getElementById("purchaseUnitPrice")
+        .value = price;
+
+
+    updatePurchaseTotal();
+
+}
+
+
+function updatePurchaseTotal() {
+
+    const quantity =
+        Number(
+            document
+                .getElementById("purchaseQuantity")
+                .value || 0
+        );
+
+
+    const unitPrice =
+        Number(
+            document
+                .getElementById("purchaseUnitPrice")
+                .value || 0
+        );
+
+
+    const total =
+        quantity * unitPrice;
+
+
+    document
+        .getElementById("purchaseTotal")
+        .value =
+        total.toFixed(2);
 
 }
 
