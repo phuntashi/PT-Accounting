@@ -4482,19 +4482,158 @@ function receiptsPage() {
         </div>
 
 
+        <!-- RECEIPT ENTRY SHEET -->
+
         <div class="panel">
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="addReceipt()">
+            <h3>
+                New Receipt
+            </h3>
 
-                + New Receipt
 
-            </button>
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit, minmax(200px, 1fr));
+                    gap:15px;
+                "
+            >
+
+                <!-- CUSTOMER -->
+
+                <div>
+
+                    <label>
+                        Received From
+                    </label>
+
+                    <select id="receiptFrom">
+
+                        <option value="">
+                            Select Customer
+                        </option>
+
+                        ${
+                            appData.customers
+                                .map(customer => `
+
+                                    <option
+                                        value="${escapeHTML(customer.name)}">
+
+                                        ${escapeHTML(customer.name)}
+
+                                    </option>
+
+                                `)
+                                .join("")
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- RECEIPT ACCOUNT -->
+
+                <div>
+
+                    <label>
+                        Receipt Account
+                    </label>
+
+                    <select id="receiptAccount">
+
+                        <option value="Cash/Bank">
+                            Cash/Bank
+                        </option>
+
+                        <option value="Cash">
+                            Cash
+                        </option>
+
+                        <option value="Bank">
+                            Bank
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- AMOUNT -->
+
+                <div>
+
+                    <label>
+                        Amount Received
+                    </label>
+
+                    <input
+                        type="number"
+                        id="receiptAmount"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    gap:10px;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="saveReceipt()">
+
+                    💾 Save Receipt
+
+                </button>
+
+function clearReceiptForm() {
+
+    document
+        .getElementById("receiptFrom")
+        .value = "";
+
+
+    document
+        .getElementById("receiptAccount")
+        .value = "Cash/Bank";
+
+
+    document
+        .getElementById("receiptAmount")
+        .value = "";
+
+}
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="clearReceiptForm()">
+
+                    Clear
+
+                </button>
+
+            </div>
 
         </div>
 
+
+        <!-- RECEIPTS LIST -->
 
         <div class="panel">
 
@@ -4556,7 +4695,9 @@ function receiptsPage() {
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(receipt.from)}
+                                        ${escapeHTML(
+                                            receipt.from
+                                        )}
                                     </td>
 
                                     <td>
@@ -10179,16 +10320,38 @@ function updatePurchaseTotal() {
    ADD RECEIPT
    ========================================================= */
 
-function addReceipt() {
+function saveReceipt() {
 
     const from =
-        prompt("Received from:");
+        document
+            .getElementById("receiptFrom")
+            .value
+            .trim();
 
-    if (
-        !from ||
-        !from.trim()
-    ) {
+
+    const account =
+        document
+            .getElementById("receiptAccount")
+            .value
+            .trim();
+
+
+    const amount =
+        Number(
+            document
+                .getElementById("receiptAmount")
+                .value || 0
+        );
+
+
+    if (!from) {
+
+        alert(
+            "Please select a customer."
+        );
+
         return;
+
     }
 
 
@@ -10200,7 +10363,7 @@ function addReceipt() {
         appData.customers.find(
             customer =>
                 customer.name.toLowerCase() ===
-                from.trim().toLowerCase()
+                from.toLowerCase()
         );
 
 
@@ -10216,28 +10379,8 @@ function addReceipt() {
 
 
     /* =====================================================
-       RECEIPT ACCOUNT
-       ===================================================== */
-
-    const account =
-        prompt(
-            "Receipt account:",
-            "Cash/Bank"
-        ) || "Cash/Bank";
-
-
-    /* =====================================================
        AMOUNT
        ===================================================== */
-
-    const amount =
-        Number(
-            prompt(
-                "Amount received:",
-                "0"
-            ) || 0
-        );
-
 
     if (
         amount <= 0 ||
@@ -10302,10 +10445,10 @@ function addReceipt() {
             reference,
 
         from:
-            from.trim(),
+            from,
 
         account:
-            account.trim(),
+            account,
 
         amount:
             amount
@@ -10327,6 +10470,7 @@ function addReceipt() {
        ===================================================== */
 
     // Debit Cash / Bank
+
     createJournalEntry({
 
         date:
@@ -10337,10 +10481,10 @@ function addReceipt() {
 
         description:
             "Receipt from " +
-            from.trim(),
+            from,
 
         account:
-            account.trim(),
+            account,
 
         debit:
             amount,
@@ -10352,6 +10496,7 @@ function addReceipt() {
 
 
     // Credit Accounts Receivable
+
     createJournalEntry({
 
         date:
@@ -10362,7 +10507,7 @@ function addReceipt() {
 
         description:
             "Receipt from " +
-            from.trim(),
+            from,
 
         account:
             "Accounts Receivable",
@@ -10401,6 +10546,7 @@ function addReceipt() {
     showPage("receipts");
 
 }
+
 
 /* =========================================================
    ADD PAYMENT
