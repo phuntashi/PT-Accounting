@@ -4135,19 +4135,156 @@ function purchasesPage() {
         </div>
 
 
+        <!-- PURCHASE ENTRY SHEET -->
+
         <div class="panel">
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="addPurchase()">
+            <h3>
+                New Purchase Invoice
+            </h3>
 
-                + New Purchase Invoice
 
-            </button>
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit, minmax(220px, 1fr));
+                    gap:16px;
+                    margin-top:15px;
+                "
+            >
+
+
+                <!-- SUPPLIER -->
+
+                <div>
+
+                    <label>
+                        Supplier
+                    </label>
+
+                    <select
+                        id="purchaseSupplier"
+                        style="width:100%; padding:10px;"
+                    >
+
+                        <option value="">
+                            Select Supplier
+                        </option>
+
+                        ${
+                            appData.suppliers
+                                .map(
+                                    supplier => `
+                                        <option
+                                            value="${escapeHTML(
+                                                supplier.name
+                                            )}"
+                                        >
+                                            ${escapeHTML(
+                                                supplier.name
+                                            )}
+                                        </option>
+                                    `
+                                )
+                                .join("")
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- PURCHASE TOTAL -->
+
+                <div>
+
+                    <label>
+                        Purchase Total
+                    </label>
+
+                    <input
+                        type="number"
+                        id="purchaseTotal"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        style="width:100%; padding:10px;"
+                    >
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div>
+
+                    <label>
+                        Status
+                    </label>
+
+                    <select
+                        id="purchaseStatus"
+                        style="width:100%; padding:10px;"
+                    >
+
+                        <option value="Unpaid">
+                            Unpaid
+                        </option>
+
+                        <option value="Partially Paid">
+                            Partially Paid
+                        </option>
+
+                        <option value="Paid">
+                            Paid
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div
+                style="
+                    display:flex;
+                    gap:10px;
+                    margin-top:20px;
+                    flex-wrap:wrap;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="savePurchase()"
+                >
+
+                    Save Purchase Invoice
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="clearPurchaseForm()"
+                >
+
+                    Clear
+
+                </button>
+
+            </div>
 
         </div>
 
+
+        <!-- PURCHASE LIST -->
 
         <div class="panel">
 
@@ -4183,7 +4320,8 @@ function purchasesPage() {
 
                                 <td
                                     colspan="6"
-                                    class="empty">
+                                    class="empty"
+                                >
 
                                     No purchase invoices yet.
 
@@ -4195,58 +4333,61 @@ function purchasesPage() {
                             :
 
                             appData.purchases
-                                .map((purchase, index) => `
+                                .map(
+                                    (purchase, index) => `
 
-                                <tr>
+                                    <tr>
 
-                                    <td>
-                                        ${escapeHTML(
-                                            purchase.invoice
-                                        )}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                purchase.invoice
+                                            )}
+                                        </td>
 
-                                    <td>
-                                        ${escapeHTML(
-                                            purchase.date
-                                        )}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                purchase.date
+                                            )}
+                                        </td>
 
-                                    <td>
-                                        ${escapeHTML(
-                                            purchase.supplier
-                                        )}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                purchase.supplier
+                                            )}
+                                        </td>
 
-                                    <td>
-                                        Nu.
-                                        ${formatMoney(
-                                            purchase.total
-                                        )}
-                                    </td>
+                                        <td>
+                                            Nu.
+                                            ${formatMoney(
+                                                purchase.total
+                                            )}
+                                        </td>
 
-                                    <td>
-                                        ${escapeHTML(
-                                            purchase.status
-                                        )}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                purchase.status
+                                            )}
+                                        </td>
 
-                                    <td>
+                                        <td>
 
-                                        <button
-                                            type="button"
-                                            class="btn btn-danger"
-                                            onclick="deletePurchase(${index})">
+                                            <button
+                                                type="button"
+                                                class="btn btn-danger"
+                                                onclick="deletePurchase(${index})"
+                                            >
 
-                                            Delete
+                                                Delete
 
-                                        </button>
+                                            </button>
 
-                                    </td>
+                                        </td>
 
-                                </tr>
+                                    </tr>
 
-                            `)
-                            .join("")
+                                `
+                                )
+                                .join("")
 
                         }
 
@@ -4261,7 +4402,6 @@ function purchasesPage() {
     `;
 
 }
-
 
 /* =========================================================
    RECEIPTS
@@ -9319,33 +9459,44 @@ function clearSaleForm() {
    ADD PURCHASE
    ========================================================= */
 
-function addPurchase() {
-
-    const invoice =
-        generateNumber("PI");
-
+function savePurchase() {
 
     const supplier =
-        prompt("Supplier name:");
+        document
+            .getElementById("purchaseSupplier")
+            .value
+            .trim();
 
 
-    if (
-        !supplier ||
-        !supplier.trim()
-    ) {
+    const total =
+        Number(
+            document
+                .getElementById("purchaseTotal")
+                .value || 0
+        );
+
+
+    const status =
+        document
+            .getElementById("purchaseStatus")
+            .value;
+
+
+    if (!supplier) {
+
+        alert(
+            "Please select a supplier."
+        );
 
         return;
 
     }
 
 
-    const total =
-        Number(
-            prompt("Purchase total:") || 0
-        );
-
-
-    if (total <= 0) {
+    if (
+        total <= 0 ||
+        !Number.isFinite(total)
+    ) {
 
         alert(
             "Purchase total must be greater than zero."
@@ -9356,11 +9507,8 @@ function addPurchase() {
     }
 
 
-    const status =
-        prompt(
-            "Status (Unpaid / Partially Paid / Paid):",
-            "Unpaid"
-        ) || "Unpaid";
+    const invoice =
+        generateNumber("PI");
 
 
     appData.purchases.push({
@@ -9371,11 +9519,11 @@ function addPurchase() {
 
         date: today(),
 
-        supplier: supplier.trim(),
+        supplier: supplier,
 
         total: total,
 
-        status: status.trim()
+        status: status
 
     });
 
@@ -9394,27 +9542,7 @@ function addPurchase() {
 
 }
 
-function createJournalEntry(entry) {
 
-    appData.journalEntries.push({
-
-        id: generateNumber("JOURNAL"),
-
-        date: entry.date || today(),
-
-        reference: entry.reference || generateNumber("JE"),
-
-        description: entry.description || "",
-
-        account: entry.account || "",
-
-        debit: Number(entry.debit || 0),
-
-        credit: Number(entry.credit || 0)
-
-    });
-
-}
 /* =========================================================
    ADD RECEIPT
    ========================================================= */
