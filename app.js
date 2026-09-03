@@ -11182,6 +11182,367 @@ alert(
 }
 
 /* =========================================================
+   DELETE JOURNAL ROW
+   ========================================================= */
+
+function removeJournalRow(button) {
+
+    const row =
+        button.closest("tr");
+
+    if (row) {
+        row.remove();
+    }
+
+    updateManualJournalTotals();
+}
+
+
+/* =========================================================
+   SAVE MANUAL JOURNAL
+   ========================================================= */
+
+function saveManualJournal() {
+
+    const rows =
+        document.querySelectorAll(
+            "#manualJournalRows tr"
+        );
+
+    if (rows.length < 2) {
+
+        alert(
+            "A journal entry must have at least two rows."
+        );
+
+        return;
+    }
+
+
+    const date =
+        document.getElementById(
+            "manualJournalDate"
+        ).value || today();
+
+
+    const journalRows = [];
+
+    let totalDebit = 0;
+    let totalCredit = 0;
+
+    let invalidRow = false;
+
+
+    rows.forEach(row => {
+
+        const account =
+            row.querySelector(
+                ".manual-journal-account"
+            ).value.trim();
+
+
+        const description =
+            row.querySelector(
+                ".manual-journal-description"
+            ).value.trim();
+
+
+        const debit =
+            Number(
+                row.querySelector(
+                    ".manual-journal-debit"
+                ).value || 0
+            );
+
+
+        const credit =
+            Number(
+                row.querySelector(
+                    ".manual-journal-credit"
+                ).value || 0
+            );
+
+
+        if (!account) {
+
+            invalidRow = true;
+
+            return;
+        }
+
+
+        if (
+            debit < 0 ||
+            credit < 0
+        ) {
+
+            invalidRow = true;
+
+            return;
+        }
+
+
+        if (
+            debit > 0 &&
+            credit > 0
+        ) {
+
+            invalidRow = true;
+
+            return;
+        }
+
+
+        if (
+            debit === 0 &&
+            credit === 0
+        ) {
+
+            invalidRow = true;
+
+            return;
+        }
+
+
+        journalRows.push({
+
+            account: account,
+
+            description: description,
+
+            debit: debit,
+
+            credit: credit
+
+        });
+
+
+        totalDebit += debit;
+
+        totalCredit += credit;
+
+    });
+
+
+    if (invalidRow) {
+
+        alert(
+            "Please check every journal row.\n\n" +
+            "Each row must have an account and " +
+            "either a debit or credit amount."
+        );
+
+        return;
+    }
+
+
+    if (
+        Math.abs(
+            totalDebit -
+            totalCredit
+        ) >= 0.01
+    ) {
+
+        alert(
+            "Journal is not balanced.\n\n" +
+            "Total Debit: Nu. " +
+            formatMoney(totalDebit) +
+            "\n" +
+            "Total Credit: Nu. " +
+            formatMoney(totalCredit)
+        );
+
+        return;
+    }
+
+
+    const reference =
+        generateNumber("JE");
+
+
+    journalRows.forEach(row => {
+
+        createJournalEntry({
+
+            date: date,
+
+            reference: reference,
+
+            description:
+                row.description,
+
+            account:
+                row.account,
+
+            debit:
+                row.debit,
+
+            credit:
+                row.credit
+
+        });
+
+    });
+
+
+    saveData();
+
+
+    closeJournalEntryForm();
+
+
+    alert(
+        "Journal entry " +
+        reference +
+        " saved successfully.\n\n" +
+
+        "Debit: Nu. " +
+        formatMoney(totalDebit) +
+
+        "\n" +
+
+        "Credit: Nu. " +
+        formatMoney(totalCredit)
+    );
+
+
+    showPage("journal");
+
+}
+
+
+/* =========================================================
+   UPDATE JOURNAL TOTALS
+   ========================================================= */
+
+function updateManualJournalTotals() {
+
+    const debitInputs =
+        document.querySelectorAll(
+            ".manual-journal-debit"
+        );
+
+
+    const creditInputs =
+        document.querySelectorAll(
+            ".manual-journal-credit"
+        );
+
+
+    let totalDebit = 0;
+
+    let totalCredit = 0;
+
+
+    debitInputs.forEach(input => {
+
+        totalDebit +=
+            Number(input.value || 0);
+
+    });
+
+
+    creditInputs.forEach(input => {
+
+        totalCredit +=
+            Number(input.value || 0);
+
+    });
+
+
+    const debitTotal =
+        document.getElementById(
+            "manualJournalDebitTotal"
+        );
+
+
+    const creditTotal =
+        document.getElementById(
+            "manualJournalCreditTotal"
+        );
+
+
+    if (debitTotal) {
+
+        debitTotal.textContent =
+            formatMoney(totalDebit);
+
+    }
+
+
+    if (creditTotal) {
+
+        creditTotal.textContent =
+            formatMoney(totalCredit);
+
+    }
+
+
+    const status =
+        document.getElementById(
+            "manualJournalStatus"
+        );
+
+
+    if (!status) {
+        return;
+    }
+
+
+    if (
+        totalDebit === 0 &&
+        totalCredit === 0
+    ) {
+
+        status.textContent =
+            "Please enter debit and credit amounts.";
+
+        return;
+    }
+
+
+    if (
+        Math.abs(
+            totalDebit -
+            totalCredit
+        ) < 0.01
+    ) {
+
+        status.textContent =
+            "✓ Journal is balanced.";
+
+    } else {
+
+        status.textContent =
+            "⚠ Journal is not balanced. " +
+            "Debit and Credit must be equal.";
+
+    }
+
+}
+
+
+/* =========================================================
+   CLOSE JOURNAL ENTRY
+   ========================================================= */
+
+function closeJournalEntryForm() {
+
+    const modal =
+        document.getElementById(
+            "manualJournalModal"
+        );
+
+
+    if (modal) {
+
+        modal.remove();
+
+    }
+
+}
+
+/* =========================================================
    CREATE JOURNAL ENTRY
    ========================================================= */
 
