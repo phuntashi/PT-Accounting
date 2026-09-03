@@ -5047,19 +5047,141 @@ function paymentsPage() {
         </div>
 
 
+        <!-- PAYMENT ENTRY SHEET -->
+
         <div class="panel">
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="addPayment()">
+            <h3>
+                New Payment
+            </h3>
 
-                + New Payment
 
-            </button>
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit, minmax(200px, 1fr));
+                    gap:15px;
+                "
+            >
+
+                <!-- SUPPLIER -->
+
+                <div>
+
+                    <label>
+                        Paid To
+                    </label>
+
+                    <select id="paymentTo">
+
+                        <option value="">
+                            Select Supplier
+                        </option>
+
+                        ${
+                            appData.suppliers
+                                .map(supplier => `
+
+                                    <option
+                                        value="${escapeHTML(supplier.name)}">
+
+                                        ${escapeHTML(supplier.name)}
+
+                                    </option>
+
+                                `)
+                                .join("")
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- PAYMENT ACCOUNT -->
+
+                <div>
+
+                    <label>
+                        Payment Account
+                    </label>
+
+                    <select id="paymentAccount">
+
+                        <option value="Cash/Bank">
+                            Cash/Bank
+                        </option>
+
+                        <option value="Cash">
+                            Cash
+                        </option>
+
+                        <option value="Bank">
+                            Bank
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- AMOUNT -->
+
+                <div>
+
+                    <label>
+                        Amount Paid
+                    </label>
+
+                    <input
+                        type="number"
+                        id="paymentAmount"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    gap:10px;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="savePayment()">
+
+                    💾 Save Payment
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="clearPaymentForm()">
+
+                    Clear
+
+                </button>
+
+            </div>
 
         </div>
 
+
+        <!-- PAYMENTS LIST -->
 
         <div class="panel">
 
@@ -5076,6 +5198,7 @@ function paymentsPage() {
                             <th>Paid To</th>
                             <th>Account</th>
                             <th>Amount</th>
+                            <th>Action</th>
 
                         </tr>
 
@@ -5093,7 +5216,7 @@ function paymentsPage() {
                             <tr>
 
                                 <td
-                                    colspan="5"
+                                    colspan="6"
                                     class="empty">
 
                                     No payments yet.
@@ -5106,41 +5229,66 @@ function paymentsPage() {
                             :
 
                             appData.payments
-                                .map(payment => `
+                                .map((payment, index) => `
 
-                                <tr>
+                                    <tr>
 
-                                    <td>
-                                        ${escapeHTML(payment.date)}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                payment.date
+                                            )}
+                                        </td>
 
-                                    <td>
-                                        ${escapeHTML(
-                                            payment.reference
-                                        )}
-                                    </td>
 
-                                    <td>
-                                        ${escapeHTML(payment.to)}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                payment.reference
+                                            )}
+                                        </td>
 
-                                    <td>
-                                        ${escapeHTML(
-                                            payment.account
-                                        )}
-                                    </td>
 
-                                    <td>
-                                        Nu.
-                                        ${formatMoney(
-                                            payment.amount
-                                        )}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                payment.to
+                                            )}
+                                        </td>
 
-                                </tr>
 
-                            `)
-                            .join("")
+                                        <td>
+                                            ${escapeHTML(
+                                                payment.account
+                                            )}
+                                        </td>
+
+
+                                        <td>
+
+                                            Nu.
+                                            ${formatMoney(
+                                                payment.amount
+                                            )}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-danger"
+                                                onclick="deletePayment(${index})"
+                                            >
+
+                                                Delete
+
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+
+                                `)
+                                .join("")
 
                         }
 
@@ -5155,7 +5303,6 @@ function paymentsPage() {
     `;
 
 }
-
 
 /* =========================================================
    JOURNAL
