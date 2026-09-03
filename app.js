@@ -5301,6 +5301,61 @@ function journalPage() {
 
 }
 
+function cleanOrphanJournalEntries() {
+
+    const validSalesInvoices =
+        new Set(
+            appData.sales.map(
+                sale => sale.invoice
+            )
+        );
+
+    const validPurchaseInvoices =
+        new Set(
+            appData.purchases.map(
+                purchase => purchase.invoice
+            )
+        );
+
+
+    appData.journalEntries =
+        appData.journalEntries.filter(
+            entry => {
+
+                const reference =
+                    entry.reference || "";
+
+
+                // Sales journal entry
+                if (reference.startsWith("SI-")) {
+
+                    return validSalesInvoices.has(
+                        reference
+                    );
+
+                }
+
+
+                // Purchase journal entry
+                if (reference.startsWith("PI-")) {
+
+                    return validPurchaseInvoices.has(
+                        reference
+                    );
+
+                }
+
+
+                // Keep all other journal entries
+                return true;
+
+            }
+        );
+
+
+    saveData();
+
+}
 
 /* =========================================================
    GENERAL LEDGER PAGE
