@@ -4887,6 +4887,7 @@ function receiptsPage() {
 
                 </button>
 
+
                 <button
                     type="button"
                     class="btn"
@@ -4920,17 +4921,7 @@ function receiptsPage() {
                             <th>Amount</th>
                             <th>Action</th>
 
-                       <td>
-
-                      <button
-                       type="button"
-                       class="btn btn-danger"
-                       onclick="deleteReceipt(${index})"
-                       >
-                       Delete
-                      </button>
-
-                    </td>
+                        </tr>
 
                     </thead>
 
@@ -4946,7 +4937,7 @@ function receiptsPage() {
                             <tr>
 
                                 <td
-                                    colspan="5"
+                                    colspan="6"
                                     class="empty">
 
                                     No receipts yet.
@@ -4961,41 +4952,64 @@ function receiptsPage() {
                             appData.receipts
                                 .map((receipt, index) => `
 
-                                <tr>
+                                    <tr>
 
-                                    <td>
-                                        ${escapeHTML(receipt.date)}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                receipt.date
+                                            )}
+                                        </td>
 
-                                    <td>
-                                        ${escapeHTML(
-                                            receipt.reference
-                                        )}
-                                    </td>
 
-                                    <td>
-                                        ${escapeHTML(
-                                            receipt.from
-                                        )}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                receipt.reference
+                                            )}
+                                        </td>
 
-                                    <td>
-                                        ${escapeHTML(
-                                            receipt.account
-                                        )}
-                                    </td>
 
-                                    <td>
-                                        Nu.
-                                        ${formatMoney(
-                                            receipt.amount
-                                        )}
-                                    </td>
+                                        <td>
+                                            ${escapeHTML(
+                                                receipt.from
+                                            )}
+                                        </td>
 
-                                </tr>
 
-                            `)
-                            .join("")
+                                        <td>
+                                            ${escapeHTML(
+                                                receipt.account
+                                            )}
+                                        </td>
+
+
+                                        <td>
+
+                                            Nu.
+                                            ${formatMoney(
+                                                receipt.amount
+                                            )}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-danger"
+                                                onclick="deleteReceipt(${index})"
+                                            >
+
+                                                Delete
+
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+
+                                `)
+                                .join("")
 
                         }
 
