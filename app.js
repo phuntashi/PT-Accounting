@@ -4601,24 +4601,6 @@ function receiptsPage() {
 
                 </button>
 
-function clearReceiptForm() {
-
-    document
-        .getElementById("receiptFrom")
-        .value = "";
-
-
-    document
-        .getElementById("receiptAccount")
-        .value = "Cash/Bank";
-
-
-    document
-        .getElementById("receiptAmount")
-        .value = "";
-
-}
-
                 <button
                     type="button"
                     class="btn"
@@ -10354,6 +10336,23 @@ function saveReceipt() {
 
     }
 
+function clearReceiptForm() {
+
+    document
+        .getElementById("receiptFrom")
+        .value = "";
+
+
+    document
+        .getElementById("receiptAccount")
+        .value = "Cash/Bank";
+
+
+    document
+        .getElementById("receiptAmount")
+        .value = "";
+
+}
 
     /* =====================================================
        CHECK CUSTOMER
