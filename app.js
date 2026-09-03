@@ -9796,6 +9796,11 @@ function savePurchase() {
 
 }
 
+
+/* =====================================================
+   ADD PURCHASE ITEM
+   ===================================================== */
+
 function addPurchaseItem() {
 
     const tbody =
@@ -9915,6 +9920,10 @@ function addPurchaseItem() {
 }
 
 
+/* =====================================================
+   UPDATE PURCHASE ITEM
+   ===================================================== */
+
 function updatePurchaseItem(element) {
 
     const row =
@@ -9946,9 +9955,10 @@ function updatePurchaseItem(element) {
 
 
     /*
-     * Automatically use the product cost
+     * Automatically load the product purchase price
      * when a product is selected.
      */
+
     if (
         productName &&
         !priceInput.value
@@ -9963,10 +9973,17 @@ function updatePurchaseItem(element) {
 
         if (product) {
 
-            priceInput.value =
+            const purchasePrice =
                 Number(
-                    product.cost || 0
-                ).toFixed(2);
+                    product.purchasePrice ??
+                    product.costPrice ??
+                    product.cost ??
+                    0
+                );
+
+
+            priceInput.value =
+                purchasePrice.toFixed(2);
 
         }
 
@@ -9983,15 +10000,28 @@ function updatePurchaseItem(element) {
         quantity * unitPrice;
 
 
-    row
-        .querySelector(".purchase-amount")
-        .value =
-        amount.toFixed(2);
+    const amountInput =
+        row.querySelector(
+            ".purchase-amount"
+        );
+
+
+    if (amountInput) {
+
+        amountInput.value =
+            amount.toFixed(2);
+
+    }
 
 
     updatePurchaseTotal();
 
 }
+
+
+/* =====================================================
+   UPDATE PURCHASE TOTAL
+   ===================================================== */
 
 function updatePurchaseTotal() {
 
@@ -10027,6 +10057,13 @@ function updatePurchaseTotal() {
 
     }
 
+}
+
+
+/* =====================================================
+   REMOVE PURCHASE ITEM
+   ===================================================== */
+
 function removePurchaseItem(button) {
 
     const tbody =
@@ -10047,9 +10084,11 @@ function removePurchaseItem(button) {
     /*
      * Always keep at least one row.
      */
+
     if (rows.length === 1) {
 
-        const row = rows[0];
+        const row =
+            rows[0];
 
 
         row
@@ -10086,6 +10125,10 @@ function removePurchaseItem(button) {
 }
 
 
+/* =====================================================
+   CLEAR PURCHASE FORM
+   ===================================================== */
+
 function clearPurchaseForm() {
 
     const supplier =
@@ -10095,7 +10138,9 @@ function clearPurchaseForm() {
 
 
     if (supplier) {
+
         supplier.value = "";
+
     }
 
 
@@ -10106,7 +10151,9 @@ function clearPurchaseForm() {
 
 
     if (status) {
+
         status.value = "Unpaid";
+
     }
 
 
@@ -10228,7 +10275,9 @@ function clearPurchaseForm() {
 
 
     if (total) {
+
         total.value = "0.00";
+
     }
 
 }
