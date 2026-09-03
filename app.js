@@ -3801,19 +3801,214 @@ function salesPage() {
         </div>
 
 
+        <!-- SALES INVOICE ENTRY SHEET -->
+
         <div class="panel">
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="addSale()">
+            <h3>
+                New Sales Invoice
+            </h3>
 
-                + New Sales Invoice
 
-            </button>
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit, minmax(200px, 1fr));
+                    gap:15px;
+                "
+            >
+
+                <!-- CUSTOMER -->
+
+                <div>
+
+                    <label>
+                        Customer
+                    </label>
+
+                    <select id="saleCustomer">
+
+                        <option value="">
+                            Select Customer
+                        </option>
+
+                        ${
+                            appData.customers
+                                .map(customer => `
+
+                                    <option
+                                        value="${escapeHTML(customer.name)}">
+
+                                        ${escapeHTML(customer.name)}
+
+                                    </option>
+
+                                `)
+                                .join("")
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- PRODUCT -->
+
+                <div>
+
+                    <label>
+                        Product
+                    </label>
+
+                    <select
+                        id="saleProduct"
+                        onchange="updateSalePrice()">
+
+                        <option value="">
+                            Select Product
+                        </option>
+
+                        ${
+                            appData.products
+                                .map(product => `
+
+                                    <option
+                                        value="${escapeHTML(product.name)}">
+
+                                        ${escapeHTML(product.name)}
+
+                                    </option>
+
+                                `)
+                                .join("")
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- QUANTITY -->
+
+                <div>
+
+                    <label>
+                        Quantity
+                    </label>
+
+                    <input
+                        type="number"
+                        id="saleQuantity"
+                        min="1"
+                        step="1"
+                        value="1"
+                        oninput="updateSaleTotal()"
+                    >
+
+                </div>
+
+
+                <!-- UNIT PRICE -->
+
+                <div>
+
+                    <label>
+                        Unit Price
+                    </label>
+
+                    <input
+                        type="number"
+                        id="saleUnitPrice"
+                        min="0"
+                        step="0.01"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- TOTAL -->
+
+                <div>
+
+                    <label>
+                        Total
+                    </label>
+
+                    <input
+                        type="number"
+                        id="saleTotal"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div>
+
+                    <label>
+                        Payment Status
+                    </label>
+
+                    <select id="saleStatus">
+
+                        <option value="Unpaid">
+                            Unpaid
+                        </option>
+
+                        <option value="Partially Paid">
+                            Partially Paid
+                        </option>
+
+                        <option value="Paid">
+                            Paid
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    gap:10px;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="saveSale()">
+
+                    💾 Save Sales Invoice
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="clearSaleForm()">
+
+                    Clear
+
+                </button>
+
+            </div>
 
         </div>
 
+
+        <!-- SALES LIST -->
 
         <div class="panel">
 
@@ -8654,20 +8849,117 @@ function clearProductForm() {
    ADD SALE
    ========================================================= */
 
-function addSale() {
+function updateSalePrice() {
+
+    const productName =
+        document
+            .getElementById("saleProduct")
+            .value;
+
+
+    const selectedProduct =
+        appData.products.find(
+            product =>
+                product.name === productName
+        );
+
+
+    const price =
+        selectedProduct
+            ? Number(selectedProduct.price || 0)
+            : 0;
+
+
+    document
+        .getElementById("saleUnitPrice")
+        .value = price;
+
+
+    updateSaleTotal();
+
+}
+
+
+
+/* =========================================================
+   UPDATE SALES TOTAL
+   ========================================================= */
+
+function updateSaleTotal() {
+
+    const quantity =
+        Number(
+            document
+                .getElementById("saleQuantity")
+                .value || 0
+        );
+
+
+    const unitPrice =
+        Number(
+            document
+                .getElementById("saleUnitPrice")
+                .value || 0
+        );
+
+
+    const total =
+        quantity * unitPrice;
+
+
+    document
+        .getElementById("saleTotal")
+        .value = total.toFixed(2);
+
+}
+
+
+
+/* =========================================================
+   SAVE SALES INVOICE
+   ========================================================= */
+
+function saveSale() {
 
     const invoice =
         generateNumber("SI");
 
 
+    const customerName =
+        document
+            .getElementById("saleCustomer")
+            .value;
+
+
+    const productName =
+        document
+            .getElementById("saleProduct")
+            .value;
+
+
+    const quantity =
+        Number(
+            document
+                .getElementById("saleQuantity")
+                .value || 0
+        );
+
+
+    const selectedProduct =
+        appData.products.find(
+            product =>
+                product.name === productName
+        );
+
+
     /* =====================================================
-       SELECT CUSTOMER
+       VALIDATION
        ===================================================== */
 
-    if (appData.customers.length === 0) {
+    if (!customerName) {
 
         alert(
-            "Please create a customer first."
+            "Please select a customer."
         );
 
         return;
@@ -8675,47 +8967,352 @@ function addSale() {
     }
 
 
-    const customer =
-        prompt(
-            "Customer name:\n\n" +
-            appData.customers
-                .map(customer => customer.name)
-                .join("\n")
+    if (!productName || !selectedProduct) {
+
+        alert(
+            "Please select a product."
         );
+
+        return;
+
+    }
 
 
     if (
-        !customer ||
-        !customer.trim()
+        quantity <= 0 ||
+        !Number.isFinite(quantity)
     ) {
 
+        alert(
+            "Quantity must be greater than zero."
+        );
+
         return;
 
     }
 
 
-    const customerName =
-        customer.trim();
-
-
-    const customerExists =
-        appData.customers.some(
-            customer =>
-                customer.name.toLowerCase() ===
-                customerName.toLowerCase()
+    const availableStock =
+        Number(
+            selectedProduct.stock || 0
         );
 
 
-    if (!customerExists) {
+    if (quantity > availableStock) {
 
         alert(
-            "Customer not found."
+            "Insufficient stock.\n\n" +
+            "Available stock: " +
+            availableStock
         );
 
         return;
 
     }
 
+
+    /* =====================================================
+       PRICE
+       ===================================================== */
+
+    const unitPrice =
+        Number(
+            selectedProduct.price || 0
+        );
+
+
+    if (unitPrice <= 0) {
+
+        alert(
+            "Product selling price must be greater than zero."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       CALCULATE SALE
+       ===================================================== */
+
+    const total =
+        quantity *
+        unitPrice;
+
+
+    const unitCost =
+        Number(
+            selectedProduct.cost || 0
+        );
+
+
+    const cogs =
+        quantity *
+        unitCost;
+
+
+    const grossProfit =
+        total -
+        cogs;
+
+
+    /* =====================================================
+       STATUS
+       ===================================================== */
+
+    const status =
+        document
+            .getElementById("saleStatus")
+            .value;
+
+
+    /* =====================================================
+       CREATE SALES RECORD
+       ===================================================== */
+
+    appData.sales.push({
+
+        id:
+            generateNumber("SALE"),
+
+        invoice:
+            invoice,
+
+        date:
+            today(),
+
+        customer:
+            customerName,
+
+        product:
+            selectedProduct.name,
+
+        quantity:
+            quantity,
+
+        unitPrice:
+            unitPrice,
+
+        total:
+            total,
+
+        status:
+            status,
+
+        cogs:
+            cogs,
+
+        grossProfit:
+            grossProfit
+
+    });
+
+
+    /* =====================================================
+       UPDATE INVENTORY
+       ===================================================== */
+
+    selectedProduct.stock =
+        Number(selectedProduct.stock || 0) -
+        quantity;
+
+
+    /* =====================================================
+       UPDATE CUSTOMER RECEIVABLE
+       ===================================================== */
+
+    const selectedCustomer =
+        appData.customers.find(
+            customer =>
+                customer.name ===
+                customerName
+        );
+
+
+    if (selectedCustomer) {
+
+        selectedCustomer.balance =
+            Number(
+                selectedCustomer.balance || 0
+            ) +
+            total;
+
+    }
+
+
+    /* =====================================================
+       DOUBLE-ENTRY JOURNAL
+       ===================================================== */
+
+    // Accounts Receivable — Debit
+
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            invoice,
+
+        description:
+            "Sales invoice " +
+            invoice,
+
+        account:
+            "Accounts Receivable",
+
+        debit:
+            total,
+
+        credit:
+            0
+
+    });
+
+
+    // Sales Revenue — Credit
+
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            invoice,
+
+        description:
+            "Sales invoice " +
+            invoice,
+
+        account:
+            "Sales Revenue",
+
+        debit:
+            0,
+
+        credit:
+            total
+
+    });
+
+
+    // Cost of Goods Sold — Debit
+
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            invoice,
+
+        description:
+            "COGS for " +
+            invoice,
+
+        account:
+            "Cost of Goods Sold",
+
+        debit:
+            cogs,
+
+        credit:
+            0
+
+    });
+
+
+    // Inventory — Credit
+
+    createJournalEntry({
+
+        date:
+            today(),
+
+        reference:
+            invoice,
+
+        description:
+            "Inventory reduction for " +
+            invoice,
+
+        account:
+            "Inventory",
+
+        debit:
+            0,
+
+        credit:
+            cogs
+
+    });
+
+
+    /* =====================================================
+       SAVE
+       ===================================================== */
+
+    saveData();
+
+
+    alert(
+        "Sales invoice " +
+        invoice +
+        " created successfully.\n\n" +
+
+        "Total: Nu. " +
+        formatMoney(total) +
+
+        "\nCOGS: Nu. " +
+        formatMoney(cogs) +
+
+        "\nGross Profit: Nu. " +
+        formatMoney(grossProfit)
+    );
+
+
+    showPage("sales");
+
+}
+
+
+/* =========================================================
+   CLEAR SALES FORM
+   ========================================================= */
+
+function clearSaleForm() {
+
+    document
+        .getElementById("saleCustomer")
+        .value = "";
+
+
+    document
+        .getElementById("saleProduct")
+        .value = "";
+
+
+    document
+        .getElementById("saleQuantity")
+        .value = "1";
+
+
+    document
+        .getElementById("saleUnitPrice")
+        .value = "";
+
+
+    document
+        .getElementById("saleTotal")
+        .value = "";
+
+
+    document
+        .getElementById("saleStatus")
+        .value = "Unpaid";
+
+}
 
     /* =====================================================
        SELECT PRODUCT
