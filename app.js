@@ -3521,7 +3521,6 @@ function suppliersPage() {
     `;
 
 }
-
 /* =========================================================
    PRODUCTS
    ========================================================= */
@@ -8349,6 +8348,33 @@ function saveSupplier() {
 }
 
 
+
+/* =========================================================
+   CLEAR SUPPLIER FORM
+   ========================================================= */
+
+function clearSupplierForm() {
+
+    document
+        .getElementById("supplierName")
+        .value = "";
+
+
+    document
+        .getElementById("supplierPhone")
+        .value = "";
+
+
+    document
+        .getElementById("supplierEmail")
+        .value = "";
+
+
+    document
+        .getElementById("supplierName")
+        .focus();
+
+}
 
 /* =========================================================
    CLEAR SUPPLIER FORM
