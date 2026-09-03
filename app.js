@@ -3317,19 +3317,104 @@ function suppliersPage() {
         </div>
 
 
+        <!-- SUPPLIER ENTRY SHEET -->
+
         <div class="panel">
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="addSupplier()">
+            <h3>
+                Add New Supplier
+            </h3>
 
-                + Add Supplier
 
-            </button>
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit, minmax(200px, 1fr));
+                    gap:15px;
+                "
+            >
+
+                <div>
+
+                    <label>
+                        Supplier Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="supplierName"
+                        placeholder="Enter supplier name"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Phone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="supplierPhone"
+                        placeholder="Enter phone number"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="supplierEmail"
+                        placeholder="Enter email address"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    gap:10px;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="saveSupplier()">
+
+                    💾 Save Supplier
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="clearSupplierForm()">
+
+                    Clear
+
+                </button>
+
+            </div>
 
         </div>
 
+
+        <!-- SUPPLIER LIST -->
 
         <div class="panel">
 
@@ -3397,10 +3482,12 @@ function suppliersPage() {
                                     </td>
 
                                     <td>
+
                                         Nu.
                                         ${formatMoney(
                                             supplier.balance || 0
                                         )}
+
                                     </td>
 
                                     <td>
@@ -3434,7 +3521,6 @@ function suppliersPage() {
     `;
 
 }
-
 
 /* =========================================================
    PRODUCTS
@@ -8187,34 +8273,57 @@ function clearCustomerForm() {
    ADD SUPPLIER
    ========================================================= */
 
-function addSupplier() {
+function saveSupplier() {
 
     const name =
-        prompt("Supplier name:");
-
-
-    if (!name || !name.trim()) {
-        return;
-    }
+        document
+            .getElementById("supplierName")
+            .value
+            .trim();
 
 
     const phone =
-        prompt("Phone number:") || "";
+        document
+            .getElementById("supplierPhone")
+            .value
+            .trim();
 
 
     const email =
-        prompt("Email address:") || "";
+        document
+            .getElementById("supplierEmail")
+            .value
+            .trim();
 
+
+    /*
+     * Validate supplier name
+     */
+
+    if (!name) {
+
+        alert(
+            "Please enter the supplier name."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Save supplier
+     */
 
     appData.suppliers.push({
 
         id: generateNumber("SUP"),
 
-        name: name.trim(),
+        name: name,
 
-        phone: phone.trim(),
+        phone: phone,
 
-        email: email.trim(),
+        email: email,
 
         balance: 0
 
@@ -8229,11 +8338,44 @@ function addSupplier() {
     );
 
 
+    /*
+     * Refresh Suppliers page
+     * The entry sheet remains ready
+     * for the next supplier.
+     */
+
     showPage("suppliers");
 
 }
 
 
+
+/* =========================================================
+   CLEAR SUPPLIER FORM
+   ========================================================= */
+
+function clearSupplierForm() {
+
+    document
+        .getElementById("supplierName")
+        .value = "";
+
+
+    document
+        .getElementById("supplierPhone")
+        .value = "";
+
+
+    document
+        .getElementById("supplierEmail")
+        .value = "";
+
+
+    document
+        .getElementById("supplierName")
+        .focus();
+
+}
 /* =========================================================
    ADD PRODUCT
    ========================================================= */
