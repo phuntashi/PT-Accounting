@@ -11081,6 +11081,10 @@ function addJournalEntry() {
    ADD MANUAL JOURNAL ROW
    ========================================================= */
 
+/* =========================================================
+   MANUAL JOURNAL ENTRY
+   ========================================================= */
+
 function addJournalEntry() {
 
     const existingModal =
@@ -11163,7 +11167,11 @@ function addJournalEntry() {
 
             <!-- DATE -->
 
-            <div style="margin-bottom:20px;">
+            <div
+                style="
+                    margin-bottom:20px;
+                "
+            >
 
                 <label>
                     Date
@@ -11178,11 +11186,9 @@ function addJournalEntry() {
             </div>
 
 
-            <!-- JOURNAL ROWS -->
+            <!-- JOURNAL TABLE -->
 
-            <div
-                class="table-container"
-            >
+            <div class="table-container">
 
                 <table>
 
@@ -11231,21 +11237,27 @@ function addJournalEntry() {
                             </th>
 
                             <th>
+
                                 Nu.
+
                                 <span
                                     id="manualJournalDebitTotal"
                                 >
                                     0.00
                                 </span>
+
                             </th>
 
                             <th>
+
                                 Nu.
+
                                 <span
                                     id="manualJournalCreditTotal"
                                 >
                                     0.00
                                 </span>
+
                             </th>
 
                             <th></th>
@@ -11320,7 +11332,7 @@ function addJournalEntry() {
 
 
     /*
-     * Add two rows automatically.
+     * Create two rows automatically.
      */
 
     addJournalRow();
@@ -11334,7 +11346,7 @@ function addJournalEntry() {
 
 
 /* =========================================================
-   ADD MANUAL JOURNAL ROW
+   ADD JOURNAL ROW
    ========================================================= */
 
 function addJournalRow() {
@@ -11369,11 +11381,23 @@ function addJournalRow() {
                 ${
                     appData.accounts
                         .map(account => `
+
                             <option
-                                value="${escapeHTML(account.name)}"
+                                value="${escapeHTML(
+                                    account.name
+                                )}"
                             >
-                                ${escapeHTML(account.name)}
+
+                                ${escapeHTML(
+                                    account.code
+                                )}
+                                -
+                                ${escapeHTML(
+                                    account.name
+                                )}
+
                             </option>
+
                         `)
                         .join("")
                 }
@@ -11446,7 +11470,7 @@ function addJournalRow() {
 
 
 /* =========================================================
-   REMOVE MANUAL JOURNAL ROW
+   REMOVE JOURNAL ROW
    ========================================================= */
 
 function removeJournalRow(button) {
@@ -11807,7 +11831,7 @@ function saveManualJournal() {
 
 
 /* =========================================================
-   CLOSE MANUAL JOURNAL FORM
+   CLOSE JOURNAL FORM
    ========================================================= */
 
 function closeJournalEntryForm() {
