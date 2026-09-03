@@ -4959,7 +4959,7 @@ function receiptsPage() {
                             :
 
                             appData.receipts
-                                .map(receipt => `
+                                .map((receipt, index) => `
 
                                 <tr>
 
@@ -10209,6 +10209,71 @@ function clearReceiptForm() {
 
 }
 
+function deleteReceipt(index) {
+
+    if (!confirm("Delete this receipt?")) {
+        return;
+    }
+
+
+    const receipt =
+        appData.receipts[index];
+
+
+    if (!receipt) {
+        return;
+    }
+
+
+    /*
+     * Restore customer receivable balance
+     */
+
+    const customer =
+        appData.customers.find(
+            customer =>
+                customer.name.toLowerCase() ===
+                receipt.from.toLowerCase()
+        );
+
+
+    if (customer) {
+
+        customer.balance =
+            Number(customer.balance || 0) +
+            Number(receipt.amount || 0);
+
+    }
+
+
+    /*
+     * Remove related journal entries
+     */
+
+    appData.journalEntries =
+        appData.journalEntries.filter(
+            entry =>
+                entry.reference !==
+                receipt.reference
+        );
+
+
+    /*
+     * Delete receipt
+     */
+
+    appData.receipts.splice(
+        index,
+        1
+    );
+
+
+    saveData();
+
+
+    showPage("receipts");
+
+}
 
 /* =========================================================
    ADD PAYMENT
