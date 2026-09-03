@@ -3814,7 +3814,7 @@ function salesPage() {
                 style="
                     display:grid;
                     grid-template-columns:
-                        repeat(auto-fit, minmax(200px, 1fr));
+                    repeat(auto-fit, minmax(200px, 1fr));
                     gap:15px;
                 "
             >
@@ -3904,11 +3904,14 @@ function salesPage() {
                         step="1"
                         value="1"
                         oninput="updateSaleTotal()"
-                    >
+              
+                        }
+
+                    </select>
 
                 </div>
 
-
+                
                 <!-- UNIT PRICE -->
 
                 <div>
