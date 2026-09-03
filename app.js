@@ -4151,7 +4151,7 @@ function purchasesPage() {
                 style="
                     display:grid;
                     grid-template-columns:
-                        repeat(auto-fit, minmax(200px, 1fr));
+                    repeat(auto-fit, minmax(200px, 1fr));
                     gap:15px;
                 "
             >
@@ -4398,34 +4398,24 @@ function purchasesPage() {
                                 <tr>
 
                                     <td>
-                                        ${escapeHTML(
-                                            purchase.invoice
-                                        )}
+                                        ${escapeHTML(purchase.invoice)}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(
-                                            purchase.date
-                                        )}
+                                        ${escapeHTML(purchase.date)}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(
-                                            purchase.supplier
-                                        )}
+                                        ${escapeHTML(purchase.supplier)}
                                     </td>
 
                                     <td>
                                         Nu.
-                                        ${formatMoney(
-                                            purchase.total
-                                        )}
+                                        ${formatMoney(purchase.total)}
                                     </td>
 
                                     <td>
-                                        ${escapeHTML(
-                                            purchase.status
-                                        )}
+                                        ${escapeHTML(purchase.status)}
                                     </td>
 
                                     <td>
@@ -4459,7 +4449,6 @@ function purchasesPage() {
     `;
 
 }
-
 
 /* =========================================================
    RECEIPTS
