@@ -393,10 +393,4 @@ td {
         padding: 0 18px;
     }
 
-    .logo img {
-    width: 55px;
-    height: 55px;
-    object-fit: contain;
-    }
-
 }
